@@ -1,5 +1,5 @@
 ﻿using System;
-using FluentPlayer.Core.Extensions;
+using Magentaize.FluentPlayer.Core.Extensions;
 using SQLite;
 
 namespace FluentPlayer.Data.Entities

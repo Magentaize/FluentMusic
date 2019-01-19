@@ -9,6 +9,6 @@
   mc:Ignorable="d">
 
   <Grid>
-    <Button Content="sfsfs" Click="{x:Bind ViewModel.ItemClick}"/>
+    <Button Click="{x:Bind ViewModel.ItemClick}" Content="sfsfs" />
   </Grid>
 </Page>

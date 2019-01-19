@@ -1,0 +1,9 @@
+﻿<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Magentaize.FluentPlayer.Themes">
+
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="TextBlock.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

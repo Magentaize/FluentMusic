@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FluentPlayer.Core.Extensions
+namespace Magentaize.FluentPlayer.Core.Extensions
 {
     public static class StringExtensions
     {

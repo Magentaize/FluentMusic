@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentPlayer.Core.Extensions;
 using FluentPlayer.Data.Entities;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Serilog;
 using SQLite;
 

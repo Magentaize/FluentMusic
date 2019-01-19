@@ -7,7 +7,7 @@
     <ProjectGuid>{3CA9109F-A14A-42AA-97B0-4BD97F26ED95}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FluentPlayer.Service</RootNamespace>
+    <RootNamespace>Magentaize.FluentPlayer.Service</RootNamespace>
     <AssemblyName>FluentPlayer.Service</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -120,6 +120,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DisplayLanguage.cs" />
+    <Compile Include="I18NLanguage.cs" />
+    <Compile Include="I18NService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\FluentPlayer.Service.rd.xml" />
   </ItemGroup>
@@ -127,6 +130,12 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.3</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentPlayer.Core\FluentPlayer.Core.csproj">
+      <Project>{50281e98-d769-4459-bbad-307eadfe015b}</Project>
+      <Name>FluentPlayer.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Windows.UI.Xaml;
-using Magentaize.FluentPlayer.Views;
+﻿using Magentaize.FluentPlayer.Views.FullPlayer;
 using Prism.Mvvm;
 using Prism.Navigation;
+using System.Threading.Tasks;
+using Windows.UI.Xaml;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
