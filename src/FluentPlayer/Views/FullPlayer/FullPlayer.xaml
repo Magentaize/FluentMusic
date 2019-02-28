@@ -7,7 +7,7 @@
   xmlns:local="using:Magentaize.FluentPlayer.Views.FullPlayer"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:setting="using:Magentaize.FluentPlayer.Views.Setting"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+  Background="{ThemeResource SystemControlAcrylicWindowBrush}"
   mc:Ignorable="d">
 
   <Grid>
@@ -18,6 +18,7 @@
       </Grid.RowDefinitions>
       <controls:TabView
         x:Name="Tabs"
+        Background="Transparent"
         AllowDrop="False"
         CanCloseTabs="False"
         CanDragItems="False"

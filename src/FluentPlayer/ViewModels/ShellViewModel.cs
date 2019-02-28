@@ -10,9 +10,14 @@ namespace Magentaize.FluentPlayer.ViewModels
     {
         private INavigationService _nav;
 
+        public ShellViewModel(INavigationService nav)
+        {
+            _nav = nav;
+        }
+
         public Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            _nav = parameters.GetNavigationService();
+            //_nav = parameters.GetNavigationService();
             return Task.CompletedTask;
         }
 

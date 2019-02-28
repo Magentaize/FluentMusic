@@ -11,13 +11,14 @@ using Magentaize.FluentPlayer.ViewModels.FullPlayer;
 using Magentaize.FluentPlayer.ViewModels.Setting;
 using Magentaize.FluentPlayer.Views.FullPlayer;
 using Prism.DryIoc;
+using Windows.ApplicationModel.Core;
+using Windows.UI.ViewManagement;
+using Windows.UI;
 
 namespace Magentaize.FluentPlayer
 {
     sealed partial class App : PrismApplication
     {
-        public static INavigationService NavigationService { get; private set; }
-
         public App()
         {
             InitializeComponent();
@@ -30,7 +31,7 @@ namespace Magentaize.FluentPlayer
                 .WithDefaultIfAlreadyRegistered(IfAlreadyRegistered.Replace);
         }
 
-        public override void RegisterTypes(IContainerRegistry container)
+        protected override void RegisterTypes(IContainerRegistry container)
         {
             RegisterServices(container);
             RegisterViews(container);
@@ -59,14 +60,14 @@ namespace Magentaize.FluentPlayer
             var ioc = container.GetContainer();
         }
 
-        public override void OnInitialized()
+        protected override void OnStart(StartArgs args)
         {
-            NavigationService = Prism.Navigation.NavigationService.Create(Gesture.Back, Gesture.Forward, Gesture.Refresh);
-            NavigationService.SetAsWindowContent(Window.Current, true);
-        }
+            base.OnStart(args);
 
-        public override void OnStart(StartArgs args)
-        {
+            // extend title bar
+            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
+            coreTitleBar.ExtendViewIntoTitleBar = false;
+
             if (args.StartKind == StartKinds.Launch)
             {
                 NavigationService.NavigateAsync(nameof(FullPlayer));
