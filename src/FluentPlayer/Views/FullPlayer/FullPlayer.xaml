@@ -33,7 +33,7 @@
         </controls:TabView.Resources>
 
         <controls:TabViewItem Header="Artists" IsClosable="False">
-          <TextBlock Padding="16">The TabView control has multiple uses.</TextBlock>
+          <local:ArtistsControl DataContext="{x:Bind ViewModel.ArtistsControlViewModel}" />
         </controls:TabViewItem>
         <controls:TabViewItem Header="Genres" IsClosable="False">
           <TextBlock Padding="16">The TabView control has multiple uses.</TextBlock>

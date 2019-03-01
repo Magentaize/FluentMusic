@@ -80,7 +80,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BindableBase.cs" />
     <Compile Include="Defaults.cs" />
+    <Compile Include="Extensions\ContainerExtension.cs" />
     <Compile Include="Extensions\ObjectExtension.cs" />
     <Compile Include="Extensions\StringExtension.cs" />
     <Compile Include="IO\ApplicationPaths.cs" />
@@ -88,6 +90,9 @@
     <EmbeddedResource Include="Properties\FluentPlayer.Core.rd.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="DryIoc.dll">
+      <Version>4.0.0-preview-02</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.3</Version>
     </PackageReference>

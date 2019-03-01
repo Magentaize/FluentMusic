@@ -1,11 +1,8 @@
-﻿using Prism.Mvvm;
-using Prism.Navigation;
-using System.Threading.Tasks;
-using Windows.UI.Xaml;
+﻿using Magentaize.FluentPlayer.Core;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
-    public class ShellViewModel : BindableBase, INavigatedAwareAsync
+    public class ShellViewModel : BindableBase
     {
         private double _titleBarHeight;
 
@@ -15,22 +12,9 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _titleBarHeight, value);
         }
 
-        private INavigationService _nav;
-
         public ShellViewModel()
         {
             //_nav = nav;
-        }
-
-        public Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
-            //_nav = parameters.GetNavigationService();
-            return Task.CompletedTask;
-        }
-
-        public async void ItemClick(object sender, RoutedEventArgs e)
-        {
-            await _nav.NavigateAsync(nameof(FullPlayer));
         }
     }
 }
