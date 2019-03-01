@@ -189,6 +189,9 @@
     <PackageReference Include="DryIoc.dll">
       <Version>4.0.0-preview-02</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
+      <Version>3.0.0-preview.19074.3</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.3</Version>
     </PackageReference>
@@ -202,21 +205,15 @@
       <Version>2.0.181018003.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Service\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\FluentPlayer.Core\FluentPlayer.Core.csproj">
       <Project>{50281e98-d769-4459-bbad-307eadfe015b}</Project>
       <Name>FluentPlayer.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FluentPlayer.Data\FluentPlayer.Data.csproj">
-      <Project>{980740aa-79f4-4027-87e2-648a1414f92f}</Project>
-      <Name>FluentPlayer.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FluentPlayer.Service\FluentPlayer.Service.csproj">
-      <Project>{3ca9109f-a14a-42aa-97b0-4bd97f26ed95}</Project>
-      <Name>FluentPlayer.Service</Name>
+    <ProjectReference Include="..\Magentaize.FluentPlayer.Data\Magentaize.FluentPlayer.Data.csproj">
+      <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>
+      <Name>Magentaize.FluentPlayer.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

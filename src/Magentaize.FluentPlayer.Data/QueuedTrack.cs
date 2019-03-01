@@ -1,17 +1,17 @@
-﻿using SQLite;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FluentPlayer.Data.Entities
+namespace Magentaize.FluentPlayer.Data
 {
     public class QueuedTrack
     {
-        [PrimaryKey, AutoIncrement]
+        [Key]
         public long QueuedTrackId { get; set; }
 
         public string Path { get; set; }
 
         public string SafePath { get; set; }
 
-        public long IsPlaying { get; set; }
+        public bool IsPlaying { get; set; }
 
         public long ProgressSeconds { get; set; }
 

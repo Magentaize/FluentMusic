@@ -1,12 +1,12 @@
 ﻿using System;
-using Magentaize.FluentPlayer.Core.Extensions;
-using SQLite;
+using System.ComponentModel.DataAnnotations;
+using Magentaize.FluentPlayer.Data.Extensions;
 
-namespace FluentPlayer.Data.Entities
+namespace Magentaize.FluentPlayer.Data
 {
     public class Track
     {
-        [PrimaryKey, AutoIncrement]
+        [Key]
         public long TrackId { get; set; }
 
         public string Artists { get; set; }

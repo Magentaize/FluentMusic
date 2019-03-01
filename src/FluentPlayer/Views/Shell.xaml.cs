@@ -1,5 +1,6 @@
 ﻿using Magentaize.FluentPlayer.ViewModels;
 using Windows.UI.Xaml.Controls;
+using Magentaize.FluentPlayer.Core.Services;
 
 namespace Magentaize.FluentPlayer.Views
 {
@@ -8,6 +9,9 @@ namespace Magentaize.FluentPlayer.Views
         public Shell()
         {
             this.InitializeComponent();
+
+            var i = new IndexService();
+            i.BeginIndex();
         }
 
         public ShellViewModel ViewModel => DataContext as ShellViewModel;

@@ -1,16 +1,16 @@
-﻿using SQLite;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FluentPlayer.Data.Entities
+namespace Magentaize.FluentPlayer.Data
 {
     public class Folder
     {
-        [PrimaryKey, AutoIncrement]
+        [Key]
         public long FolderId { get; set; }
 
         public string Path { get; set; }
 
         public string SafePath { get; set; }
 
-        public long ShowInCollection { get; set; }
+        public bool ShowInCollection { get; set; }
     }
 }

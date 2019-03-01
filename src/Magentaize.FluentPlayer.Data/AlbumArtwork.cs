@@ -1,10 +1,10 @@
-﻿using SQLite;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FluentPlayer.Data.Entities
+namespace Magentaize.FluentPlayer.Data
 {
     public class AlbumArtwork
     {
-        [PrimaryKey(), AutoIncrement()]
+        [Key]
         public long AlbumArtworkId { get; set; }
 
         public string AlbumKey { get; }

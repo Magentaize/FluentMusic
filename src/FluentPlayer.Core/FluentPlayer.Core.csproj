@@ -85,8 +85,11 @@
     <Compile Include="Extensions\ContainerExtension.cs" />
     <Compile Include="Extensions\ObjectExtension.cs" />
     <Compile Include="Extensions\StringExtension.cs" />
+    <Compile Include="Helpers\AsyncHelper.cs" />
     <Compile Include="IO\ApplicationPaths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IndexService.cs" />
+    <Compile Include="Storage\StorageFolderQuery.cs" />
     <EmbeddedResource Include="Properties\FluentPlayer.Core.rd.xml" />
   </ItemGroup>
   <ItemGroup>

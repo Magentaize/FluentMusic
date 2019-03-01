@@ -1,19 +1,14 @@
-﻿using System.Threading.Tasks;
-using Windows.ApplicationModel.Activation;
-using DryIoc;
-using FluentPlayer.Data.Repositories;
-using Magentaize.FluentPlayer.Service;
-using Magentaize.FluentPlayer.ViewModels;
+﻿using DryIoc;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.ViewModels.FullPlayer;
 using Magentaize.FluentPlayer.ViewModels.Setting;
 using Magentaize.FluentPlayer.Views;
-using Magentaize.FluentPlayer.Views.FullPlayer;
+using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Magentaize.FluentPlayer.Core.Extensions;
 
 namespace Magentaize.FluentPlayer
 {
@@ -106,8 +101,8 @@ namespace Magentaize.FluentPlayer
 
         private void RegisterServices(Container container)
         {
-            container.RegisterSingleton<AlbumArtworkRepository>();
-            container.RegisterSingleton<I18NService>();
+            //container.RegisterSingleton<AlbumArtworkRepository>();
+            //container.RegisterSingleton<I18NService>();
         }
 
         private void RegisterViews(Container container)
