@@ -8,7 +8,20 @@
   Background="{ThemeResource SystemControlAcrylicWindowBrush}"
   mc:Ignorable="d">
 
-  <Grid>
-    <Button Click="{x:Bind ViewModel.ItemClick}" Content="sfsfs" />
-  </Grid>
+  <StackPanel>
+    <Border Height="28" >
+      <TextBlock x:Name="TitleBar" Text="Fluent Player" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
+    </Border>
+    <Frame x:Name="ShellFrame"/>
+
+    <Pivot>
+      <PivotItem x:Uid="Library" Header="Library">
+        <ScrollViewer >
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Frame x:Name="LoactionFrame" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </StackPanel>
+        </ScrollViewer>
+      </PivotItem>
+    </Pivot>
+  </StackPanel>
 </Page>

@@ -14,11 +14,17 @@ using Prism.DryIoc;
 using Windows.ApplicationModel.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI;
+using Windows.UI.Xaml.Controls;
+using Microsoft.Toolkit.Uwp.Helpers;
+using Prism.Logging;
+using Magentaize.FluentPlayer.ViewModels;
 
 namespace Magentaize.FluentPlayer
 {
     sealed partial class App : PrismApplication
     {
+        private new IPlatformNavigationService NavigationService { get; set; }
+
         public App()
         {
             InitializeComponent();
@@ -48,11 +54,10 @@ namespace Magentaize.FluentPlayer
         {
             container.RegisterForNavigation<FullPlayer>(nameof(FullPlayer));
 
-            container.RegisterSingleton<SettingViewModel>();
-            container.RegisterSingleton<CollectionSettingViewModel>();
-            container.RegisterSingleton<BehaviorSettingViewModel>();
-
-            container.RegisterSingleton<FullPlayerViewModel>();
+            container.RegisterSingleton<SettingViewModel>()
+                .RegisterSingleton<CollectionSettingViewModel>()
+                .RegisterSingleton<BehaviorSettingViewModel>()
+                .RegisterSingleton<FullPlayerViewModel>();
         }
 
         private void InitializeServices(IContainerRegistry container)
@@ -64,9 +69,7 @@ namespace Magentaize.FluentPlayer
         {
             base.OnStart(args);
 
-            // extend title bar
-            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
-            coreTitleBar.ExtendViewIntoTitleBar = false;
+            ReplaceNavigationService();
 
             if (args.StartKind == StartKinds.Launch)
             {
@@ -76,6 +79,20 @@ namespace Magentaize.FluentPlayer
             {
                 // TODO
             }
+        }
+
+        private void ReplaceNavigationService()
+        {
+            var _shell = new Shell();
+            var frame = _shell.FindName("ShellFrame") as Frame;
+            var logger = Container.Resolve<ILoggerFacade>();
+            var frameFacade = new FrameFacade(frame, logger);
+            Container.GetContainer().UseInstance(typeof(IFrameFacade), frameFacade, IfAlreadyRegistered.Replace);
+            var nav = new NavigationService(logger, frameFacade);
+            Container.GetContainer().UseInstance(typeof(IPlatformNavigationService), nav, IfAlreadyRegistered.Replace);
+            NavigationService = nav;
+            _shell.DataContext = new ShellViewModel();
+            Window.Current.Content = _shell;
         }
     }
 }
