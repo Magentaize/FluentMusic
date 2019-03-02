@@ -1,6 +1,7 @@
 ﻿using Windows.Foundation.Collections;
 using Windows.Storage;
 using DryIoc;
+using Magentaize.FluentPlayer.Data;
 
 namespace Magentaize.FluentPlayer
 {

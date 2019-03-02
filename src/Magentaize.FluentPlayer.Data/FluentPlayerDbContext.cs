@@ -12,9 +12,9 @@ namespace Magentaize.FluentPlayer.Data
 
         public DbSet<Track> Tracks { get; set; }
 
-        public DbSet<QueuedTrack> QueuedTracks { get; set; }
+        public DbSet<IndexingTrack> IndexingTracks { get; set; }
 
-        public DbSet<RemovedTrack> RemovedTracks { get; set; }
+        public DbSet<RemovingTrack> RemovingTracks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
