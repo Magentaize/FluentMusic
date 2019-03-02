@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="e1cb4c72-0cb1-4235-941e-c00e3373fb7a" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>FluentPlayer</DisplayName>
-    <PublisherDisplayName>peole</PublisherDisplayName>
+    <PublisherDisplayName>Magentaize</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
@@ -19,6 +19,12 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="portrait" />
+          <uap:Rotation Preference="landscape" />
+          <uap:Rotation Preference="portraitFlipped" />
+          <uap:Rotation Preference="landscapeFlipped" />
+        </uap:InitialRotationPreference>
       </uap:VisualElements>
     </Application>
   </Applications>

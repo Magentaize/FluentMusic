@@ -1,0 +1,25 @@
+﻿using System.Threading.Tasks;
+using Magentaize.FluentPlayer.Core.Services;
+using Magentaize.FluentPlayer.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Magentaize.FluentPlayer.Core
+{
+    public static class ServiceFacade
+    {
+        public static async Task StartupAsync()
+        {
+            Db = new FluentPlayerDbContext();
+            Db.Database.Migrate();
+
+            IndexService = await IndexService.CreateAsync();
+            CacheService = await CacheService.CreateAsync();
+        }
+
+        internal static FluentPlayerDbContext Db;
+
+        public static IndexService IndexService;
+
+        public static CacheService CacheService;
+    }
+}

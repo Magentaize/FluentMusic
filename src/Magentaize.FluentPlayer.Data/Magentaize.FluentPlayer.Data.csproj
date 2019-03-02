@@ -8,4 +8,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0-preview.19074.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj" />
+  </ItemGroup>
+
 </Project>

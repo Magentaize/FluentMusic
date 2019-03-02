@@ -8,7 +8,9 @@ namespace Magentaize.FluentPlayer.Data
 
         public DbSet<FolderTrack> FolderTracks { get; set; }
 
-        public DbSet<AlbumArtwork> AlbumArtworks { get; set; }
+        public DbSet<Album> Albums { get; set; }
+
+        public DbSet<Artist> Artists { get; set; }
 
         public DbSet<Track> Tracks { get; set; }
 
@@ -20,5 +22,17 @@ namespace Magentaize.FluentPlayer.Data
         {
             builder.UseSqlite("Data Source=FluentPlayer.db");
         }
+
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+
+        //    modelBuilder.Entity<AlbumTrack>()
+        //        .HasKey(at => new { at.AlbumId, at.TrackId });
+
+        //    modelBuilder.Entity<AlbumTrack>()
+        //        .HasOne(at => at.Track)
+        //        .WithMany(t => t.Artist)
+        //}
     }
 }

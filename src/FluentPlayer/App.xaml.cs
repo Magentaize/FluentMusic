@@ -9,7 +9,7 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Magentaize.FluentPlayer.Core.Services;
+using Magentaize.FluentPlayer.Core;
 
 namespace Magentaize.FluentPlayer
 {
@@ -26,8 +26,9 @@ namespace Magentaize.FluentPlayer
         {
             base.OnLaunched(args);
 
-            var i = new IndexService();
-            await i.BeginIndexAsync();
+            await ServiceFacade.StartupAsync();
+
+            await ServiceFacade.IndexService.BeginIndexAsync();
 
             Static.Container = new Container(CreateContainerRules());
             RegisterTypes(Static.Container);

@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,6 +36,7 @@
     <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -89,9 +91,11 @@
     <Compile Include="Helpers\AsyncHelper.cs" />
     <Compile Include="IO\ApplicationPaths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CacheService.cs" />
     <Compile Include="Services\IndexService.cs" />
-    <Compile Include="Singleton.cs" />
+    <Compile Include="ServiceFacade.cs" />
     <Compile Include="Storage\StorageFolderQuery.cs" />
+    <Compile Include="TagLib\UwpFileAbstraction.cs" />
     <EmbeddedResource Include="Properties\FluentPlayer.Core.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -104,11 +108,18 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.3</Version>
     </PackageReference>
+    <PackageReference Include="WriteableBitmapEx">
+      <Version>1.6.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Magentaize.FluentPlayer.Data\Magentaize.FluentPlayer.Data.csproj">
       <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>
       <Name>Magentaize.FluentPlayer.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj">
+      <Project>{59f49e09-2092-46c3-9f9b-1234feccbb06}</Project>
+      <Name>TaglibSharp.NetStandard</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

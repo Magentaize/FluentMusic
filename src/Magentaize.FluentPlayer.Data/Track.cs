@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Magentaize.FluentPlayer.Data.Extensions;
 
 namespace Magentaize.FluentPlayer.Data
@@ -7,17 +8,13 @@ namespace Magentaize.FluentPlayer.Data
     public class Track
     {
         [Key]
-        public long TrackId { get; set; }
+        public long Id { get; set; }
 
-        public string Artists { get; set; }
+        public Artist Artist { get; set; }
 
         public string Genres { get; set; }
 
-        public string AlbumTitle { get; set; }
-
-        public string AlbumArtists { get; set; }
-
-        public string AlbumKey { get; set; }
+        public Album Album { get; set; }
 
         public string Path { get; set; }
 
@@ -43,7 +40,7 @@ namespace Magentaize.FluentPlayer.Data
 
         public long? DiscCount { get; set; }
 
-        public long? Duration { get; set; }
+        public TimeSpan? Duration { get; set; }
 
         public long? Year { get; set; }
 
@@ -75,40 +72,9 @@ namespace Magentaize.FluentPlayer.Data
 
         public long? DateLastPlayed { get; set; }
 
-        internal Track() { }
-
-        public static Track CreateDefault(string path)
-        {
-            var track = new Track()
-            {
-                Path = path,
-                SafePath = path.ToSafePath(),
-                FileName = System.IO.Path.GetFileNameWithoutExtension(path),
-                IndexingSuccess = 0,
-                DateAdded = DateTime.Now.Ticks
-            };
-
-            return track;
-        }
-
         public Track ShallowCopy()
         {
             return (Track)MemberwiseClone();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-
-            return SafePath.Equals(((Track)obj).SafePath);
-        }
-
-        public override int GetHashCode()
-        {
-            return new {SafePath}.GetHashCode();
         }
     }
 }

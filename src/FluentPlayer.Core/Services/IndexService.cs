@@ -1,69 +1,145 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Windows.Storage;
-using Aurora.Shared.Helpers;
-using Magentaize.FluentPlayer.Core.Extensions;
+﻿using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using TagLib;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using File = TagLib.File;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
     public class IndexService
     {
         public event EventHandler IndexBegin;
+        public event EventHandler IndexProgressChanged;
+        public event EventHandler IndexFinished;
 
-        public int IndexingCount { get; private set; }
+        public int QueueIndexingCount { get; private set; }
+        public int QueueIndexedCount { get; private set; }
 
-        public void BeginIndex()
+        private IndexService() { }
+
+        internal static async Task<IndexService> CreateAsync()
         {
-            var list = new List<StorageFolder>();
-            list.Add(KnownFolders.MusicLibrary);
-
-            var fs = list.SelectMany(f => AsyncHelper.RunSync(async()=> await StorageFolderQuery.Create(f).ExecuteQueryAsync())).ToList();
+            var ins = new IndexService();
+            return await Task.FromResult(ins);
         }
+
+        private IDictionary<string, StorageFile> _albumCoverList;
 
         public async Task BeginIndexAsync()
         {
-            var list = new List<StorageFolder>();
-            list.Add(KnownFolders.MusicLibrary);
+            var list = new List<StorageFolder> {KnownFolders.MusicLibrary};
 
-            var files = (await list.SelectManyAsync<StorageFolder, StorageFile>(async f =>
-                await StorageFolderQuery.Create(f).ExecuteQueryAsync())).ToList();
-            var filesPath = files.Select(f => f.Path).ToArray();
-            var dbTracks = await Singleton.Db.Tracks.ToListAsync();
+            var libAudioFiles = (await list.SelectManyAsync<StorageFolder, StorageFile>(async f =>
+                await StorageFolderQuery.Create(f, StorageFolderQuery.AudioExtensions).ExecuteQueryAsync())).ToList();
+            var filesPath = libAudioFiles.Select(f => f.Path).ToArray();
+            var dbTracks = await ServiceFacade.Db.Tracks.ToListAsync();
             var dbTracksPath = dbTracks.Select(t => t.Path).ToArray();
 
-            var commomPath = filesPath.Intersect(dbTracksPath).ToArray();
+            var commonPath = filesPath.Intersect(dbTracksPath).ToArray();
 
-            var newFiles = files.Where(f => !commomPath.Contains(f.Path));
-            var deletedTracks = dbTracks.Where(t => !commomPath.Contains(t.Path));
+            var newFiles = libAudioFiles.Where(f => !commonPath.Contains(f.Path)).ToArray();
+            var deletedTracks = dbTracks.Where(t => !commonPath.Contains(t.Path));
 
             // remove deleted tracks in database
-            Singleton.Db.Tracks.RemoveRange(deletedTracks);
-            await Singleton.Db.SaveChangesAsync();
+            ServiceFacade.Db.Tracks.RemoveRange(deletedTracks);
+            await ServiceFacade.Db.SaveChangesAsync();
 
             // begin index
-            IndexingCount = newFiles.Count();
+            QueueIndexingCount = newFiles.Count();
+            QueueIndexedCount = 0;
             IndexBegin?.Invoke(this, null);
+
+            // if there are some files need to be indexed, query cover pictures in library
+            if (newFiles.Count() != 0)
+            {
+                var pics = (await list.SelectManyAsync<StorageFolder, StorageFile>(async f =>
+                    await StorageFolderQuery.Create(f, StorageFolderQuery.AlbumCoverExtensions).ExecuteQueryAsync())).ToList();
+                _albumCoverList = pics.ToDictionary(p => Path.GetDirectoryName(p.Path));
+            }
 
             foreach (var file in newFiles)
             {
-                
+                await IndexFileAsync(file);
+                QueueIndexedCount++;
+                IndexProgressChanged?.Invoke(this, null);
             }
+
+            await ServiceFacade.Db.SaveChangesAsync();
+
+            IndexFinished?.Invoke(this, null);
         }
 
         private async Task IndexFileAsync(IStorageFile file)
         {
-            var fileInfo = TagLibUWP.TagManager.ReadFile(file);
-            var tag = fileInfo.Tag;
-            var track = new Track
+            var path = file.Path;
+            var tFile = File.Create(await UwpFileAbstraction.CreateAsync(file));
+
+            var prop = tFile.Properties;
+            var tag = tFile.Tag;
+
+            // search for existed artist
+            var artistName = tag.FirstPerformer ?? "Unknown";
+            var artist = await ServiceFacade.Db.Artists.FirstOrDefaultAsync(a=>a.Name== artistName);
+            if (artist == null)
             {
-                AlbumArtists =  tag.Album
+                artist = new Artist();
+                await ServiceFacade.Db.Artists.AddAsync(artist);
             }
-            Singleton.Db.Tracks
+
+            // search for existed album
+            var albumTitle = tag.Album ?? "Unknown";
+            var album = await ServiceFacade.Db.Albums.FirstOrDefaultAsync(a => a.Title == albumTitle);
+            if (album == null)
+            {
+                album = new Album()
+                {
+                    Title = albumTitle,
+                    AlbumCover = tag.FirstAlbumArtist ?? "Unknown",
+                };
+
+                IBuffer picData = null;
+                if (tag.Pictures != null && tag.Pictures.Length >= 1)
+                {
+                    picData = tag.Pictures[0].Data.Data.AsBuffer();
+                }
+                else if(_albumCoverList.TryGetValue(Path.GetDirectoryName(path), out var pic))
+                {
+                    picData = await FileIO.ReadBufferAsync(pic);
+                }
+
+                album.AlbumCover = picData == null ? default : await ServiceFacade.CacheService.CacheAsync(picData);
+            }
+
+            var track = new Track()
+            {
+                Path = path,
+                FileName = Path.GetFileNameWithoutExtension(path),
+                IndexingSuccess = 0,
+                DateAdded = DateTime.Now.Ticks,
+                TrackTitle = tag.Title,
+                Year = tag.Year,
+                Duration = prop.Duration,
+                Artist = artist,
+                Genres = tag.FirstGenre ?? "Unknown"
+            };
+
+            artist.Tracks.Add(track);
+            
+            album.Tracks.Add(track);
+
+            artist.Albums.Add(album);
+
+            await ServiceFacade.Db.Tracks.AddAsync(track);
         }
     }
 }
