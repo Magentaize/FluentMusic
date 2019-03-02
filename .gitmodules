@@ -1,0 +1,3 @@
+[submodule "src/taglib-sharp"]
+	path = src/taglib-sharp
+	url = https://github.com/mono/taglib-sharp
