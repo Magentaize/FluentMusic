@@ -11,4 +11,6 @@
                      FallbackColor="{ThemeResource SystemAccentColorDark1}"
                      Color="{ThemeResource SystemAccentColorDark1}" 
                      TargetTheme="Light"/>
+
+  <SolidColorBrush x:Key="AccentDarkBackground" Color="{ThemeResource SystemAccentColorDark2}" Opacity="0.66"/>
 </ResourceDictionary>

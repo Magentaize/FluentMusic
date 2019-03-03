@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.Globalization.Collation;
+using Magentaize.FluentPlayer.Data;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -27,10 +28,6 @@ namespace Magentaize.FluentPlayer.ViewModels
             return GetEnumerator();
         }
 
-        public GroupedItem()
-        {
-        }
-
         public GroupedItem(string key, IEnumerable<T> items) : base(items)
         {
             Key = key;
@@ -40,6 +37,11 @@ namespace Magentaize.FluentPlayer.ViewModels
         {
             Key = group.Key;
         }
+    }
+
+    public class GroupedTrack : GroupedItem<Track>
+    {
+        public GroupedTrack(IGrouping<string, Track> group) : base(group) { }
     }
 
     public class GroupedItem
