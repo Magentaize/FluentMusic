@@ -8,18 +8,18 @@ namespace Magentaize.FluentPlayer.ViewModels
 {
     public class TrackListViewViewModel : BindableBase
     {
-        private ObservableCollection<GroupedTrack> _trackCvsSource;
+        private ObservableCollection<GroupedTrack> _cvsSource;
 
-        public ObservableCollection<GroupedTrack> TrackCvsSource
+        public ObservableCollection<GroupedTrack> CvsSource
         {
-            get => _trackCvsSource;
-            set => SetProperty(ref _trackCvsSource, value);
+            get => _cvsSource;
+            set => SetProperty(ref _cvsSource, value);
         }
 
         public void FillCvsSource(IEnumerable<Track> tracks)
         {
             var group = tracks.GroupBy(t => t.TrackTitle.Substring(0, 1)).OrderBy(g => g.Key).Select(g=>new GroupedTrack(g));
-            TrackCvsSource = new ObservableCollection<GroupedTrack>(group);
+            CvsSource = new ObservableCollection<GroupedTrack>(group);
         }
     }
 }

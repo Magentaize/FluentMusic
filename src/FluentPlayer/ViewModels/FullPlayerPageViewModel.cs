@@ -16,9 +16,18 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _trackList, value);
         }
 
+        private ObservableCollection<Artist> _artistList;
+
+        public ObservableCollection<Artist> ArtistList
+        {
+            get => _artistList;
+            set => SetProperty(ref _artistList, value);
+        }
+
         public async Task ShowAllTracksAsync()
         {
             TrackList = new ObservableCollection<Track>(await ServiceFacade.IndexService.GetAllTracksAsync());
+            ArtistList = new ObservableCollection<Artist>(await ServiceFacade.IndexService.GetAllArtistsAsync());
         }
     }
 }

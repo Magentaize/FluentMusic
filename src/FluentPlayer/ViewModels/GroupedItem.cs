@@ -16,11 +16,7 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public override string ToString()
         {
-            //if (Key.IsNullorEmpty())
-            //{
-            //    return "?";
-            //}
-            return Key;
+            return string.IsNullOrEmpty(Key) ? "?" : Key;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -42,6 +38,11 @@ namespace Magentaize.FluentPlayer.ViewModels
     public class GroupedTrack : GroupedItem<Track>
     {
         public GroupedTrack(IGrouping<string, Track> group) : base(group) { }
+    }
+
+    public class GroupedArtist : GroupedItem<Artist>
+    {
+        public GroupedArtist(IGrouping<string, Artist> group) : base(group) { }
     }
 
     public class GroupedItem

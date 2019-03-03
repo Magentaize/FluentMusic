@@ -26,14 +26,7 @@ namespace Magentaize.FluentPlayer.Views
 
         public TrackListView()
         {
-            this.InitializeComponent();
-
-            //Loaded += TrackListView_Loaded;
-        }
-
-        private void TrackListView_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            Vm.FillCvsSource((IEnumerable<Track>)DataContext);
+            InitializeComponent();
         }
 
         private void DataPropertyChanged()

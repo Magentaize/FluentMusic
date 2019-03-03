@@ -42,6 +42,11 @@ namespace Magentaize.FluentPlayer.Core.Services
             return tracks;
         }
 
+        public async Task<List<Artist>> GetAllArtistsAsync()
+        {
+            return await ServiceFacade.Db.Artists.ToListAsync();
+        }
+
         private string SubFirstCharacter(string str)
         {
             return str.Substring(0, 1);
@@ -88,8 +93,6 @@ namespace Magentaize.FluentPlayer.Core.Services
                 IndexProgressChanged?.Invoke(this, null);
             }
 
-            await ServiceFacade.Db.SaveChangesAsync();
-
             IndexFinished?.Invoke(this, null);
         }
 
@@ -106,7 +109,10 @@ namespace Magentaize.FluentPlayer.Core.Services
             var artist = await ServiceFacade.Db.Artists.FirstOrDefaultAsync(a=>a.Name== artistName);
             if (artist == null)
             {
-                artist = new Artist();
+                artist = new Artist()
+                {
+                    Name = tag.FirstPerformer ?? "Unknown",
+                };
                 await ServiceFacade.Db.Artists.AddAsync(artist);
             }
 
@@ -157,6 +163,8 @@ namespace Magentaize.FluentPlayer.Core.Services
             artist.Albums.Add(album);
 
             await ServiceFacade.Db.Tracks.AddAsync(track);
+
+            await ServiceFacade.Db.SaveChangesAsync();
         }
     }
 }
