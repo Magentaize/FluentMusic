@@ -24,7 +24,7 @@ namespace Magentaize.FluentPlayer.Data
 
         public string MimeType { get; set; }
 
-        public long? FileSize { get; set; }
+        public ulong? FileSize { get; set; }
 
         public long? BitRate { get; set; }
 

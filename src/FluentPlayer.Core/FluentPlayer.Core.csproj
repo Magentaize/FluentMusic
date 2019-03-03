@@ -94,6 +94,7 @@
     <Compile Include="Services\CacheService.cs" />
     <Compile Include="Services\IndexService.cs" />
     <Compile Include="ServiceFacade.cs" />
+    <Compile Include="Services\PlaybackService.cs" />
     <Compile Include="Storage\StorageFolderQuery.cs" />
     <Compile Include="TagLib\UwpFileAbstraction.cs" />
     <EmbeddedResource Include="Properties\FluentPlayer.Core.rd.xml" />

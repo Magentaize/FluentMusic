@@ -9,10 +9,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Media.Core;
 using TagLib;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using File = TagLib.File;
+using Track = Magentaize.FluentPlayer.Data.Track;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -31,6 +33,18 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             var ins = new IndexService();
             return await Task.FromResult(ins);
+        }
+
+        public async Task<List<Track>> GetAllTracksAsync()
+        {
+            var tracks = await ServiceFacade.Db.Tracks.ToListAsync();
+
+            return tracks;
+        }
+
+        private string SubFirstCharacter(string str)
+        {
+            return str.Substring(0, 1);
         }
 
         private IDictionary<string, StorageFile> _albumCoverList;
@@ -120,6 +134,8 @@ namespace Magentaize.FluentPlayer.Core.Services
                 album.AlbumCover = picData == null ? default : await ServiceFacade.CacheService.CacheAsync(picData);
             }
 
+            var fbp = await file.GetBasicPropertiesAsync();
+
             var track = new Track()
             {
                 Path = path,
@@ -130,7 +146,8 @@ namespace Magentaize.FluentPlayer.Core.Services
                 Year = tag.Year,
                 Duration = prop.Duration,
                 Artist = artist,
-                Genres = tag.FirstGenre ?? "Unknown"
+                Genres = tag.FirstGenre ?? "Unknown",
+                FileSize = fbp.Size
             };
 
             artist.Tracks.Add(track);

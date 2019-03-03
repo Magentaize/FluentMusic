@@ -14,12 +14,13 @@ namespace Magentaize.FluentPlayer.Core
 
             IndexService = await IndexService.CreateAsync();
             CacheService = await CacheService.CreateAsync();
+            PlaybackService = await PlaybackService.CreateAsync();
         }
 
         internal static FluentPlayerDbContext Db;
 
         public static IndexService IndexService;
-
         public static CacheService CacheService;
+        public static PlaybackService PlaybackService;
     }
 }

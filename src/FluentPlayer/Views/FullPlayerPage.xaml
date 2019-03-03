@@ -22,7 +22,9 @@
           <TextBlock Text="Artists"/>
         </PivotItem.Header>
         <ScrollViewer >
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <local:FullPlayerPageArtistsControl/>
+          </StackPanel>
         </ScrollViewer>
       </PivotItem>
 
