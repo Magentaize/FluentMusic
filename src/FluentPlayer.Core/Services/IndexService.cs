@@ -37,7 +37,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public async Task<List<Track>> GetAllTracksAsync()
         {
-            var tracks = await ServiceFacade.Db.Tracks.ToListAsync();
+            var tracks = await ServiceFacade.Db.Tracks.Include(t=>t.Album).ToListAsync();
 
             return tracks;
         }

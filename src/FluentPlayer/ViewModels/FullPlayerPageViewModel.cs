@@ -27,6 +27,7 @@ namespace Magentaize.FluentPlayer.ViewModels
         public async Task ShowAllTracksAsync()
         {
             TrackList = new ObservableCollection<Track>(await ServiceFacade.IndexService.GetAllTracksAsync());
+            await ServiceFacade.PlaybackService.PlayAsync(TrackList[0]);
             ArtistList = new ObservableCollection<Artist>(await ServiceFacade.IndexService.GetAllArtistsAsync());
         }
     }

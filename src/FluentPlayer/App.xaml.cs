@@ -17,6 +17,13 @@ namespace Magentaize.FluentPlayer
         public App()
         {
             InitializeComponent();
+
+            UnhandledException += App_UnhandledException;
+        }
+
+        private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
