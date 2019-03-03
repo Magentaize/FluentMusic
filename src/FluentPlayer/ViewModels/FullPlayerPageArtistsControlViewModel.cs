@@ -1,23 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Magentaize.FluentPlayer.Core;
+using Magentaize.FluentPlayer.Data;
+using Prism.Commands;
+using Prism.Mvvm;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Magentaize.FluentPlayer.Core;
-using Windows.UI.Xaml.Data;
-using Magentaize.FluentPlayer.Data;
+using System.Windows.Input;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     public class FullPlayerPageArtistsControlViewModel : BindableBase
     {
-        //private CollectionViewSource _tracksCvs;
-
-        //public CollectionViewSource TracksCvs
-        //{
-        //    get => _tracksCvs;
-        //    set => SetProperty(ref _tracksCvs, value);
-        //}
-
         private ObservableCollection<IGrouping<string, Track>> _tracksCvsSource;
 
         public ObservableCollection<IGrouping<string, Track>> TracksCvsSource
@@ -26,7 +19,12 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _tracksCvsSource, value);
         }
 
-        public FullPlayerPageArtistsControlViewModel() { }
+        public ICommand PlaySelectedTrackCommand { get; }
+
+        public FullPlayerPageArtistsControlViewModel()
+        {
+            PlaySelectedTrackCommand = new DelegateCommand(ExecutePlaySelectedTrack);
+        }
 
         public async Task CreateAsync()
         {
@@ -34,6 +32,11 @@ namespace Magentaize.FluentPlayer.ViewModels
             TracksCvsSource =
                 new ObservableCollection<IGrouping<string, Track>>(
                     GroupedItem.CreateByAlpha(tracks, t => t.TrackTitle));
+        }
+
+        public void ExecutePlaySelectedTrack()
+        {
+
         }
     }
 }

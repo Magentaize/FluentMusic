@@ -1,4 +1,5 @@
 ﻿using Magentaize.FluentPlayer.Core;
+using Prism.Mvvm;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {

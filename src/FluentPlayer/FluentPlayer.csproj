@@ -74,16 +74,13 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TrackItemViewer.xaml.cs">
+      <DependentUpon>TrackItemViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Static.cs" />
-    <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageArtistsControlViewModel.cs" />
-    <Compile Include="ViewModels\FullPlayer\ArtistsControlViewModel.cs" />
-    <Compile Include="ViewModels\FullPlayer\FullPlayerViewModel.cs" />
     <Compile Include="ViewModels\GroupedItem.cs" />
-    <Compile Include="ViewModels\Setting\BehaviorSettingViewModel.cs" />
-    <Compile Include="ViewModels\Setting\CollectionSettingViewModel.cs" />
-    <Compile Include="ViewModels\Setting\SettingViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\FullPlayerPage.xaml.cs">
       <DependentUpon>FullPlayerPage.xaml</DependentUpon>
@@ -91,23 +88,8 @@
     <Compile Include="Views\FullPlayerPageArtistsControl.xaml.cs">
       <DependentUpon>FullPlayerPageArtistsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FullPlayer\ArtistsControl.xaml.cs">
-      <DependentUpon>ArtistsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FullPlayer\FullPlayer.xaml.cs">
-      <DependentUpon>FullPlayer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Setting\BehaviorSetting.xaml.cs">
-      <DependentUpon>BehaviorSetting.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Setting\CollectionSetting.xaml.cs">
-      <DependentUpon>CollectionSetting.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Setting\Setting.xaml.cs">
-      <DependentUpon>Setting.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
@@ -137,6 +119,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\TrackItemViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Dark.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -161,27 +147,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FullPlayer\ArtistsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FullPlayer\FullPlayer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\SettingsPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Setting\BehaviorSetting.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Setting\CollectionSetting.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Setting\Setting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -195,9 +161,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DryIoc.dll">
-      <Version>4.0.0-preview-02</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
       <Version>3.0.0-preview.19074.3</Version>
     </PackageReference>
@@ -213,10 +176,14 @@
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.0.181018003.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Prism.Core">
+      <Version>7.2.0.1038-pre</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controls\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\FluentPlayer.Core\FluentPlayer.Core.csproj">
       <Project>{50281e98-d769-4459-bbad-307eadfe015b}</Project>

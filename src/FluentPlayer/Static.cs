@@ -1,13 +1,10 @@
 ﻿using Windows.Foundation.Collections;
 using Windows.Storage;
-using DryIoc;
-using Magentaize.FluentPlayer.Data;
 
 namespace Magentaize.FluentPlayer
 {
     public static class Static
     {
-        public static Container Container;
 
         public static IPropertySet LocalSettings = ApplicationData.Current.LocalSettings.Values;
 

@@ -1,7 +1,4 @@
-﻿using DryIoc;
-using Magentaize.FluentPlayer.Core.Extensions;
-using Magentaize.FluentPlayer.ViewModels.FullPlayer;
-using Magentaize.FluentPlayer.ViewModels.Setting;
+﻿using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Views;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -29,9 +26,6 @@ namespace Magentaize.FluentPlayer
             await ServiceFacade.StartupAsync();
 
             await ServiceFacade.IndexService.BeginIndexAsync();
-
-            Static.Container = new Container(CreateContainerRules());
-            RegisterTypes(Static.Container);
 
             if (args.Kind == ActivationKind.Launch)
             {
@@ -88,42 +82,6 @@ namespace Magentaize.FluentPlayer
             }
 
             ExtendView();
-        }
-
-        private static Rules CreateContainerRules()
-        {
-            return Rules.Default.WithAutoConcreteTypeResolution()
-                .With(Made.Of(FactoryMethod.ConstructorWithResolvableArguments))
-                .WithDefaultIfAlreadyRegistered(IfAlreadyRegistered.Replace);
-        }
-
-        private void RegisterTypes(Container container)
-        {
-            RegisterServices(container);
-            RegisterViews(container);
-            InitializeServices(container);
-        }
-
-        private void RegisterServices(Container container)
-        {
-            //container.RegisterSingleton<AlbumArtworkRepository>();
-            //container.RegisterSingleton<I18NService>();
-        }
-
-        private void RegisterViews(Container container)
-        {
-            //container.RegisterForNavigation<FullPlayer, FullPlayerViewModel>(nameof(FullPlayer));
-
-            container.RegisterSingleton<SettingViewModel>()
-                .RegisterSingleton<CollectionSettingViewModel>()
-                .RegisterSingleton<BehaviorSettingViewModel>()
-                .RegisterSingleton<FullPlayerViewModel>()
-                .RegisterSingleton<ArtistsControlViewModel>();
-        }
-
-        private void InitializeServices(Container container)
-        {
-           
         }
 
         private static void ExtendView()

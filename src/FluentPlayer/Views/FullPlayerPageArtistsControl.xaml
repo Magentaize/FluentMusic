@@ -6,6 +6,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:Magentaize.FluentPlayer.Data"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:controls1="using:Magentaize.FluentPlayer.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -41,13 +44,13 @@
 
       <SemanticZoom>
         <SemanticZoom.ZoomedInView>
-          <GridView ItemsSource="{x:Bind TracksCvs.View, Mode=OneWay}">
-            <GridView.ItemTemplate>
+          <ListView ItemsSource="{x:Bind TracksCvs.View, Mode=OneWay}" SelectionMode="Extended">
+            <ListView.ItemTemplate>
               <DataTemplate x:DataType="data:Track">
-                <TextBlock Text="{x:Bind TrackTitle}"></TextBlock>
+                <controls1:TrackItemViewer DataContext="{x:Bind}"/>
               </DataTemplate>
-            </GridView.ItemTemplate>
-            <GridView.GroupStyle>
+            </ListView.ItemTemplate>
+            <ListView.GroupStyle>
               <GroupStyle>
                 <GroupStyle.HeaderTemplate>
                   <DataTemplate>
@@ -55,8 +58,8 @@
                   </DataTemplate>
                 </GroupStyle.HeaderTemplate>
               </GroupStyle>
-            </GridView.GroupStyle>
-          </GridView>
+            </ListView.GroupStyle>
+          </ListView>
         </SemanticZoom.ZoomedInView>
 
         <SemanticZoom.ZoomedOutView>
