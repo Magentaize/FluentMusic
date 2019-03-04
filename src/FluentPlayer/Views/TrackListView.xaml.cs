@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Magentaize.FluentPlayer.Data;
+using Magentaize.FluentPlayer.ViewModels;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Magentaize.FluentPlayer.Data;
-using Magentaize.FluentPlayer.ViewModels;
 
 namespace Magentaize.FluentPlayer.Views
 {
@@ -10,18 +11,18 @@ namespace Magentaize.FluentPlayer.Views
     {
         public TrackListViewViewModel Vm { get; set; } = new TrackListViewViewModel();
 
-        public IEnumerable<Track> Data
+        public ObservableCollection<Track> Data
         {
-            get => (IEnumerable<Track>) GetValue(DataProperty);
+            get => (ObservableCollection<Track>) GetValue(DataProperty);
             set => SetValue(DataProperty, value);
         }
 
         public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register("Data", typeof(IEnumerable<Track>), typeof(TrackListView), new PropertyMetadata(null, DataPropertyChangedCallback));
+            DependencyProperty.Register("Data", typeof(ObservableCollection<Track>), typeof(TrackListView), new PropertyMetadata(null, DataPropertyChangedCallback));
 
-        private static void DataPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void DataPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((TrackListView)d).DataPropertyChanged();
+            await ((TrackListView)d).DataPropertyChanged();
         }
 
         public TrackListView()
@@ -29,9 +30,9 @@ namespace Magentaize.FluentPlayer.Views
             InitializeComponent();
         }
 
-        private void DataPropertyChanged()
+        private async Task DataPropertyChanged()
         {
-            Vm.FillCvsSource(Data);
+            await Vm.FillCvsSource(Data);
         }
     }
 }

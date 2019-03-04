@@ -27,8 +27,8 @@
           <ListView.GroupStyle>
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
-                <DataTemplate x:DataType="viewModels:GroupedTrack">
-                  <TextBlock Text="{x:Bind Key}"/>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Key}"/>
                 </DataTemplate>
               </GroupStyle.HeaderTemplate>
             </GroupStyle>
@@ -40,9 +40,9 @@
         <GridView ItemsSource="{x:Bind TracksCvs.View.CollectionGroups, Mode=OneWay}"
                   ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
           <GridView.ItemTemplate>
-            <DataTemplate x:DataType="ICollectionViewGroup">
+            <DataTemplate>
               <Border Height="60" Width="60">
-                <TextBlock Text="{x:Bind ((viewModels:GroupedTrack)Group).Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
             </DataTemplate>
           </GridView.ItemTemplate>

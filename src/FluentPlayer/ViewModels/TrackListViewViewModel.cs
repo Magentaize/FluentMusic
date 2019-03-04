@@ -1,25 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using Magentaize.FluentPlayer.Collections;
+using Magentaize.FluentPlayer.Data;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
-using System.Linq;
-using Magentaize.FluentPlayer.Data;
+using System.Threading.Tasks;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     public class TrackListViewViewModel : BindableBase
     {
-        private ObservableCollection<GroupedTrack> _cvsSource;
+        private GroupedObservableCollection<char, Track> _cvsSource;
 
-        public ObservableCollection<GroupedTrack> CvsSource
+        public GroupedObservableCollection<char, Track> CvsSource
         {
             get => _cvsSource;
             set => SetProperty(ref _cvsSource, value);
         }
 
-        public void FillCvsSource(IEnumerable<Track> tracks)
+        public async Task FillCvsSource(ObservableCollection<Track> tracks)
         {
-            var group = tracks.GroupBy(t => t.TrackTitle.Substring(0, 1)).OrderBy(g => g.Key).Select(g=>new GroupedTrack(g));
-            CvsSource = new ObservableCollection<GroupedTrack>(group);
+            CvsSource = await GroupedObservableCollection.CreateAsync(tracks, t => t.TrackTitle[0]);
         }
     }
 }
