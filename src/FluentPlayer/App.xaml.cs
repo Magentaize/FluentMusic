@@ -1,4 +1,5 @@
-﻿using Magentaize.FluentPlayer.Core.Extensions;
+﻿using System.Diagnostics;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Views;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -23,7 +24,7 @@ namespace Magentaize.FluentPlayer
 
         private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            
+            Debugger.Break();
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)

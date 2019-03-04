@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -32,19 +33,36 @@ namespace Magentaize.FluentPlayer.Core.Services
         internal static async Task<IndexService> CreateAsync()
         {
             var ins = new IndexService();
+
+            var dbTracks = ServiceFacade.Db.Tracks.Include(t => t.Album).AsEnumerable();
+            ins._tracks = new ObservableCollection<Track>(dbTracks);
+
+            var dbArtists = ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums).AsEnumerable();
+            ins._artists = new ObservableCollection<Artist>(dbArtists);
+
+            var dbAlbums = ServiceFacade.Db.Albums.Include(a=>a.Tracks).AsEnumerable();
+            ins._albums = new ObservableCollection<Album>(dbAlbums);
+
             return await Task.FromResult(ins);
         }
 
-        public async Task<List<Track>> GetAllTracksAsync()
-        {
-            var tracks = await ServiceFacade.Db.Tracks.Include(t=>t.Album).ToListAsync();
+        private ObservableCollection<Track> _tracks;
+        private ObservableCollection<Artist> _artists;
+        private ObservableCollection<Album> _albums;
 
-            return tracks;
+        public ObservableCollection<Track> GetAllTracksAsync()
+        {
+            return _tracks;
         }
 
         public async Task<List<Artist>> GetAllArtistsAsync()
         {
             return await ServiceFacade.Db.Artists.ToListAsync();
+        }
+
+        public ObservableCollection<Album> GetAllAlbums()
+        {
+            return _albums;
         }
 
         private string SubFirstCharacter(string str)

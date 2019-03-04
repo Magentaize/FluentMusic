@@ -6,7 +6,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:Magentaize.FluentPlayer.Data"
-    xmlns:controls="using:Magentaize.FluentPlayer.Controls"
     xmlns:controls1="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d">
 
@@ -42,9 +41,10 @@
                 <local:ArtistListView Data="{x:Bind Vm.ArtistList, Mode=OneWay}" />
               </Border>
 
-              <Border Grid.Column="1"
-            Grid.Row="0">
+              <Border Grid.Column="1" Grid.Row="0">
+                <local:AlbumListView Data="{x:Bind Vm.Albums, Mode=OneWay}" />
               </Border>
+
               <Border Grid.Column="2" Grid.Row="0">
                 <local:TrackListView Data="{x:Bind Vm.TrackList, Mode=OneWay}"/>
               </Border>

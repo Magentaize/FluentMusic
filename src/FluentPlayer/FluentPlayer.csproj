@@ -79,13 +79,17 @@
     <Compile Include="Themes\DataTemplate.xaml.cs">
       <DependentUpon>DataTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\AlbumListViewViewModel.cs" />
+    <Compile Include="ViewModels\AlbumViewModel.cs" />
     <Compile Include="ViewModels\ArtistListViewViewModel.cs" />
-    <Compile Include="ViewModels\FullPlayerPageArtistsControlViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\GroupedItem.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="ViewModels\TrackListViewViewModel.cs" />
     <Compile Include="ViewModels\TrackViewModel.cs" />
+    <Compile Include="Views\AlbumListView.xaml.cs">
+      <DependentUpon>AlbumListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ArtistListView.xaml.cs">
       <DependentUpon>ArtistListView.xaml</DependentUpon>
     </Compile>
@@ -147,6 +151,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\TextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AlbumListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
