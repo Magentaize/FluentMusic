@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using Magentaize.FluentPlayer.Collections;
 using Magentaize.FluentPlayer.Data;
 using Prism.Mvvm;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     public class ArtistListViewViewModel : BindableBase
     {
-        private ObservableCollection<GroupedArtist> _cvsSource;
+        private GroupedObservableCollection<char, Artist> _cvsSource;
 
-        public ObservableCollection<GroupedArtist> CvsSource
+        public GroupedObservableCollection<char, Artist> CvsSource
         {
             get => _cvsSource;
             set => SetProperty(ref _cvsSource, value);
@@ -24,11 +24,9 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _selectedIndex, value);
         }
 
-        public void FillCvsSource(IEnumerable<Artist> tracks)
+        public async Task FillCvsSource(ObservableCollection<Artist> artists)
         {
-            var group = tracks.GroupBy(t => t.Name.Substring(0, 1)).OrderBy(g => g.Key).Select(g => new GroupedArtist(g));
-            CvsSource = new ObservableCollection<GroupedArtist>(group);
-
+            CvsSource = await GroupedObservableCollection.CreateAsync(artists, t => t.Name[0]);
             SelectedIndex = -1;
         }
     }

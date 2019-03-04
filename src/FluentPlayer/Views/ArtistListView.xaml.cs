@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml;
@@ -13,23 +14,23 @@ namespace Magentaize.FluentPlayer.Views
     {
         public ArtistListViewViewModel Vm { get; set; } = new ArtistListViewViewModel();
 
-        public IEnumerable<Artist> Data
+        public ObservableCollection<Artist> Data
         {
-            get => (IEnumerable<Artist>)GetValue(DataProperty);
+            get => (ObservableCollection<Artist>)GetValue(DataProperty);
             set => SetValue(DataProperty, value);
         }
 
         public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register("Data", typeof(IEnumerable<Artist>), typeof(ArtistListView), new PropertyMetadata(null, DataPropertyChangedCallback));
+            DependencyProperty.Register("Data", typeof(ObservableCollection<Artist>), typeof(ArtistListView), new PropertyMetadata(null, DataPropertyChangedCallback));
 
-        private static void DataPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void DataPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((ArtistListView)d).DataPropertyChanged();
+            await ((ArtistListView)d).DataPropertyChanged();
         }
 
-        private void DataPropertyChanged()
+        private async Task DataPropertyChanged()
         {
-            Vm.FillCvsSource(Data);
+            await Vm.FillCvsSource(Data);
         }
 
         public ICommand ItemTappedCommand

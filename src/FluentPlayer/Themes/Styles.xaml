@@ -105,4 +105,18 @@
     <Setter Property="AllowDrop" Value="False" />
     <Setter Property="UseSystemFocusVisuals" Value="False" />
   </Style>
+
+  <Style TargetType="ListViewItem" x:Key="BaseListViewItemContainerStyle">
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
+  <Style TargetType="StackPanel" x:Key="BaseListViewItemPanelStyle">
+    <Setter Property="Orientation" Value="Horizontal" />
+    <Setter Property="MinHeight" Value="{ThemeResource ListViewItemMinHeight}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
 </ResourceDictionary>

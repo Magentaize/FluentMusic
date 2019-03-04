@@ -18,10 +18,23 @@
   <Border>
     <SemanticZoom>
       <SemanticZoom.ZoomedInView>
-        <ListView ItemsSource="{x:Bind TracksCvs.View, Mode=OneWay}" SelectionMode="Extended">
+        <ListView ItemsSource="{x:Bind TracksCvs.View, Mode=OneWay}"
+                  SelectionMode="Extended"
+                  ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}">
           <ListView.ItemTemplate>
             <DataTemplate x:DataType="data:Track">
-              <TextBlock Text="{x:Bind TrackTitle, Mode=OneWay}" />
+              <StackPanel Style="{StaticResource BaseListViewItemPanelStyle}">
+                <StackPanel.ContextFlyout>
+                  <MenuFlyout>
+                    <MenuFlyoutItem Text="Play">
+                      <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE768;" />
+                      </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                  </MenuFlyout>
+                </StackPanel.ContextFlyout>
+                <TextBlock Text="{x:Bind TrackTitle, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </StackPanel>
             </DataTemplate>
           </ListView.ItemTemplate>
           <ListView.GroupStyle>

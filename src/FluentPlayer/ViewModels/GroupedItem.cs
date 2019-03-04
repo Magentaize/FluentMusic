@@ -40,11 +40,6 @@ namespace Magentaize.FluentPlayer.ViewModels
         public GroupedTrack(IGrouping<string, Track> group) : base(group) { }
     }
 
-    public class GroupedArtist : GroupedItem<Artist>
-    {
-        public GroupedArtist(IGrouping<string, Artist> group) : base(group) { }
-    }
-
     public class GroupedItem
     {
         public static IEnumerable<GroupedItem<T>> CreateByAlpha<T>(IEnumerable<T> items, Func<T, string> keySelector)

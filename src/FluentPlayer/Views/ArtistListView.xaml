@@ -7,8 +7,6 @@
     xmlns:data="using:Magentaize.FluentPlayer.Data"
     xmlns:viewModels="using:Magentaize.FluentPlayer.ViewModels"
     xmlns:controls1="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -22,11 +20,12 @@
       <SemanticZoom.ZoomedInView>
         <ListView ItemsSource="{x:Bind ArtistCvs.View, Mode=OneWay}" 
                   SelectedIndex="{x:Bind Vm.SelectedIndex, Mode=TwoWay}"
+                  ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
                   SelectionMode="Single" DoubleTapped="Item_OnDoubleTapped"
                   Tapped="Item_OnTapped">
           <ListView.ItemTemplate>
             <DataTemplate x:DataType="data:Artist">
-              <StackPanel Orientation="Horizontal">
+              <StackPanel Style="{StaticResource BaseListViewItemPanelStyle}">
                 <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
               </StackPanel>
             </DataTemplate>
@@ -34,8 +33,8 @@
           <ListView.GroupStyle>
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
-                <DataTemplate x:DataType="viewModels:GroupedArtist">
-                  <TextBlock Text="{x:Bind Key}"/>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Key}"/>
                 </DataTemplate>
               </GroupStyle.HeaderTemplate>
             </GroupStyle>
@@ -47,9 +46,9 @@
         <GridView ItemsSource="{x:Bind ArtistCvs.View.CollectionGroups, Mode=OneWay}"
                   ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
           <GridView.ItemTemplate>
-            <DataTemplate x:DataType="ICollectionViewGroup">
+            <DataTemplate>
               <Border Height="60" Width="60">
-                <TextBlock Text="{x:Bind ((viewModels:GroupedArtist)Group).Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
               </Border>
             </DataTemplate>
           </GridView.ItemTemplate>
