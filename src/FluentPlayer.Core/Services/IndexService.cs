@@ -122,7 +122,9 @@ namespace Magentaize.FluentPlayer.Core.Services
                 {
                     Name = tag.FirstPerformer ?? "Unknown",
                 };
+
                 await ServiceFacade.Db.Artists.AddAsync(artist);
+                _artists.Add(artist);
             }
 
             // search for existed album
@@ -147,6 +149,8 @@ namespace Magentaize.FluentPlayer.Core.Services
                 }
 
                 album.AlbumCover = picData == null ? default : await ServiceFacade.CacheService.CacheAsync(picData);
+
+                _albums.Add(album);
             }
 
             var fbp = await file.GetBasicPropertiesAsync();
@@ -166,12 +170,11 @@ namespace Magentaize.FluentPlayer.Core.Services
             };
 
             artist.Tracks.Add(track);
-            
             album.Tracks.Add(track);
-
             artist.Albums.Add(album);
 
             await ServiceFacade.Db.Tracks.AddAsync(track);
+            _tracks.Add(track);
 
             await ServiceFacade.Db.SaveChangesAsync();
         }

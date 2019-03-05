@@ -1,10 +1,10 @@
-﻿using System;
-using Magentaize.FluentPlayer.Core;
+﻿using Magentaize.FluentPlayer.Core;
+using Magentaize.FluentPlayer.Core.Services;
 using Prism.Mvvm;
+using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
-using Magentaize.FluentPlayer.Core.Services;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -70,20 +70,21 @@ namespace Magentaize.FluentPlayer.ViewModels
         {
             TrackTitle = e.TrackTitle;
             TrackArtist = e.TrackArtist;
-            SliderNaturalPosition = e.NaturalDuration.TotalMilliseconds;
+            _naturalPosition = e.NaturalDuration;
+            SliderNaturalPosition = e.NaturalDuration.TotalSeconds;
         }
 
         private async void PlaybackService_PlayerPositionChanged(object sender, Windows.Media.Playback.MediaPlaybackSession e)
         {
             var d1 = e.Position;
-            var d2 = e.NaturalDuration;
+            var d2 = _naturalPosition;
             var posInfo = d2.Hours != 0 ? $"{d1:hh\\.mm\\:ss}/{d2:hh\\.mm\\:ss}" : $"{d1:mm\\:ss}/{d2:mm\\:ss}";
 
             await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 PositionInfo = posInfo;
 
-                SliderCurrentPosition = d1.TotalMilliseconds;
+                SliderCurrentPosition = d1.TotalSeconds;
             });
         }
 

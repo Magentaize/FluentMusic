@@ -7,7 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:Magentaize.FluentPlayer.Data"
     xmlns:controls1="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:converter="using:Magentaize.FluentPlayer.ViewModels.Converter"
+    xmlns:controls="using:Magentaize.FluentPlayer.Controls"
     mc:Ignorable="d">
+
+  <Page.Resources>
+    <converter:PositionSliderToolTipConverter x:Key="PositionSliderToolTipConverter" />
+  </Page.Resources>
 
   <Grid>
     <Grid.RowDefinitions>
@@ -61,8 +67,10 @@
     </Pivot>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <Slider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
-              Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" />
+      <controls:DragNotifySlider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
+              Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
+              ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
+              />
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>

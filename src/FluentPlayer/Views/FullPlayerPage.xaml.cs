@@ -1,5 +1,5 @@
-﻿using Windows.UI.Xaml.Controls;
-using Magentaize.FluentPlayer.ViewModels;
+﻿using Magentaize.FluentPlayer.ViewModels;
+using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.Views
 {
