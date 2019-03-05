@@ -6,15 +6,31 @@ using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.System.Threading;
 using Magentaize.FluentPlayer.Data;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
     public class PlaybackService
     {
-        private readonly MediaPlayer _player = new MediaPlayer();
+        public event EventHandler<MediaPlaybackSession> PlayerPositionChanged;
+        public event EventHandler<NewTrackPlayedEventArgs> NewTrackPlayed;
+
+        public MediaPlayer Player { get; } = new MediaPlayer();
+
+        private ThreadPoolTimer _positionUpdateTimer;
 
         internal PlaybackService() { }
+
+        private void CreatePositionUpdateTimer()
+        {
+            _positionUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer(PositionUpdateTimer_TimerElapsedHandler, TimeSpan.FromMilliseconds(500));
+        }
+
+        private void PositionUpdateTimer_TimerElapsedHandler(ThreadPoolTimer timer)
+        {
+            PlayerPositionChanged?.Invoke(this, Player.PlaybackSession);
+        }
 
         internal static async Task<PlaybackService> CreateAsync()
         {
@@ -26,11 +42,21 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             var file = await StorageFile.GetFileFromPathAsync(track.Path);
             var source = MediaSource.CreateFromStorageFile(file);
-            var item = new MediaPlaybackItem(source);
-            await WriteSmtcThumbnailAsync(item, track);
+            await source.OpenAsync();
+            var mpi = new MediaPlaybackItem(source);
+            await WriteSmtcThumbnailAsync(mpi, track);
 
-            _player.Source = item;
-            _player.Play();
+            Player.Source = mpi;
+            Player.Play();
+
+            NewTrackPlayed?.Invoke(this, new NewTrackPlayedEventArgs()
+            {
+                TrackTitle = track.TrackTitle,
+                TrackArtist = track.Artist.Name,
+                NaturalDuration = source.Duration.Value,
+            });
+
+            CreatePositionUpdateTimer();
         }
 
         private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, Track track)

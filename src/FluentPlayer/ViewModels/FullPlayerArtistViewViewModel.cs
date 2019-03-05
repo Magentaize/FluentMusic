@@ -6,6 +6,7 @@ using System.Collections.Async;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {

@@ -81,13 +81,13 @@
     <Compile Include="Themes\DataTemplate.xaml.cs">
       <DependentUpon>DataTemplate.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\AlbumViewModel.cs" />
-    <Compile Include="ViewModels\ArtistViewModel.cs" />
+    <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
     <Compile Include="ViewModels\CombinedDbViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerArtistViewViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
-    <Compile Include="ViewModels\TrackViewModel.cs" />
+    <Compile Include="ViewModels\DataViewModel\TrackViewModel.cs" />
     <Compile Include="Views\FullPlayerArtistView.xaml.cs">
       <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
     </Compile>

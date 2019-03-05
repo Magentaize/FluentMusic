@@ -1,10 +1,10 @@
-﻿using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
-using System;
+﻿using System;
 using System.IO;
 using Windows.Storage;
+using Magentaize.FluentPlayer.Data;
+using Prism.Mvvm;
 
-namespace Magentaize.FluentPlayer.ViewModels
+namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
     public class AlbumViewModel : BindableBase
     {

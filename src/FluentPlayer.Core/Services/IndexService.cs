@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using TagLib;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using File = TagLib.File;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -109,7 +108,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         private async Task IndexFileAsync(IStorageFile file)
         {
             var path = file.Path;
-            var tFile = File.Create(await UwpFileAbstraction.CreateAsync(file));
+            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
 
             var prop = tFile.Properties;
             var tag = tFile.Tag;

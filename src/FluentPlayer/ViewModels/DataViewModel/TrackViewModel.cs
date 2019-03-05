@@ -1,7 +1,7 @@
 ﻿using Magentaize.FluentPlayer.Data;
 using Prism.Mvvm;
 
-namespace Magentaize.FluentPlayer.ViewModels
+namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
     internal class TrackViewModel : BindableBase
     {

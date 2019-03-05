@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Data;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 
 namespace Magentaize.FluentPlayer.Views
 {

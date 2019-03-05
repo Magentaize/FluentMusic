@@ -60,6 +60,25 @@
       </PivotItem>
     </Pivot>
 
+    <StackPanel Orientation="Vertical" Grid.Row="1">
+      <Slider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
+              Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" />
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+          <StackPanel Orientation="Vertical">
+            <TextBlock Text="{x:Bind Vm.TrackTitle, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind Vm.TrackArtist, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind Vm.PositionInfo, Mode=OneWay}" />
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </StackPanel>
 
   </Grid>
 </Page>

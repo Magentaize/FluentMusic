@@ -5,11 +5,11 @@ namespace Magentaize.FluentPlayer.Views
 {
     public sealed partial class FullPlayerPage : Page
     {
-        public FullPlayerPageViewModel Vm = new FullPlayerPageViewModel();
+        private readonly FullPlayerPageViewModel Vm = new FullPlayerPageViewModel();
 
         public FullPlayerPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             Loaded += FullPlayerPage_Loaded;
         }
