@@ -1,19 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using Magentaize.FluentPlayer.Data;
+using Prism.Mvvm;
+using System;
 using System.IO;
 using Windows.Storage;
-using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     public class AlbumViewModel : BindableBase
     {
-        public string Title { get; set; }
+        public Album Album { get; }
 
-        public string AlbumCover { get; set; }
+        public Lazy<string> AlbumCoverFsPath =>
+            new Lazy<string>(() => Path.Combine(ApplicationData.Current.LocalFolder.Path, Album.AlbumCover));
 
-        public IList<Track> Tracks { get; set; } = new List<Track>();
-
-        public string AlbumCoverFsPath => Path.Combine(ApplicationData.Current.LocalFolder.Path, AlbumCover);
+        public AlbumViewModel(Album album)
+        {
+            Album = album;
+        }
     }
 }

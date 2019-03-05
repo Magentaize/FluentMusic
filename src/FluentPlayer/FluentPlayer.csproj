@@ -81,21 +81,13 @@
     <Compile Include="Themes\DataTemplate.xaml.cs">
       <DependentUpon>DataTemplate.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\AlbumListViewViewModel.cs" />
     <Compile Include="ViewModels\AlbumViewModel.cs" />
-    <Compile Include="ViewModels\ArtistListViewViewModel.cs" />
+    <Compile Include="ViewModels\ArtistViewModel.cs" />
+    <Compile Include="ViewModels\CombinedDbViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerArtistViewViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
-    <Compile Include="ViewModels\GroupedItem.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
-    <Compile Include="ViewModels\TrackListViewViewModel.cs" />
     <Compile Include="ViewModels\TrackViewModel.cs" />
-    <Compile Include="Views\AlbumListView.xaml.cs">
-      <DependentUpon>AlbumListView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ArtistListView.xaml.cs">
-      <DependentUpon>ArtistListView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\FullPlayerArtistView.xaml.cs">
       <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
     </Compile>
@@ -108,9 +100,6 @@
     <Compile Include="Views\Shell.xaml.cs">
       <DependentUpon>Shell.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TrackListView.xaml.cs">
-      <DependentUpon>TrackListView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\WelcomePage.xaml.cs">
       <DependentUpon>WelcomePage.xaml</DependentUpon>
     </Compile>
@@ -119,6 +108,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Assets\Fonts\SegMVR2.ttf" />
     <None Include="FluentPlayer_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -160,14 +150,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\AlbumListView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ArtistListView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\FullPlayerArtistView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -181,10 +163,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Shell.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\TrackListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

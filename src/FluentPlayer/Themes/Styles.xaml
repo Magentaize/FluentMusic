@@ -113,10 +113,18 @@
     <Setter Property="Padding" Value="0" />
   </Style>
 
-  <Style TargetType="StackPanel" x:Key="BaseListViewItemPanelStyle">
-    <Setter Property="Orientation" Value="Horizontal" />
+  <Style TargetType="Panel" x:Key="BaseListViewItemPanelStyle">
     <Setter Property="MinHeight" Value="{ThemeResource ListViewItemMinHeight}" />
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style TargetType="StackPanel" x:Key="BaseListViewItemStackPanelStyle" BasedOn="{StaticResource BaseListViewItemPanelStyle}">
+    <Setter Property="Orientation" Value="Horizontal" />
+  </Style>
+
+  <Style TargetType="local:DockPanel" x:Key="BaseListViewItemDockPanelStyle" BasedOn="{StaticResource BaseListViewItemPanelStyle}">
+
   </Style>
 </ResourceDictionary>

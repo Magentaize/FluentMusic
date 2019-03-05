@@ -1,43 +1,31 @@
-﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.Data;
+﻿using Magentaize.FluentPlayer.Core;
 using Prism.Mvvm;
+using System.Threading.Tasks;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     public class FullPlayerPageViewModel : BindableBase
     {
-        private ObservableCollection<Track> _trackList;
+        private CombinedDbViewModel _dataSource;
 
-        public ObservableCollection<Track> TrackList
+        public CombinedDbViewModel DataSource
         {
-            get => _trackList;
-            set => SetProperty(ref _trackList, value);
-        }
-
-        private ObservableCollection<Artist> _artistList;
-
-        public ObservableCollection<Artist> ArtistList
-        {
-            get => _artistList;
-            set => SetProperty(ref _artistList, value);
-        }
-
-        private ObservableCollection<Album> _albums;
-
-        public ObservableCollection<Album> Albums
-        {
-            get => _albums;
-            set => SetProperty(ref _albums, value);
+            get => _dataSource;
+            set => SetProperty(ref _dataSource, value);
         }
 
         public async Task ShowAllTracksAsync()
         {
-            TrackList = ServiceFacade.IndexService.GetAllTracksAsync();
-            //await ServiceFacade.PlaybackService.PlayAsync(TrackList[0]);
-            ArtistList = new ObservableCollection<Artist>(await ServiceFacade.IndexService.GetAllArtistsAsync());
-            Albums = ServiceFacade.IndexService.GetAllAlbums();
+            var tracks = await ServiceFacade.IndexService.GetAllTracksAsync();
+            var artists = await ServiceFacade.IndexService.GetAllArtistsAsync();
+            var albums = await ServiceFacade.IndexService.GetAllAlbumsAsync();
+
+            DataSource = new CombinedDbViewModel()
+            {
+                Albums = albums,
+                Artists = artists,
+                Tracks = tracks,
+            };
         }
     }
 }

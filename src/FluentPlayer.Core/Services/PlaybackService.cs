@@ -36,12 +36,16 @@ namespace Magentaize.FluentPlayer.Core.Services
         private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, Track track)
         {
             var prop = item.GetDisplayProperties();
+
             var thumbF = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, track.Album.AlbumCover));
             var rasf = RandomAccessStreamReference.CreateFromFile(thumbF);
             prop.Thumbnail = rasf;
-
             prop.Type = MediaPlaybackType.Music;
             prop.MusicProperties.Title = track.TrackTitle;
+            prop.MusicProperties.Artist = track.Artist.Name;
+            prop.MusicProperties.AlbumTitle = track.Album.Title;
+
+            item.ApplyDisplayProperties(prop);
         } 
     }
 }

@@ -3,19 +3,16 @@ using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Media.Core;
 using TagLib;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using File = TagLib.File;
-using Track = Magentaize.FluentPlayer.Data.Track;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -34,7 +31,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             var ins = new IndexService();
 
-            var dbTracks = ServiceFacade.Db.Tracks.Include(t => t.Album).AsEnumerable();
+            var dbTracks = ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist).AsEnumerable();
             ins._tracks = new ObservableCollection<Track>(dbTracks);
 
             var dbArtists = ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums).AsEnumerable();
@@ -50,24 +47,19 @@ namespace Magentaize.FluentPlayer.Core.Services
         private ObservableCollection<Artist> _artists;
         private ObservableCollection<Album> _albums;
 
-        public ObservableCollection<Track> GetAllTracksAsync()
+        public async Task<ObservableCollection<Track>> GetAllTracksAsync()
         {
-            return _tracks;
+            return await Task.FromResult(_tracks);
         }
 
-        public async Task<List<Artist>> GetAllArtistsAsync()
+        public async Task<ObservableCollection<Artist>> GetAllArtistsAsync()
         {
-            return await ServiceFacade.Db.Artists.ToListAsync();
+            return await Task.FromResult(_artists);
         }
 
-        public ObservableCollection<Album> GetAllAlbums()
+        public async Task<ObservableCollection<Album>> GetAllAlbumsAsync()
         {
-            return _albums;
-        }
-
-        private string SubFirstCharacter(string str)
-        {
-            return str.Substring(0, 1);
+            return await Task.FromResult(_albums);
         }
 
         private IDictionary<string, StorageFile> _albumCoverList;
