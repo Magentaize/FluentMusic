@@ -67,9 +67,12 @@
     </Pivot>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <controls:DragNotifySlider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
+      <Slider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
               Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
               ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
+              ManipulationMode="All" 
+              ManipulationStarting="UIElement_OnManipulationStarting"
+              ManipulationCompleted="UIElement_OnManipulationCompleted"
               />
       <Grid>
         <Grid.ColumnDefinitions>

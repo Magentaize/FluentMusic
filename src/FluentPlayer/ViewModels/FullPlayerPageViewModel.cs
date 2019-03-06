@@ -4,7 +4,9 @@ using Prism.Mvvm;
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Media.Playback;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -59,6 +61,7 @@ namespace Magentaize.FluentPlayer.ViewModels
         }
 
         private TimeSpan _naturalPosition;
+        private bool _progressSliderIsDragging = false;
 
         public FullPlayerPageViewModel()
         {
@@ -71,10 +74,11 @@ namespace Magentaize.FluentPlayer.ViewModels
             TrackTitle = e.TrackTitle;
             TrackArtist = e.TrackArtist;
             _naturalPosition = e.NaturalDuration;
+            _progressSliderIsDragging = false;
             SliderNaturalPosition = e.NaturalDuration.TotalSeconds;
         }
 
-        private async void PlaybackService_PlayerPositionChanged(object sender, Windows.Media.Playback.MediaPlaybackSession e)
+        private async void PlaybackService_PlayerPositionChanged(object sender, MediaPlaybackSession e)
         {
             var d1 = e.Position;
             var d2 = _naturalPosition;
@@ -84,8 +88,20 @@ namespace Magentaize.FluentPlayer.ViewModels
             {
                 PositionInfo = posInfo;
 
-                SliderCurrentPosition = d1.TotalSeconds;
+                if (!_progressSliderIsDragging) SliderCurrentPosition = d1.TotalSeconds;
             });
+        }
+
+        public void ProgressSlider_OnManipulationStarting(Slider slider)
+        {
+            _progressSliderIsDragging = true;
+        }
+
+        public void ProgressSlider_OnManipulationCompleted(Slider slider)
+        {
+            _progressSliderIsDragging = false;
+
+            ServiceFacade.PlaybackService.Seek(TimeSpan.FromSeconds(slider.Value));
         }
 
         public async Task ShowAllTracksAsync()

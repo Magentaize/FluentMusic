@@ -59,6 +59,14 @@ namespace Magentaize.FluentPlayer.Core.Services
             CreatePositionUpdateTimer();
         }
 
+        public void Seek(TimeSpan position)
+        {
+            if (Player.PlaybackSession.CanSeek)
+            {
+                Player.PlaybackSession.Position = position;
+            }
+        }
+
         private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, Track track)
         {
             var prop = item.GetDisplayProperties();
