@@ -16,4 +16,6 @@
                          Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.3" TargetTheme="Light"/>
 
   <SolidColorBrush x:Key="AccentDarkBackground" Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.66"/>
+
+  <SolidColorBrush x:Key="SystemAccentColorDark1Brush" Color="{ThemeResource SystemAccentColorDark1}"/>
 </ResourceDictionary>

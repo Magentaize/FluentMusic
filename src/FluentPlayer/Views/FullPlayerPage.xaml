@@ -1,14 +1,12 @@
 ﻿<Page
     x:Class="Magentaize.FluentPlayer.Views.FullPlayerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Magentaize.FluentPlayer.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:data="using:Magentaize.FluentPlayer.Data"
-    xmlns:controls1="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:converter="using:Magentaize.FluentPlayer.ViewModels.Converter"
-    xmlns:controls="using:Magentaize.FluentPlayer.Controls"
+    xmlns:local="using:Magentaize.FluentPlayer.Views"
+    xmlns:cc="using:Magentaize.FluentPlayer.Controls"
     mc:Ignorable="d">
 
   <Page.Resources>
@@ -67,12 +65,12 @@
     </Pivot>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <Slider Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
-              Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
-              ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
-              ManipulationMode="All" 
-              ManipulationStarting="UIElement_OnManipulationStarting"
-              ManipulationCompleted="UIElement_OnManipulationCompleted"
+      <cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
+                           Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
+                           Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
+                           ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
+                           SliderDragStarted="DragNotifySlider_OnSliderDragStarted"
+                           SliderDragCompleted="DragNotifySlider_OnSliderDragCompleted"
               />
       <Grid>
         <Grid.ColumnDefinitions>

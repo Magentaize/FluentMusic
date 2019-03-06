@@ -1,6 +1,6 @@
 ﻿using Magentaize.FluentPlayer.ViewModels;
+using System;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 
 namespace Magentaize.FluentPlayer.Views
 {
@@ -20,14 +20,14 @@ namespace Magentaize.FluentPlayer.Views
             await Vm.ShowAllTracksAsync();
         }
 
-        private void UIElement_OnManipulationStarting(object sender, ManipulationStartingRoutedEventArgs e)
+        private void DragNotifySlider_OnSliderDragStarted(object sender, EventArgs e)
         {
             Vm.ProgressSlider_OnManipulationStarting((Slider)sender);
         }
 
-        private void UIElement_OnManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        private void DragNotifySlider_OnSliderDragCompleted(object sender, EventArgs e)
         {
-           Vm.ProgressSlider_OnManipulationCompleted((Slider)sender);
+            Vm.ProgressSlider_OnManipulationCompleted((Slider)sender);
         }
     }
 }
