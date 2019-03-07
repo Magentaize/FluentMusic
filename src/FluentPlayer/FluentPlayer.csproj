@@ -82,7 +82,7 @@
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
     <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
-    <Compile Include="ViewModels\CombinedDbViewModel.cs" />
+    <Compile Include="ViewModels\DataViewModel\CombinedDbViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerArtistViewViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />

@@ -9,43 +9,37 @@ using System.Threading.Tasks;
 
 namespace Magentaize.FluentPlayer.Collections
 {
-    public class GroupedObservableCollection<TKey, TInElement, TOutElement> : ObservableCollection<Grouping<TKey, TOutElement>>
+    public class GroupedObservableCollection<TKey, TElement> : ObservableCollection<Grouping<TKey, TElement>>
             where TKey : IComparable<TKey>
     {
-        private readonly Func<TOutElement, TKey> _selector;
-        private readonly Func<TInElement, TOutElement> _mapper;
-        private readonly IDictionary<TInElement, TOutElement> _mapDict = new Dictionary<TInElement, TOutElement>();
+        private readonly Func<TElement, TKey> _selector;
 
         /// <summary>
         /// This is used as an optimisation for when items are likely to be added in key order and there is a good probability
         /// that when an item is added, then next one will be in the same grouping.
         /// </summary>
-        private Grouping<TKey, TOutElement> _lastEffectedGroup;
+        private Grouping<TKey, TElement> _lastEffectedGroup;
 
-        public GroupedObservableCollection(Func<TInElement, TOutElement> mapper, Func<TOutElement, TKey> selector)
+        public GroupedObservableCollection(Func<TElement, TKey> selector)
         {
             _selector = selector;
-            _mapper = mapper;
         }
 
-        public void Add(TInElement item)
+        public void Add(TElement item)
         {
-            var mapped = _mapper(item);
-            _mapDict.Add(item, mapped);
-
-            var key = _selector(mapped);
-            FindOrCreateGroup(key).Add(mapped);
+            var key = _selector(item);
+            FindOrCreateGroup(key).Add(item);
         }
 
-        internal ObservableCollection<TInElement> InnerObservableCollection;
+        internal ObservableCollection<TElement> InnerObservableCollection;
 
         internal async void InnerObservableCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            await e.NewItems.ToAsyncEnumerable().ForEachAsync(i => Add((TInElement)i));
-            await e.OldItems.ToAsyncEnumerable().ForEachAsync(i => Remove((TInElement)i));
+            await e.NewItems.ToAsyncEnumerable().ForEachAsync(i => Add((TElement)i));
+            await e.OldItems.ToAsyncEnumerable().ForEachAsync(i => Remove((TElement)i));
         }
 
-        public async Task<GroupedObservableCollection<TKey, TInElement, TOutElement>> AddRangeAsync(IEnumerable<TInElement> collection)
+        public async Task<GroupedObservableCollection<TKey, TElement>> AddRangeAsync(IEnumerable<TElement> collection)
         {
             await collection.ToAsyncEnumerable().ForEachAsync(i => { Add(i); });
 
@@ -54,27 +48,22 @@ namespace Magentaize.FluentPlayer.Collections
 
         public IEnumerable<TKey> Keys => this.Select(i => i.Key);
 
-        public bool Remove(TInElement item)
+        public bool Remove(TElement item)
         {
-            if (!_mapDict.TryGetValue(item, out var mapped))
-            {
-                return false;
-            }
-            var key = _selector(mapped);
+            var key = _selector(item);
             var group = TryFindGroup(key);
-            var success = group != null && group.Remove(mapped);
+            var success = group != null && group.Remove(item);
 
             if (group != null && group.Count == 0)
             {
                 Remove(group);
-                _mapDict.Remove(item);
                 _lastEffectedGroup = null;
             }
 
             return success;
         }
 
-        private Grouping<TKey, TOutElement> TryFindGroup(TKey key)
+        private Grouping<TKey, TElement> TryFindGroup(TKey key)
         {
             if (_lastEffectedGroup != null && _lastEffectedGroup.Key.Equals(key))
             {
@@ -88,7 +77,7 @@ namespace Magentaize.FluentPlayer.Collections
             return group;
         }
 
-        private Grouping<TKey, TOutElement> FindOrCreateGroup(TKey key)
+        private Grouping<TKey, TElement> FindOrCreateGroup(TKey key)
         {
             if (_lastEffectedGroup != null && _lastEffectedGroup.Key.Equals(key))
             {
@@ -96,17 +85,17 @@ namespace Magentaize.FluentPlayer.Collections
             }
 
             var match = this.Select((group, index) => new { group, index }).FirstOrDefault(i => i.group.Key.CompareTo(key) >= 0);
-            Grouping<TKey, TOutElement> result;
+            Grouping<TKey, TElement> result;
             if (match == null)
             {
                 // Group doesn't exist and the new group needs to go at the end
-                result = new Grouping<TKey, TOutElement>(key);
+                result = new Grouping<TKey, TElement>(key);
                 base.Add(result);
             }
             else if (!match.group.Key.Equals(key))
             {
                 // Group doesn't exist, but needs to be inserted before an existing one
-                result = new Grouping<TKey, TOutElement>(key);
+                result = new Grouping<TKey, TElement>(key);
                 Insert(match.index, result);
             }
             else
@@ -122,14 +111,14 @@ namespace Magentaize.FluentPlayer.Collections
 
     public class GroupedObservableCollection
     {
-        public static async Task<GroupedObservableCollection<TKey, TInElement, TOutElement>> CreateAsync<TKey, TInElement, TOutElement>
-        (IEnumerable<TInElement> collection, Func<TInElement, TOutElement> mapper, Func<TOutElement, TKey> selector)
+        public static async Task<GroupedObservableCollection<TKey, TElement>> CreateAsync<TKey, TElement>
+        (IEnumerable<TElement> collection, Func<TElement, TKey> selector)
         where TKey:IComparable<TKey>
         {
-            var ret = new GroupedObservableCollection<TKey, TInElement, TOutElement>(mapper, selector);
+            var ret = new GroupedObservableCollection<TKey, TElement>(selector);
             await ret.AddRangeAsync(collection);
 
-            if (collection is ObservableCollection<TInElement> ob)
+            if (collection is ObservableCollection<TElement> ob)
             {
                 ret.InnerObservableCollection = ob;
                 ret.InnerObservableCollection.CollectionChanged += ret.InnerObservableCollection_CollectionChanged;

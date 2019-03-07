@@ -10,36 +10,57 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-  <Grid x:Name="RootGrid" 
-        Margin="48"
-        BorderThickness="0,0,1,1"
-        BorderBrush="{ThemeResource SystemControlHighlightChromeHighBrush}"
-        Height="500"
+  <Grid BorderBrush="{ThemeResource SystemControlHighlightChromeHighBrush}"
         VerticalAlignment="Top">
     <Grid.ColumnDefinitions>
-      <ColumnDefinition MinWidth="100" MaxWidth="300" />
+      <ColumnDefinition />
       <ColumnDefinition />
       <ColumnDefinition />
     </Grid.ColumnDefinitions>
 
     <!-- Artist List -->
-    <Border Grid.Column="0">
-      <Border.Resources>
-        <CollectionViewSource x:Name="ArtistCvs" IsSourceGrouped="True" Source="{x:Bind Vm.ArtistCvsSource, Mode=OneWay}"/>
-      </Border.Resources>
+    <controls:DockPanel Grid.Column="0">
 
-      <SemanticZoom>
-        <SemanticZoom.ZoomedInView>
-          <ListView ItemsSource="{x:Bind ArtistCvs.View, Mode=OneWay}" 
-                      SelectedIndex="{x:Bind Vm.ArtistSelectedIndex, Mode=TwoWay}"
-                      ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-                      SelectionMode="Single" 
-                      DoubleTapped="ArtistItem_OnDoubleTapped"
-                      Tapped="ArtistItem_OnTapped">
+      <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
+        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind Vm.RestoreArtistsCommand}"/>
+      </StackPanel>
+
+      <Border controls:DockPanel.Dock="Bottom">
+        <Border.Resources>
+          <CollectionViewSource x:Name="ArtistCvs" IsSourceGrouped="True" Source="{x:Bind Mode=OneWay, Path=Vm.ArtistCvsSource}"/>
+        </Border.Resources>
+
+        <SemanticZoom>
+
+          <SemanticZoom.ZoomedOutView>
+            <GridView ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View.CollectionGroups}"
+                      ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
+              <GridView.ItemTemplate>
+                <DataTemplate>
+                  <Border Height="60" Width="60">
+                    <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                </DataTemplate>
+              </GridView.ItemTemplate>
+              <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <controls:WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </GridView.ItemsPanel>
+            </GridView>
+          </SemanticZoom.ZoomedOutView>
+          <ListView ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
+                    SelectedIndex="{x:Bind Mode=TwoWay, Path=Vm.ArtistSelectedIndex}"
+                    ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
+                    SelectionMode="Single" 
+                    DoubleTapped="ArtistItem_OnDoubleTapped"
+                    Tapped="ArtistItem_OnTapped"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.ItemTemplate>
               <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
                 <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
-                  <TextBlock Text="{x:Bind Artist.Name, Mode=OneWay}" VerticalAlignment="Center"/>
+                  <TextBlock Text="{x:Bind Mode=OneWay, Path=Artist.Name}" VerticalAlignment="Center"/>
                 </StackPanel>
               </DataTemplate>
             </ListView.ItemTemplate>
@@ -53,34 +74,19 @@
               </GroupStyle>
             </ListView.GroupStyle>
           </ListView>
-        </SemanticZoom.ZoomedInView>
-
-        <SemanticZoom.ZoomedOutView>
-          <GridView ItemsSource="{x:Bind ArtistCvs.View.CollectionGroups, Mode=OneWay}"
-                      ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
-            <GridView.ItemTemplate>
-              <DataTemplate>
-                <Border Height="60" Width="60">
-                  <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-              </DataTemplate>
-            </GridView.ItemTemplate>
-            <GridView.ItemsPanel>
-              <ItemsPanelTemplate>
-                <controls:WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
-              </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-          </GridView>
-        </SemanticZoom.ZoomedOutView>
-      </SemanticZoom>
-    </Border>
+        </SemanticZoom>
+      </Border>
+    </controls:DockPanel>
 
     <!-- Album GridWrap -->
     <Border Grid.Column="1">
-      <GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" SelectionMode="Single" SelectedIndex="{x:Bind Vm.AlbumSelectedIndex, Mode=TwoWay}">
+      <GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" 
+                SelectionMode="Single"
+                SelectedIndex="{x:Bind Vm.AlbumSelectedIndex, Mode=TwoWay}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
         <GridView.ItemTemplate>
           <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
-            <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}"/>
+            <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
           </DataTemplate>
         </GridView.ItemTemplate>
       </GridView>
@@ -95,10 +101,12 @@
       <SemanticZoom>
         <SemanticZoom.ZoomedInView>
           <ListView ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
-                  SelectionMode="Extended"
-                  ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-                  DoubleTapped="TrackItem_OnDoubleTapped"
-                  Tapped="TrackItem_OnTapped">
+                    SelectionMode="Extended"
+                    ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
+                    DoubleTapped="TrackItem_OnDoubleTapped"
+                    Tapped="TrackItem_OnTapped"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemTemplate>
               <DataTemplate x:DataType="dataViewModel:TrackViewModel">
                 <controls:DockPanel Style="{StaticResource BaseListViewItemDockPanelStyle}" >

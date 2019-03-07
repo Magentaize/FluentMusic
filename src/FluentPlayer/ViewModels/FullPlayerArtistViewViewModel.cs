@@ -1,20 +1,19 @@
 ﻿using Magentaize.FluentPlayer.Collections;
 using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
-using System.Collections.Async;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Prism.Mvvm;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using Prism.Commands;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     internal sealed class FullPlayerArtistViewViewModel : BindableBase
     {
-        private GroupedObservableCollection<char, Track, TrackViewModel> _trackCvsSource;
+        private GroupedObservableCollection<char, TrackViewModel> _trackCvsSource;
 
-        public GroupedObservableCollection<char, Track, TrackViewModel> TrackCvsSource
+        public GroupedObservableCollection<char, TrackViewModel> TrackCvsSource
         {
             get => _trackCvsSource;
             set => SetProperty(ref _trackCvsSource, value);
@@ -36,9 +35,9 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _albumSelectedIndex, value);
         }
 
-        private GroupedObservableCollection<char, Artist, ArtistViewModel> _artistCvsSource;
+        private GroupedObservableCollection<char, ArtistViewModel> _artistCvsSource;
 
-        public GroupedObservableCollection<char, Artist, ArtistViewModel> ArtistCvsSource
+        public GroupedObservableCollection<char, ArtistViewModel> ArtistCvsSource
         {
             get => _artistCvsSource;
             set => SetProperty(ref _artistCvsSource, value);
@@ -52,27 +51,59 @@ namespace Magentaize.FluentPlayer.ViewModels
             set => SetProperty(ref _artistSelectedIndex, value);
         }
 
+        public ICommand RestoreArtistsCommand { get; }
+
+        public FullPlayerArtistViewViewModel()
+        {
+            RestoreArtistsCommand = new DelegateCommand(async ()=> await RestoreArtistsAsync());
+        }
+
         private CombinedDbViewModel _originalData;
 
         public async Task FillCvsSourceAsync(CombinedDbViewModel data)
         {
             _originalData = data;
 
-            TrackCvsSource = await GroupedObservableCollection.CreateAsync(data.Tracks, t => new TrackViewModel(t),
-                t => t.Track.TrackTitle[0]);
-
-            Albums = new ObservableCollection<AlbumViewModel>(data.Albums.Select(a => new AlbumViewModel(a)));
-            AlbumSelectedIndex = -1;
-
-            ArtistCvsSource = await GroupedObservableCollection.CreateAsync(data.Artists, a => new ArtistViewModel(a),
-                a => a.Artist.Name[0]);
-            ArtistSelectedIndex = -1;
+            await RestoreCvsSourceAsync();
         }
 
         public async Task PlayAsync(TrackViewModel track)
         {
             await ServiceFacade.PlaybackService.PlayAsync(track.Track);
             track.IsPlaying = true;
+        }
+
+        public async Task RestoreCvsSourceAsync()
+        {
+            TrackCvsSource = await GroupedObservableCollection.CreateAsync(_originalData.Tracks, t => t.Track.TrackTitle[0]);
+
+            Albums = _originalData.Albums;
+            AlbumSelectedIndex = -1;
+
+            ArtistCvsSource = await GroupedObservableCollection.CreateAsync(_originalData.Artists, a => a.Artist.Name[0]);
+            ArtistSelectedIndex = -1;
+        }
+
+        public async Task ArtistItem_OnTapped(ArtistViewModel artist)
+        {
+            Albums.Clear();
+            foreach (var a in artist.Artist.Albums)
+            {
+                Albums.Add(new AlbumViewModel(a));
+            }
+
+            AlbumSelectedIndex = -1;
+
+            TrackCvsSource.Clear();
+            foreach (var t in artist.Artist.Tracks)
+            {
+                TrackCvsSource.Add(new TrackViewModel(t));
+            }
+        }
+
+        private async Task RestoreArtistsAsync()
+        {
+            await RestoreCvsSourceAsync();
         }
     }
 }

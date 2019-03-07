@@ -7,6 +7,7 @@
     xmlns:converter="using:Magentaize.FluentPlayer.ViewModels.Converter"
     xmlns:local="using:Magentaize.FluentPlayer.Views"
     xmlns:cc="using:Magentaize.FluentPlayer.Controls"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d">
 
   <Page.Resources>
@@ -15,54 +16,44 @@
 
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <Pivot>
-      <Pivot.Resources>
-        <Style TargetType="PivotHeaderItem" BasedOn="{StaticResource RevealPivotHeaderItemStyle}"/>
-      </Pivot.Resources>
-      <PivotItem x:Uid="Artists">
-        <PivotItem.Header>
-          <TextBlock Text="Artists"/>
-        </PivotItem.Header>
-        <ScrollViewer >
+    <Border Grid.Row="0">
+      <Pivot Grid.Row="0">
+        <Pivot.Resources>
+          <Style TargetType="PivotHeaderItem" BasedOn="{StaticResource RevealPivotHeaderItemStyle}"/>
+        </Pivot.Resources>
+        <PivotItem x:Uid="Artists">
+          <PivotItem.Header>
+            <TextBlock Text="Artists"/>
+          </PivotItem.Header>
           <local:FullPlayerArtistView ItemsSource="{x:Bind Vm.DataSource, Mode=OneWay}"/>
-        </ScrollViewer>
-      </PivotItem>
+        </PivotItem>
 
-      <PivotItem x:Uid="Albums">
-        <PivotItem.Header>
-          <TextBlock Text="Albums" Foreground="{ThemeResource TextRevealAccentForeground}"/>
-        </PivotItem.Header>
-        <ScrollViewer >
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        </ScrollViewer>
-      </PivotItem>
+        <PivotItem x:Uid="Albums">
+          <PivotItem.Header>
+            <TextBlock Text="Albums" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
 
-      <PivotItem x:Uid="Genres">
-        <PivotItem.Header>
-          <TextBlock Text="Genres" Foreground="{ThemeResource TextRevealAccentForeground}"/>
-        </PivotItem.Header>
-        <ScrollViewer >
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        </PivotItem>
 
-          </StackPanel>
-        </ScrollViewer>
-      </PivotItem>
+        <PivotItem x:Uid="Genres">
+          <PivotItem.Header>
+            <TextBlock Text="Genres" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
 
-      <PivotItem x:Uid="Settings">
-        <PivotItem.Header>
-          <TextBlock Text="Settings" Foreground="{ThemeResource TextRevealAccentForeground}"/>
-        </PivotItem.Header>
-        <ScrollViewer >
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <local:SettingsPage/>
-          </StackPanel>
-        </ScrollViewer>
-      </PivotItem>
-    </Pivot>
+        </PivotItem>
+
+        <PivotItem x:Uid="Settings">
+          <PivotItem.Header>
+            <TextBlock Text="Settings" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
+
+        </PivotItem>
+      </Pivot>
+    </Border>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
       <cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
@@ -71,7 +62,7 @@
                            ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
                            SliderDragStarted="DragNotifySlider_OnSliderDragStarted"
                            SliderDragCompleted="DragNotifySlider_OnSliderDragCompleted"
-              />
+      />
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -88,6 +79,5 @@
         </StackPanel>
       </Grid>
     </StackPanel>
-
   </Grid>
 </Page>

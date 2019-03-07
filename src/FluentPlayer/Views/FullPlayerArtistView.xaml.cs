@@ -1,11 +1,10 @@
-﻿using Magentaize.FluentPlayer.ViewModels;
+﻿using Magentaize.FluentPlayer.Core.Extensions;
+using Magentaize.FluentPlayer.ViewModels;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Magentaize.FluentPlayer.Core.Extensions;
-using Magentaize.FluentPlayer.Data;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 
 namespace Magentaize.FluentPlayer.Views
 {
@@ -50,7 +49,7 @@ namespace Magentaize.FluentPlayer.Views
             await Task.Delay(200);
             if (_singleTap)
             {
-
+                await Vm.ArtistItem_OnTapped(sender.Cast<ListView>().SelectedItem.Cast<ArtistViewModel>());
             }
         }
 

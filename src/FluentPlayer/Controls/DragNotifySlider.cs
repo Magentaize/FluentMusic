@@ -39,12 +39,12 @@ namespace Magentaize.FluentPlayer.Controls
             SliderDragCompleted?.Invoke(this, null);
         }
 
-        private void DragNotifySlider_ManipulationCompleted(object sender, Windows.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+        private void DragNotifySlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             SliderDragCompleted?.Invoke(this, null);
         }
 
-        private void DragNotifySlider_ManipulationStarting(object sender, Windows.UI.Xaml.Input.ManipulationStartingRoutedEventArgs e)
+        private void DragNotifySlider_ManipulationStarting(object sender, ManipulationStartingRoutedEventArgs e)
         {
             SliderDragStarted?.Invoke(this, null);
         }

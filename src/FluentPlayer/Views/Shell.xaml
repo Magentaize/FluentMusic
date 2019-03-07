@@ -5,23 +5,14 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:local="using:Magentaize.FluentPlayer.Views"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   Background="{ThemeResource SystemControlAcrylicWindowBrush}"
   mc:Ignorable="d">
 
-  <StackPanel>
-    <Border Height="28" >
+  <controls:DockPanel>
+    <Border Height="28" controls:DockPanel.Dock="Top">
       <TextBlock x:Name="TitleBar" Text="Fluent Player" FontSize="12" VerticalAlignment="Center" Margin="10,0,0,0"/>
     </Border>
-    <Frame x:Name="ShellFrame"/>
-
-    <Pivot>
-      <PivotItem x:Uid="Library" Header="Library">
-        <ScrollViewer >
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Frame x:Name="LoactionFrame" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-          </StackPanel>
-        </ScrollViewer>
-      </PivotItem>
-    </Pivot>
-  </StackPanel>
+    <Frame x:Name="ShellFrame" controls:DockPanel.Dock="Bottom"/>
+  </controls:DockPanel>
 </Page>

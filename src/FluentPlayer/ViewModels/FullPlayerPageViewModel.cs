@@ -2,11 +2,14 @@
 using Magentaize.FluentPlayer.Core.Services;
 using Prism.Mvvm;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -112,9 +115,9 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             DataSource = new CombinedDbViewModel()
             {
-                Albums = albums,
-                Artists = artists,
-                Tracks = tracks,
+                Albums = new ObservableCollection<AlbumViewModel>(albums.Select(a=>new AlbumViewModel(a))),
+                Artists = new ObservableCollection<ArtistViewModel>(artists.Select(a=>new ArtistViewModel(a))),
+                Tracks = new ObservableCollection<TrackViewModel>(tracks.Select(t=>new TrackViewModel(t))),
             };
         }
     }

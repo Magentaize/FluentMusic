@@ -3,7 +3,7 @@ using Prism.Mvvm;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    internal class TrackViewModel : BindableBase
+    public class TrackViewModel : BindableBase
     {
         public Track Track { get; }
 
