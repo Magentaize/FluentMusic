@@ -69,6 +69,28 @@ namespace Magentaize.FluentPlayer.Views
             {
 
             }
+
+            e.Handled = true;
+        }
+
+        private async void AlbumItem_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            _singleTap = true;
+            await Task.Delay(200);
+            if (_singleTap)
+            {
+
+            }
+
+            e.Handled = true;
+        }
+
+        private async void AlbumItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            _singleTap = false;
+            await Vm.PlayAsync(sender.Cast<GridView>().SelectedItem.Cast<AlbumViewModel>());
+
+            e.Handled = true;
         }
     }
 }

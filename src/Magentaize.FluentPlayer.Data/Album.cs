@@ -15,5 +15,7 @@ namespace Magentaize.FluentPlayer.Data
         public string AlbumCover { get; set; }
 
         public IList<Track> Tracks { get; set; } = new List<Track>();
+
+        public Artist Artist { get; set; }
     }
 }

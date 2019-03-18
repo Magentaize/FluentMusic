@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Magentaize.FluentPlayer.Data.Migrations
 {
     [DbContext(typeof(FluentPlayerDbContext))]
-    [Migration("20190302065614_Initialize")]
+    [Migration("20190318073220_Initialize")]
     partial class Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -137,7 +137,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
                     b.Property<string>("FileName");
 
-                    b.Property<long?>("FileSize");
+                    b.Property<ulong?>("FileSize");
 
                     b.Property<string>("Genres");
 
@@ -186,7 +186,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
             modelBuilder.Entity("Magentaize.FluentPlayer.Data.Album", b =>
                 {
-                    b.HasOne("Magentaize.FluentPlayer.Data.Artist")
+                    b.HasOne("Magentaize.FluentPlayer.Data.Artist", "Artist")
                         .WithMany("Albums")
                         .HasForeignKey("ArtistId");
                 });

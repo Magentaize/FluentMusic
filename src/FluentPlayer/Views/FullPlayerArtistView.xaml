@@ -83,7 +83,9 @@
       <GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" 
                 SelectionMode="Single"
                 SelectedIndex="{x:Bind Vm.AlbumSelectedIndex, Mode=TwoWay}"
-                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                Tapped="AlbumItem_Tapped"
+                DoubleTapped="AlbumItem_DoubleTapped">
         <GridView.ItemTemplate>
           <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
             <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />

@@ -4,6 +4,7 @@
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters">
 
   <converters:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
+  <converters:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
   <converters:BoolToObjectConverter x:Key="BoolToPlayingForegroundBrush" TrueValue="{StaticResource SystemAccentColorDark1Brush}" FalseValue="{ThemeResource TextBoxForegroundThemeBrush}" />
 
 </ResourceDictionary>

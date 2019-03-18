@@ -8,6 +8,10 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System.Threading;
 using Magentaize.FluentPlayer.Data;
+using System.Collections.Generic;
+using Windows.UI.Xaml;
+using Windows.UI.Core;
+using Windows.ApplicationModel.Core;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -15,10 +19,15 @@ namespace Magentaize.FluentPlayer.Core.Services
     {
         public event EventHandler<MediaPlaybackSession> PlayerPositionChanged;
         public event EventHandler<NewTrackPlayedEventArgs> NewTrackPlayed;
+        public event EventHandler PlayingStatusChanged;
 
-        public MediaPlayer Player { get; } = new MediaPlayer();
+        public bool IsPlaying { get; private set; }
+        public Track CurrentTrack { get; private set; }
+        public MediaPlayer Player { get; private set; }
 
         private ThreadPoolTimer _positionUpdateTimer;
+        private IList<Track> _trackPlaybackList;
+        private MediaPlaybackItem _currentPlaybackItem;
 
         internal PlaybackService() { }
 
@@ -35,28 +44,68 @@ namespace Magentaize.FluentPlayer.Core.Services
         internal static async Task<PlaybackService> CreateAsync()
         {
             var ins = new PlaybackService();
+            ins.Player = new MediaPlayer();
+            ins.Player.MediaOpened += ins.Player_MediaOpened;
+            ins.Player.MediaEnded += ins.Player_MediaEnded;
+
             return await Task.FromResult(ins);
         }
 
-        public async Task PlayAsync(Track track)
+        private void Player_MediaEnded(MediaPlayer sender, object args)
         {
-            var file = await StorageFile.GetFileFromPathAsync(track.Path);
-            var source = MediaSource.CreateFromStorageFile(file);
-            await source.OpenAsync();
-            var mpi = new MediaPlaybackItem(source);
-            await WriteSmtcThumbnailAsync(mpi, track);
+
+        }
+
+        private async void Player_MediaOpened(MediaPlayer sender, object args)
+        {
+            IsPlaying = true;
+
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                () =>
+                {
+                    NewTrackPlayed?.Invoke(this, new NewTrackPlayedEventArgs()
+                    {
+                        TrackTitle = CurrentTrack.TrackTitle,
+                        TrackArtist = CurrentTrack.Artist.Name,
+                        NaturalDuration = _currentPlaybackItem.Source.Duration.Value,
+                    });
+
+                    PlayingStatusChanged?.Invoke(this, null);
+                });
+
+            await WriteSmtcThumbnailAsync(_currentPlaybackItem, CurrentTrack);
+
+            CreatePositionUpdateTimer();
+        }
+
+        public void Pause()
+        {
+            Player.Pause();
+
+            IsPlaying = false;
+
+            PlayingStatusChanged?.Invoke(this, null);
+        }
+
+        public void Resume()
+        {
+            Player.Play();
+
+            IsPlaying = true;
+
+            PlayingStatusChanged?.Invoke(this, null);
+        }
+
+        public async Task PlayAsync(IEnumerable<Track> tracks, Track selected)
+        {
+            _trackPlaybackList = new List<Track>(tracks);
+
+            var mpi = await CreateMediaPlaybackItemAsync(selected);
+            CurrentTrack = selected;
+            _currentPlaybackItem = mpi;
 
             Player.Source = mpi;
             Player.Play();
-
-            NewTrackPlayed?.Invoke(this, new NewTrackPlayedEventArgs()
-            {
-                TrackTitle = track.TrackTitle,
-                TrackArtist = track.Artist.Name,
-                NaturalDuration = source.Duration.Value,
-            });
-
-            CreatePositionUpdateTimer();
         }
 
         public void Seek(TimeSpan position)
@@ -65,6 +114,16 @@ namespace Magentaize.FluentPlayer.Core.Services
             {
                 Player.PlaybackSession.Position = position;
             }
+        }
+
+        private async Task<MediaPlaybackItem> CreateMediaPlaybackItemAsync(Track track)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(track.Path);
+            var source = MediaSource.CreateFromStorageFile(file);
+            await source.OpenAsync();
+            var mpi = new MediaPlaybackItem(source);
+
+            return mpi;
         }
 
         private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, Track track)

@@ -96,7 +96,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                     SafePath = table.Column<string>(nullable: true),
                     FileName = table.Column<string>(nullable: true),
                     MimeType = table.Column<string>(nullable: true),
-                    FileSize = table.Column<long>(nullable: true),
+                    FileSize = table.Column<ulong>(nullable: true),
                     BitRate = table.Column<long>(nullable: true),
                     SampleRate = table.Column<long>(nullable: true),
                     TrackTitle = table.Column<string>(nullable: true),

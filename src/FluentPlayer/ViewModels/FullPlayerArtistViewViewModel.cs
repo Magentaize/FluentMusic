@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Prism.Commands;
+using System.Linq;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -56,6 +57,17 @@ namespace Magentaize.FluentPlayer.ViewModels
         public FullPlayerArtistViewViewModel()
         {
             RestoreArtistsCommand = new DelegateCommand(async ()=> await RestoreArtistsAsync());
+
+            ServiceFacade.PlaybackService.NewTrackPlayed += PlaybackService_NewTrackPlayed;
+        }
+
+        private void PlaybackService_NewTrackPlayed(object sender, Core.Services.NewTrackPlayedEventArgs e)
+        {
+            var vm = _originalData.Tracks.FirstOrDefault(x => x.Track == ServiceFacade.PlaybackService.CurrentTrack);
+            if (vm != null)
+            {
+                vm.IsPlaying = true;
+            }
         }
 
         private CombinedDbViewModel _originalData;
@@ -69,15 +81,20 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public async Task PlayAsync(TrackViewModel track)
         {
-            await ServiceFacade.PlaybackService.PlayAsync(track.Track);
-            track.IsPlaying = true;
+            var playlist = _trackCvsSource.Items.Select(x => x.Track);
+            await ServiceFacade.PlaybackService.PlayAsync(playlist, track.Track);
+        }
+
+        public async Task PlayAsync(AlbumViewModel album)
+        {
+            
         }
 
         public async Task RestoreCvsSourceAsync()
         {
             TrackCvsSource = await GroupedObservableCollection.CreateAsync(_originalData.Tracks, t => t.Track.TrackTitle[0]);
 
-            Albums = _originalData.Albums;
+            Albums = new ObservableCollection<AlbumViewModel>(_originalData.Albums);
             AlbumSelectedIndex = -1;
 
             ArtistCvsSource = await GroupedObservableCollection.CreateAsync(_originalData.Artists, a => a.Artist.Name[0]);

@@ -135,7 +135,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
                     b.Property<string>("FileName");
 
-                    b.Property<long?>("FileSize");
+                    b.Property<ulong?>("FileSize");
 
                     b.Property<string>("Genres");
 
@@ -184,7 +184,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
             modelBuilder.Entity("Magentaize.FluentPlayer.Data.Album", b =>
                 {
-                    b.HasOne("Magentaize.FluentPlayer.Data.Artist")
+                    b.HasOne("Magentaize.FluentPlayer.Data.Artist", "Artist")
                         .WithMany("Albums")
                         .HasForeignKey("ArtistId");
                 });

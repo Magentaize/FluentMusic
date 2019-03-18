@@ -10,11 +10,21 @@ using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Prism.Commands;
+using System.Windows.Input;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
     internal class FullPlayerPageViewModel : BindableBase
     {
+        private bool _isPlaying;
+
+        public bool IsPlaying
+        {
+            get => _isPlaying;
+            set => SetProperty(ref _isPlaying, value);
+        }
+
         private CombinedDbViewModel _dataSource;
 
         public CombinedDbViewModel DataSource
@@ -66,10 +76,40 @@ namespace Magentaize.FluentPlayer.ViewModels
         private TimeSpan _naturalPosition;
         private bool _progressSliderIsDragging = false;
 
+        public ICommand ResumePauseCommand { get; }
+        public ICommand PreviousCommand { get; }
+        public ICommand NextCommand { get; }
+
         public FullPlayerPageViewModel()
         {
             ServiceFacade.PlaybackService.PlayerPositionChanged += PlaybackService_PlayerPositionChanged;
             ServiceFacade.PlaybackService.NewTrackPlayed += PlaybackService_NewTrackPlayed;
+            ServiceFacade.PlaybackService.PlayingStatusChanged += PlaybackService_PlayingStatusChanged;
+
+            ResumePauseCommand = new DelegateCommand(ResumePause);
+            PreviousCommand = new DelegateCommand(Previous);
+            NextCommand = new DelegateCommand(Next);
+        }
+
+        private void ResumePause()
+        {
+            if (ServiceFacade.PlaybackService.IsPlaying) ServiceFacade.PlaybackService.Pause();
+            else ServiceFacade.PlaybackService.Resume();
+        }
+       
+        private void Previous()
+        {
+
+        }
+
+        private void Next()
+        {
+
+        }
+
+        private void PlaybackService_PlayingStatusChanged(object sender, object _)
+        {
+            IsPlaying = ServiceFacade.PlaybackService.IsPlaying;
         }
 
         private void PlaybackService_NewTrackPlayed(object sender, NewTrackPlayedEventArgs e)

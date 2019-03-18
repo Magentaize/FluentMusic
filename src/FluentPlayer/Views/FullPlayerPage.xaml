@@ -77,6 +77,12 @@
             <TextBlock Text="{x:Bind Vm.PositionInfo, Mode=OneWay}" />
           </StackPanel>
         </StackPanel>
+
+        <cc:PlaybackController Grid.Column="1"
+                               IsPlaying="{x:Bind Vm.IsPlaying, Mode=OneWay}"
+                               ResumePauseCommand="{x:Bind Vm.ResumePauseCommand, Mode=OneWay}"
+                               PreviousCommand="{x:Bind Vm.PreviousCommand}"
+                               NextCommand="{x:Bind Vm.NextCommand}" />
       </Grid>
     </StackPanel>
   </Grid>

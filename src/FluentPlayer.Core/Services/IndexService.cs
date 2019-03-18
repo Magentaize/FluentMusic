@@ -28,18 +28,18 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         internal static async Task<IndexService> CreateAsync()
         {
-            var ins = new IndexService();
+            var index = new IndexService();
 
             var dbTracks = ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist).AsEnumerable();
-            ins._tracks = new ObservableCollection<Track>(dbTracks);
+            index._tracks = new ObservableCollection<Track>(dbTracks);
 
             var dbArtists = ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums).AsEnumerable();
-            ins._artists = new ObservableCollection<Artist>(dbArtists);
+            index._artists = new ObservableCollection<Artist>(dbArtists);
 
-            var dbAlbums = ServiceFacade.Db.Albums.Include(a=>a.Tracks).AsEnumerable();
-            ins._albums = new ObservableCollection<Album>(dbAlbums);
+            var dbAlbums = ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist).AsEnumerable();
+            index._albums = new ObservableCollection<Album>(dbAlbums);
 
-            return await Task.FromResult(ins);
+            return await Task.FromResult(index);
         }
 
         private ObservableCollection<Track> _tracks;
@@ -78,10 +78,6 @@ namespace Magentaize.FluentPlayer.Core.Services
             var newFiles = libAudioFiles.Where(f => !commonPath.Contains(f.Path)).ToArray();
             var deletedTracks = dbTracks.Where(t => !commonPath.Contains(t.Path));
 
-            // remove deleted tracks in database
-            ServiceFacade.Db.Tracks.RemoveRange(deletedTracks);
-            await ServiceFacade.Db.SaveChangesAsync();
-
             // begin index
             QueueIndexingCount = newFiles.Count();
             QueueIndexedCount = 0;
@@ -102,20 +98,30 @@ namespace Magentaize.FluentPlayer.Core.Services
                 IndexProgressChanged?.Invoke(this, null);
             }
 
+            await RemoveIndexedFileAsync(deletedTracks);
+
             IndexFinished?.Invoke(this, null);
         }
 
-        private async Task IndexFileAsync(IStorageFile file)
+        //remove deleted tracks in database
+        private async Task RemoveIndexedFileAsync(IEnumerable<Track> tracks)
         {
-            var path = file.Path;
-            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
+            var group = tracks.GroupBy(t => t.Artist).GroupBy(at => at.Key.Albums);
 
-            var prop = tFile.Properties;
-            var tag = tFile.Tag;
+            ServiceFacade.Db.Tracks.RemoveRange(tracks);
+            await ServiceFacade.Db.SaveChangesAsync();
 
-            // search for existed artist
+            foreach(var artist in group)
+            {
+
+            }
+        }
+
+        // search for existed artist
+        private async Task<(bool, Artist)> FindOrCreateArtist(Tag tag)
+        {
             var artistName = tag.FirstPerformer ?? "Unknown";
-            var artist = await ServiceFacade.Db.Artists.FirstOrDefaultAsync(a=>a.Name== artistName);
+            var artist = await ServiceFacade.Db.Artists.FirstOrDefaultAsync(a => a.Name == artistName);
             if (artist == null)
             {
                 artist = new Artist()
@@ -124,10 +130,15 @@ namespace Magentaize.FluentPlayer.Core.Services
                 };
 
                 await ServiceFacade.Db.Artists.AddAsync(artist);
-                _artists.Add(artist);
+                return (true, artist);
             }
 
-            // search for existed album
+            return (false, artist);
+        }
+
+        // search for existed album
+        private async Task<(bool, Album)> FindOrCreateAlbum(Tag tag, string path)
+        {
             var albumTitle = tag.Album ?? "Unknown";
             var album = await ServiceFacade.Db.Albums.FirstOrDefaultAsync(a => a.Title == albumTitle);
             if (album == null)
@@ -143,14 +154,40 @@ namespace Magentaize.FluentPlayer.Core.Services
                 {
                     picData = tag.Pictures[0].Data.Data.AsBuffer();
                 }
-                else if(_albumCoverList.TryGetValue(Path.GetDirectoryName(path), out var pic))
+                else if (_albumCoverList.TryGetValue(Path.GetDirectoryName(path), out var pic))
                 {
                     picData = await FileIO.ReadBufferAsync(pic);
                 }
 
                 album.AlbumCover = picData == null ? default : await ServiceFacade.CacheService.CacheAsync(picData);
 
+                return (true, album);
+            }
+
+            return (false, album);
+        }
+
+        private async Task IndexFileAsync(IStorageFile file)
+        {
+            var path = file.Path;
+            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
+
+            var prop = tFile.Properties;
+            var tag = tFile.Tag;
+
+            (var albumCreated, var album) = await FindOrCreateAlbum(tag, path);
+            (var artistCreated, var artist) = await FindOrCreateArtist(tag);
+
+            if (artistCreated)
+            {
+                _artists.Add(artist);
+                artist.Albums.Add(album);
+            }
+
+            if (albumCreated)
+            {
                 _albums.Add(album);
+                album.Artist = artist;
             }
 
             var fbp = await file.GetBasicPropertiesAsync();
@@ -171,7 +208,6 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             artist.Tracks.Add(track);
             album.Tracks.Add(track);
-            artist.Albums.Add(album);
 
             await ServiceFacade.Db.Tracks.AddAsync(track);
             _tracks.Add(track);
