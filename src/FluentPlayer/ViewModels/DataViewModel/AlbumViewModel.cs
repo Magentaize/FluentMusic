@@ -2,11 +2,11 @@
 using System.IO;
 using Windows.Storage;
 using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
+using ReactiveUI;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    public class AlbumViewModel : BindableBase
+    public class AlbumViewModel : ReactiveObject
     {
         public Album Album { get; }
 

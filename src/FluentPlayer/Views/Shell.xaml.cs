@@ -7,9 +7,7 @@ namespace Magentaize.FluentPlayer.Views
     {
         public Shell()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
-
-        public ShellViewModel ViewModel => DataContext as ShellViewModel;
     }
 }

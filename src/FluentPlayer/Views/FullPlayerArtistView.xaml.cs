@@ -1,96 +1,46 @@
 ﻿using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.ViewModels;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
-using System.Threading.Tasks;
+using ReactiveUI;
+using System;
+using System.Diagnostics;
+using System.Reactive.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 
 namespace Magentaize.FluentPlayer.Views
 {
-    public sealed partial class FullPlayerArtistView : UserControl
+    public sealed partial class FullPlayerArtistView : UserControl, IViewFor<FullPlayerArtistViewModel>
     {
-        internal FullPlayerArtistViewViewModel Vm { get; set; } = new FullPlayerArtistViewViewModel();
-
         public FullPlayerArtistView()
         {
+            ViewModel = new FullPlayerArtistViewModel();
+
             InitializeComponent();
+
+            ArtistList.Events().DoubleTapped
+                .InvokeCommand(ViewModel.PlayArtist);
+            
+
+            TrackList.Events().DoubleTapped
+                .InvokeCommand(ViewModel.PlayTrack);
         }
 
-        public CombinedDbViewModel ItemsSource
+        public FullPlayerArtistViewModel ViewModel
         {
-            get => (CombinedDbViewModel)GetValue(ItemsSourceProperty);
-            set => SetValue(ItemsSourceProperty, value);
+            get => (FullPlayerArtistViewModel)GetValue(ViewModelProperty);
+
+            set => SetValue(ViewModelProperty, value);
         }
 
-        public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(CombinedDbViewModel), typeof(FullPlayerArtistView), new PropertyMetadata(null, ItemsSourcePropertyChangedCallback));
+        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(FullPlayerArtistViewModel), typeof(FullPlayerArtistView), null);
 
-        private static async void ItemsSourcePropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        object IViewFor.ViewModel
         {
-            await ((FullPlayerArtistView)d).ItemsSourcePropertyChanged();
-        }
-
-        private async Task ItemsSourcePropertyChanged()
-        {
-            await Vm.FillCvsSourceAsync(ItemsSource);
+            get => ViewModel;
+            set => ViewModel = (FullPlayerArtistViewModel)value;
         }
 
         private bool _singleTap;
-
-        private async void ArtistItem_OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            _singleTap = false;
-        }
-
-        private async void ArtistItem_OnTapped(object sender, TappedRoutedEventArgs e)
-        {
-            _singleTap = true;
-            await Task.Delay(200);
-            if (_singleTap)
-            {
-                await Vm.ArtistItem_OnTapped(sender.Cast<ListView>().SelectedItem.Cast<ArtistViewModel>());
-            }
-        }
-
-        private async void TrackItem_OnDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            _singleTap = false;
-            await Vm.PlayAsync(sender.Cast<ListView>().SelectedItem.Cast<TrackViewModel>());
-
-            e.Handled = true;
-        }
-
-        private async void TrackItem_OnTapped(object sender, TappedRoutedEventArgs e)
-        {
-            _singleTap = true;
-            await Task.Delay(200);
-            if (_singleTap)
-            {
-
-            }
-
-            e.Handled = true;
-        }
-
-        private async void AlbumItem_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            _singleTap = true;
-            await Task.Delay(200);
-            if (_singleTap)
-            {
-
-            }
-
-            e.Handled = true;
-        }
-
-        private async void AlbumItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            _singleTap = false;
-            await Vm.PlayAsync(sender.Cast<GridView>().SelectedItem.Cast<AlbumViewModel>());
-
-            e.Handled = true;
-        }
     }
 }

@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using ReactiveUI;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -19,9 +22,10 @@ namespace Magentaize.FluentPlayer.Core.Services
     {
         public event EventHandler<MediaPlaybackSession> PlayerPositionChanged;
         public event EventHandler<NewTrackPlayedEventArgs> NewTrackPlayed;
-        public event EventHandler PlayingStatusChanged;
 
-        public bool IsPlaying { get; private set; }
+        public SubjectBase<bool> IsPlaying => new Subject<bool>();
+        public IObservable<MediaPlaybackSession> MediaPlaybackSession => new Subject<MediaPlaybackSession>();
+
         public Track CurrentTrack { get; private set; }
         public MediaPlayer Player { get; private set; }
 
@@ -29,7 +33,9 @@ namespace Magentaize.FluentPlayer.Core.Services
         private IList<Track> _trackPlaybackList;
         private MediaPlaybackItem _currentPlaybackItem;
 
-        internal PlaybackService() { }
+        internal PlaybackService()
+        {
+        }
 
         private void CreatePositionUpdateTimer()
         {
@@ -58,8 +64,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         private async void Player_MediaOpened(MediaPlayer sender, object args)
         {
-            IsPlaying = true;
-
+            IsPlaying.OnNext(true);
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
                 () =>
                 {
@@ -69,8 +74,6 @@ namespace Magentaize.FluentPlayer.Core.Services
                         TrackArtist = CurrentTrack.Artist.Name,
                         NaturalDuration = _currentPlaybackItem.Source.Duration.Value,
                     });
-
-                    PlayingStatusChanged?.Invoke(this, null);
                 });
 
             await WriteSmtcThumbnailAsync(_currentPlaybackItem, CurrentTrack);
@@ -82,23 +85,21 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             Player.Pause();
 
-            IsPlaying = false;
-
-            PlayingStatusChanged?.Invoke(this, null);
+            IsPlaying.OnNext(false);
         }
 
         public void Resume()
         {
             Player.Play();
 
-            IsPlaying = true;
-
-            PlayingStatusChanged?.Invoke(this, null);
+            IsPlaying.OnNext(true);
         }
 
         public async Task PlayAsync(IEnumerable<Track> tracks, Track selected)
         {
             _trackPlaybackList = new List<Track>(tracks);
+
+            if (selected == null) selected = _trackPlaybackList[0];
 
             var mpi = await CreateMediaPlaybackItemAsync(selected);
             CurrentTrack = selected;

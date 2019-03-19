@@ -29,7 +29,7 @@
           <PivotItem.Header>
             <TextBlock Text="Artists"/>
           </PivotItem.Header>
-          <local:FullPlayerArtistView ItemsSource="{x:Bind Vm.DataSource, Mode=OneWay}"/>
+          <local:FullPlayerArtistView/>
         </PivotItem>
 
         <PivotItem x:Uid="Albums">
@@ -56,13 +56,13 @@
     </Border>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
+      <!--<cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
                            Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
                            Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
                            ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
                            SliderDragStarted="DragNotifySlider_OnSliderDragStarted"
                            SliderDragCompleted="DragNotifySlider_OnSliderDragCompleted"
-      />
+      />-->
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -72,17 +72,13 @@
 
         <StackPanel Orientation="Horizontal">
           <StackPanel Orientation="Vertical">
-            <TextBlock Text="{x:Bind Vm.TrackTitle, Mode=OneWay}" />
+            <!--<TextBlock Text="{x:Bind Vm.TrackTitle, Mode=OneWay}" />
             <TextBlock Text="{x:Bind Vm.TrackArtist, Mode=OneWay}" />
-            <TextBlock Text="{x:Bind Vm.PositionInfo, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind Vm.PositionInfo, Mode=OneWay}" />-->
           </StackPanel>
         </StackPanel>
 
-        <cc:PlaybackController Grid.Column="1"
-                               IsPlaying="{x:Bind Vm.IsPlaying, Mode=OneWay}"
-                               ResumePauseCommand="{x:Bind Vm.ResumePauseCommand, Mode=OneWay}"
-                               PreviousCommand="{x:Bind Vm.PreviousCommand}"
-                               NextCommand="{x:Bind Vm.NextCommand}" />
+        <local:PlaybackControllerView Grid.Column="1" />
       </Grid>
     </StackPanel>
   </Grid>

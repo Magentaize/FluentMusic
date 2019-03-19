@@ -1,23 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using DynamicData;
+using DynamicData.Binding;
+using System;
 using System.Linq;
 
 namespace Magentaize.FluentPlayer.Collections
 {
-    public class Grouping<TKey, TElement> : ObservableCollection<TElement>, IGrouping<TKey, TElement>
+    public class Grouping<TKey, TElement> : ObservableCollectionExtended<TElement>, IGrouping<TKey, TElement>
     {
-        public Grouping(TKey key)
+        public Grouping(IGroup<TElement, TKey> group)         
         {
-            Key = key;
-        }
-
-        public Grouping(TKey key, IEnumerable<TElement> items)
-            : this(key)
-        {
-            foreach (var item in items)
-            {
-                this.Add(item);
-            }
+            Key = group.GroupKey;
+            group.List.Connect().Bind(this).Subscribe();
         }
 
         public TKey Key { get; }

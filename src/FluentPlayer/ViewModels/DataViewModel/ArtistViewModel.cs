@@ -1,9 +1,9 @@
 ﻿using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
+using ReactiveUI;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    public class ArtistViewModel : BindableBase
+    public class ArtistViewModel : ReactiveObject
     {
         public Artist Artist { get; }
 

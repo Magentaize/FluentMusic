@@ -22,12 +22,12 @@
     <controls:DockPanel Grid.Column="0">
 
       <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
-        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind Vm.RestoreArtistsCommand}"/>
+        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind ViewModel.RestoreArtistsCommand}" />
       </StackPanel>
 
       <Border controls:DockPanel.Dock="Bottom">
         <Border.Resources>
-          <CollectionViewSource x:Name="ArtistCvs" IsSourceGrouped="True" Source="{x:Bind Mode=OneWay, Path=Vm.ArtistCvsSource}"/>
+          <CollectionViewSource x:Name="ArtistCvs" IsSourceGrouped="True" Source="{x:Bind Mode=OneWay, Path=ViewModel.ArtistCvsSource}"/>
         </Border.Resources>
 
         <SemanticZoom>
@@ -49,14 +49,15 @@
               </GridView.ItemsPanel>
             </GridView>
           </SemanticZoom.ZoomedOutView>
-          <ListView ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
-                    SelectedIndex="{x:Bind Mode=TwoWay, Path=Vm.ArtistSelectedIndex}"
-                    ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-                    SelectionMode="Single" 
-                    DoubleTapped="ArtistItem_OnDoubleTapped"
-                    Tapped="ArtistItem_OnTapped"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListView 
+            x:Name="ArtistList"
+            IsSynchronizedWithCurrentItem="False"
+            ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
+            SelectedItem="{x:Bind Mode=TwoWay, Path=ViewModel.ArtistListSelectedItem}"
+            ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
+            SelectionMode="Single" 
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.ItemTemplate>
               <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
                 <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
@@ -80,7 +81,7 @@
 
     <!-- Album GridWrap -->
     <Border Grid.Column="1">
-      <GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" 
+      <!--<GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" 
                 SelectionMode="Single"
                 SelectedIndex="{x:Bind Vm.AlbumSelectedIndex, Mode=TwoWay}"
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -91,24 +92,25 @@
             <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
           </DataTemplate>
         </GridView.ItemTemplate>
-      </GridView>
+      </GridView>-->
     </Border>
 
     <!-- Track List -->
     <Border Grid.Column="2">
       <Border.Resources>
-        <CollectionViewSource x:Name="TrackCvs" IsSourceGrouped="True" Source="{x:Bind Vm.TrackCvsSource, Mode=OneWay}"/>
+        <CollectionViewSource x:Name="TrackCvs" IsSourceGrouped="True" Source="{x:Bind ViewModel.TrackCvsSource, Mode=OneWay}"/>
       </Border.Resources>
 
       <SemanticZoom>
         <SemanticZoom.ZoomedInView>
-          <ListView ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
-                    SelectionMode="Extended"
-                    ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-                    DoubleTapped="TrackItem_OnDoubleTapped"
-                    Tapped="TrackItem_OnTapped"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+          <ListView 
+            x:Name="TrackList"
+            ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
+            SelectionMode="Extended"
+            SelectedItem="{x:Bind ViewModel.TrackListSelected, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+            ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemTemplate>
               <DataTemplate x:DataType="dataViewModel:TrackViewModel">
                 <controls:DockPanel Style="{StaticResource BaseListViewItemDockPanelStyle}" >

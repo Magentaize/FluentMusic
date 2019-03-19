@@ -1,19 +1,15 @@
 ﻿using Magentaize.FluentPlayer.Data;
-using Prism.Mvvm;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    public class TrackViewModel : BindableBase
+    public class TrackViewModel : ReactiveObject
     {
         public Track Track { get; }
 
-        private bool _isPlaying = false;
-
-        public bool IsPlaying
-        {
-            get => _isPlaying;
-            set => SetProperty(ref _isPlaying, value);
-        }
+        [Reactive]
+        public bool IsPlaying { get; set; }
 
         public TrackViewModel(Track track)
         {

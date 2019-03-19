@@ -1,4 +1,5 @@
-﻿using Magentaize.FluentPlayer.Core.Extensions;
+﻿using DynamicData;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,14 @@ namespace Magentaize.FluentPlayer.Core.Services
 {
     public class IndexService
     {
+        private readonly ISourceList<Track> _trackSource = new SourceList<Track>();
+
+        public IObservable<IChangeSet<Track>> TrackSource => _trackSource.Connect();
+
+        private readonly ISourceList<Artist> _artistSource = new SourceList<Artist>();
+
+        public IObservable<IChangeSet<Artist>> ArtistSource => _artistSource.Connect();
+
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
         public event EventHandler IndexFinished;
@@ -24,17 +33,19 @@ namespace Magentaize.FluentPlayer.Core.Services
         public int QueueIndexingCount { get; private set; }
         public int QueueIndexedCount { get; private set; }
 
-        private IndexService() { }
+        private IndexService() {}
 
         internal static async Task<IndexService> CreateAsync()
         {
             var index = new IndexService();
 
-            var dbTracks = ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist).AsEnumerable();
-            index._tracks = new ObservableCollection<Track>(dbTracks);
+            await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
+                .ToAsyncEnumerable()
+                .ForEachAsync(x => index._trackSource.Add(x));
 
-            var dbArtists = ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums).AsEnumerable();
-            index._artists = new ObservableCollection<Artist>(dbArtists);
+            await ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums)
+                .ToAsyncEnumerable()
+                .ForEachAsync(x => index._artistSource.Add(x));
 
             var dbAlbums = ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist).AsEnumerable();
             index._albums = new ObservableCollection<Album>(dbAlbums);
@@ -42,19 +53,19 @@ namespace Magentaize.FluentPlayer.Core.Services
             return await Task.FromResult(index);
         }
 
-        private ObservableCollection<Track> _tracks;
-        private ObservableCollection<Artist> _artists;
+        //private ObservableCollection<Track> _tracks;
+        //private ObservableCollection<Artist> _artists;
         private ObservableCollection<Album> _albums;
 
-        public async Task<ObservableCollection<Track>> GetAllTracksAsync()
-        {
-            return await Task.FromResult(_tracks);
-        }
+        //public async Task<ObservableCollection<Track>> GetAllTracksAsync()
+        //{
+        //    return await Task.FromResult(_tracks);
+        //}
 
-        public async Task<ObservableCollection<Artist>> GetAllArtistsAsync()
-        {
-            return await Task.FromResult(_artists);
-        }
+        //public async Task<ObservableCollection<Artist>> GetAllArtistsAsync()
+        //{
+        //    return await Task.FromResult(_artists);
+        //}
 
         public async Task<ObservableCollection<Album>> GetAllAlbumsAsync()
         {
@@ -180,7 +191,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             if (artistCreated)
             {
-                _artists.Add(artist);
+                _artistSource.Add(artist);
                 artist.Albums.Add(album);
             }
 
@@ -210,7 +221,7 @@ namespace Magentaize.FluentPlayer.Core.Services
             album.Tracks.Add(track);
 
             await ServiceFacade.Db.Tracks.AddAsync(track);
-            _tracks.Add(track);
+            _trackSource.Add(track);
 
             await ServiceFacade.Db.SaveChangesAsync();
         }
