@@ -18,11 +18,17 @@ namespace Magentaize.FluentPlayer.Views
 
             InitializeComponent();
 
+            ArtistList.Events().Tapped
+                .InvokeCommand(ViewModel.ArtistListTapped);
+
             ArtistList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayArtist);
             
             TrackList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayTrack);
+
+            AlbumGridView.Events().Tapped
+                .InvokeCommand(ViewModel.AlbumGridViewTapped);
 
             AlbumGridView.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayAlbum);

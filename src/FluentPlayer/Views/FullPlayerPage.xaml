@@ -56,13 +56,12 @@
     </Border>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <!--<cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
-                           Maximum="{x:Bind Vm.SliderNaturalPosition, Mode=OneWay}"
-                           Value="{x:Bind Vm.SliderCurrentPosition, Mode=OneWay}" 
+      <cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
+                           Maximum="{x:Bind ViewModel.SliderNaturalPosition, Mode=OneWay}"
+                           Value="{x:Bind ViewModel.SliderCurrentPosition, Mode=OneWay}" 
                            ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
-                           SliderDragStarted="DragNotifySlider_OnSliderDragStarted"
-                           SliderDragCompleted="DragNotifySlider_OnSliderDragCompleted"
-      />-->
+                           SliderDragStarted="{x:Bind ViewModel.ProgressSlider_OnManipulationStarting}"
+                           SliderDragCompleted="{x:Bind ViewModel.ProgressSlider_OnManipulationCompleted}"/>
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -71,10 +70,14 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Horizontal">
-          <StackPanel Orientation="Vertical">
-            <!--<TextBlock Text="{x:Bind Vm.TrackTitle, Mode=OneWay}" />
-            <TextBlock Text="{x:Bind Vm.TrackArtist, Mode=OneWay}" />
-            <TextBlock Text="{x:Bind Vm.PositionInfo, Mode=OneWay}" />-->
+          <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.IsPlaying, Mode=OneWay}">
+            <TextBlock Text="{x:Bind ViewModel.TrackTitle, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind ViewModel.TrackArtist, Mode=OneWay}" />
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" />
+              <TextBlock Text="/"/>
+              <TextBlock Text="{x:Bind ViewModel.NaturalPosition, Mode=OneWay}"/>
+            </StackPanel>
           </StackPanel>
         </StackPanel>
 

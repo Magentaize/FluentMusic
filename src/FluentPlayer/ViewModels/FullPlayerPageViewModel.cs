@@ -1,13 +1,8 @@
 ﻿using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.Core.Services;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Reactive.Linq;
-using Windows.ApplicationModel.Core;
-using Windows.Media.Playback;
-using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.ViewModels
@@ -17,16 +12,10 @@ namespace Magentaize.FluentPlayer.ViewModels
         [ObservableAsProperty]
         public bool IsPlaying { get; }
 
-        private CombinedDbViewModel _dataSource;
-
-        //public CombinedDbViewModel DataSource
-        //{
-        //    get => _dataSource;
-        //    set => SetProperty(ref _dataSource, value);
-        //}
-
         [Reactive]
-        public string PositionInfo { get; set; }
+        public string CurrentPosition { get; set; }
+        [Reactive]
+        public string NaturalPosition { get; set; }
 
         [Reactive]
         public string TrackTitle { get; set; }
@@ -40,51 +29,37 @@ namespace Magentaize.FluentPlayer.ViewModels
         [Reactive]
         public double SliderNaturalPosition { get; set; }
 
-        private TimeSpan _naturalPosition;
         private bool _progressSliderIsDragging = false;
 
         public FullPlayerPageViewModel()
         {
-            ServiceFacade.PlaybackService.PlayerPositionChanged += PlaybackService_PlayerPositionChanged;
-            ServiceFacade.PlaybackService.NewTrackPlayed += PlaybackService_NewTrackPlayed;
-
-            //ServiceFacade.PlaybackService.IsPlaying.DistinctUntilChanged()
-            //    .ToPropertyEx(this, x => x.IsPlaying);
-        }
-
-        private void PlaybackService_NewTrackPlayed(object sender, NewTrackPlayedEventArgs e)
-        {
-            TrackTitle = e.TrackTitle;
-            TrackArtist = e.TrackArtist;
-            _naturalPosition = e.NaturalDuration;
-            _progressSliderIsDragging = false;
-            SliderNaturalPosition = e.NaturalDuration.TotalSeconds;
-        }
-
-        private async void PlaybackService_PlayerPositionChanged(object sender, MediaPlaybackSession e)
-        {
-            var d1 = e.Position;
-            var d2 = _naturalPosition;
-            var posInfo = d2.Hours != 0 ? $"{d1:hh\\.mm\\:ss}/{d2:hh\\.mm\\:ss}" : $"{d1:mm\\:ss}/{d2:mm\\:ss}";
-
-            await CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            var pbs = ServiceFacade.PlaybackService;
+            pbs.IsPlaying.ToPropertyEx(this, x => x.IsPlaying);
+            pbs.CurrentTrack.Subscribe(x =>
             {
-                PositionInfo = posInfo;
-
-                if (!_progressSliderIsDragging) SliderCurrentPosition = d1.TotalSeconds;
+                TrackTitle = x.Track.TrackTitle;
+                TrackArtist = x.Track.Artist.Name;
+                CurrentPosition = @"00:00";
+                NaturalPosition = $"{x.NaturalDuration:mm\\:ss}";
+                SliderNaturalPosition = x.NaturalDuration.TotalSeconds;
+            });
+            ServiceFacade.PlaybackService.PlaybackPosition.Subscribe(x =>
+            {
+                CurrentPosition = $"{x.Position:mm\\:ss}";
+                if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
             });
         }
 
-        public void ProgressSlider_OnManipulationStarting(Slider slider)
+        public void ProgressSlider_OnManipulationStarting(object sender, EventArgs e)
         {
             _progressSliderIsDragging = true;
         }
 
-        public void ProgressSlider_OnManipulationCompleted(Slider slider)
+        public void ProgressSlider_OnManipulationCompleted(object sender, EventArgs e)
         {
             _progressSliderIsDragging = false;
 
-            ServiceFacade.PlaybackService.Seek(TimeSpan.FromSeconds(slider.Value));
+            ServiceFacade.PlaybackService.Seek(TimeSpan.FromSeconds(((Slider)sender).Value));
         }
     }
 }

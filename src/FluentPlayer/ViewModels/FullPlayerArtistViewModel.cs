@@ -35,6 +35,8 @@ namespace Magentaize.FluentPlayer.ViewModels
         public AlbumViewModel AlbumGridViewSelectedItem { get; set; }
 
         public ReactiveCommand<Unit, Unit> RestoreArtistsCommand { get; }
+        public ICommand ArtistListTapped { get; }
+        public ICommand AlbumGridViewTapped { get; }
         public ICommand PlayTrack { get; }
         public ICommand PlayArtist => PlayTrack;
         public ICommand PlayAlbum => PlayTrack;
@@ -88,21 +90,16 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Bind(out _trackCvsSource)
                 .Subscribe();
 
-            this.WhenAnyValue(x => x.ArtistListSelectedItem, x => x.AlbumGridViewSelectedItem)
-                .Subscribe(_ =>
-                {
-                    (var artist, var album) = _;
+            ArtistListTapped = ReactiveCommand.Create<object>(_ =>
+              {
+                  albumFilter.OnNext(vm => vm.Album.Artist == ArtistListSelectedItem.Artist);
+                  trackFilter.OnNext(vm => vm.Track.Artist == ArtistListSelectedItem.Artist);
+              });
 
-                    if (artist != null)
-                    {
-                        albumFilter.OnNext(vm => vm.Album.Artist == artist.Artist);
-                        trackFilter.OnNext(vm => vm.Track.Artist == artist.Artist);
-                    }
-                    else if (album != null)
-                    {
-                        trackFilter.OnNext(vm => vm.Track.Album == album.Album);
-                    }
-                });
+            AlbumGridViewTapped = ReactiveCommand.Create<object>(_ =>
+            {
+                trackFilter.OnNext(vm => vm.Track.Album == AlbumGridViewSelectedItem.Album);
+            });
 
             PlayTrack = ReactiveCommand.Create<object>(async _ =>
             {
@@ -116,7 +113,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Subscribe(x =>
                 {
                     if (lastPlayedTrack != null) lastPlayedTrack.IsPlaying = false;
-                    var xvm = _filteredTrackVm.First(vm => vm.Track == x);
+                    var xvm = _filteredTrackVm.First(vm => vm.Track == x.Track);
                     xvm.IsPlaying = true;
                     lastPlayedTrack = xvm;
                 });
@@ -125,6 +122,9 @@ namespace Magentaize.FluentPlayer.ViewModels
             {
                 albumFilter.OnNext(_ => true);
                 trackFilter.OnNext(_ => true);
+
+                ArtistListSelectedItem = null;
+                AlbumGridViewSelectedItem = null;
             });
 
             Activator = new ViewModelActivator();

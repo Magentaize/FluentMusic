@@ -1,5 +1,4 @@
-﻿using Kasay;
-using Magentaize.FluentPlayer.ViewModels;
+﻿using Magentaize.FluentPlayer.ViewModels;
 using ReactiveUI;
 using System;
 using Windows.UI.Xaml;
@@ -27,16 +26,6 @@ namespace Magentaize.FluentPlayer.Views
             InitializeComponent();
 
             this.WhenActivated(disposables => { });
-        }
-
-        private void DragNotifySlider_OnSliderDragStarted(object sender, EventArgs e)
-        {
-            //Vm.ProgressSlider_OnManipulationStarting((Slider)sender);
-        }
-
-        private void DragNotifySlider_OnSliderDragCompleted(object sender, EventArgs e)
-        {
-            //Vm.ProgressSlider_OnManipulationCompleted((Slider)sender);
         }
     }
 }
