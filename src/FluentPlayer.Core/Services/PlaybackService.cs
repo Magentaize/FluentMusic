@@ -66,7 +66,11 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         private async void Player_MediaOpened(MediaPlayer sender, object args)
         {
-            IsPlaying.OnNext(true);
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+                () =>
+                {
+                    IsPlaying.OnNext(true);
+                });
             //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
             //    () =>
             //    {

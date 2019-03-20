@@ -21,9 +21,13 @@ namespace Magentaize.FluentPlayer.Views
             ArtistList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayArtist);
             
-
             TrackList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayTrack);
+
+            AlbumGridView.Events().DoubleTapped
+                .InvokeCommand(ViewModel.PlayAlbum);
+
+            this.WhenActivated(d => { });
         }
 
         public FullPlayerArtistViewModel ViewModel

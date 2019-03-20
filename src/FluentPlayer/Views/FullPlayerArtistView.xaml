@@ -81,18 +81,19 @@
 
     <!-- Album GridWrap -->
     <Border Grid.Column="1">
-      <!--<GridView ItemsSource="{x:Bind Vm.Albums, Mode=OneWay}" 
-                SelectionMode="Single"
-                SelectedIndex="{x:Bind Vm.AlbumSelectedIndex, Mode=TwoWay}"
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                Tapped="AlbumItem_Tapped"
-                DoubleTapped="AlbumItem_DoubleTapped">
+      <GridView
+        x:Name="AlbumGridView"
+        ItemsSource="{x:Bind ViewModel.AlbumCvsSource, Mode=OneWay}" 
+        IsSynchronizedWithCurrentItem="False"
+        SelectionMode="Single"
+        SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+        ScrollViewer.VerticalScrollBarVisibility="Auto">
         <GridView.ItemTemplate>
           <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
             <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
           </DataTemplate>
         </GridView.ItemTemplate>
-      </GridView>-->
+      </GridView>
     </Border>
 
     <!-- Track List -->
@@ -105,6 +106,7 @@
         <SemanticZoom.ZoomedInView>
           <ListView 
             x:Name="TrackList"
+            IsSynchronizedWithCurrentItem="False"
             ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
             SelectionMode="Extended"
             SelectedItem="{x:Bind ViewModel.TrackListSelected, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"

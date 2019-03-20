@@ -5,7 +5,6 @@ using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -25,6 +24,10 @@ namespace Magentaize.FluentPlayer.Core.Services
         private readonly ISourceList<Artist> _artistSource = new SourceList<Artist>();
 
         public IObservable<IChangeSet<Artist>> ArtistSource => _artistSource.Connect();
+
+        private readonly ISourceList<Album> _albumSource = new SourceList<Album>();
+
+        public IObservable<IChangeSet<Album>> AlbumSource => _albumSource.Connect();
 
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
@@ -47,29 +50,11 @@ namespace Magentaize.FluentPlayer.Core.Services
                 .ToAsyncEnumerable()
                 .ForEachAsync(x => index._artistSource.Add(x));
 
-            var dbAlbums = ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist).AsEnumerable();
-            index._albums = new ObservableCollection<Album>(dbAlbums);
+            await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
+                .ToAsyncEnumerable()
+                .ForEachAsync(x => index._albumSource.Add(x));
 
             return await Task.FromResult(index);
-        }
-
-        //private ObservableCollection<Track> _tracks;
-        //private ObservableCollection<Artist> _artists;
-        private ObservableCollection<Album> _albums;
-
-        //public async Task<ObservableCollection<Track>> GetAllTracksAsync()
-        //{
-        //    return await Task.FromResult(_tracks);
-        //}
-
-        //public async Task<ObservableCollection<Artist>> GetAllArtistsAsync()
-        //{
-        //    return await Task.FromResult(_artists);
-        //}
-
-        public async Task<ObservableCollection<Album>> GetAllAlbumsAsync()
-        {
-            return await Task.FromResult(_albums);
         }
 
         private IDictionary<string, StorageFile> _albumCoverList;
@@ -197,7 +182,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             if (albumCreated)
             {
-                _albums.Add(album);
+                _albumSource.Add(album);
                 album.Artist = artist;
             }
 

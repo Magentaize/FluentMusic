@@ -25,7 +25,6 @@ namespace Magentaize.FluentPlayer.ViewModels
         {
             _pauseIconVisible = ServiceFacade.PlaybackService.IsPlaying
                 .DistinctUntilChanged()
-                .ObserveOnDispatcher()
                 .ToProperty(this, x => x.PauseIconVisible, false);
 
             _resumeIconVisible = this

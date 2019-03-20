@@ -2,15 +2,16 @@
 using DynamicData.Binding;
 using Magentaize.FluentPlayer.Collections;
 using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Input;
 
 namespace Magentaize.FluentPlayer.ViewModels
@@ -18,44 +19,36 @@ namespace Magentaize.FluentPlayer.ViewModels
     public sealed class FullPlayerArtistViewModel : ReactiveObject, ISupportsActivation
     {
         private ReadOnlyObservableCollection<Grouping<char, TrackViewModel>> _trackCvsSource;
-
         public ReadOnlyObservableCollection<Grouping<char, TrackViewModel>> TrackCvsSource => _trackCvsSource;
 
         private ReadOnlyObservableCollection<Grouping<char, ArtistViewModel>> _artistCvsSource;
-
         public ReadOnlyObservableCollection<Grouping<char, ArtistViewModel>> ArtistCvsSource => _artistCvsSource;
 
-        [Reactive]
-        public int AlbumSelectedIndex { get; set; } = -1;
-
-        [Reactive]
-        public int ArtistListSelectedIndex { get; set; }
+        private ReadOnlyObservableCollection<AlbumViewModel> _albumCvsSource;
+        public ReadOnlyObservableCollection<AlbumViewModel> AlbumCvsSource => _albumCvsSource;
 
         [Reactive]
         public TrackViewModel TrackListSelected { get; set; }
-
         [Reactive]
         public ArtistViewModel ArtistListSelectedItem { get; set; }
+        [Reactive]
+        public AlbumViewModel AlbumGridViewSelectedItem { get; set; }
 
-        public ICommand RestoreArtistsCommand { get; }
+        public ReactiveCommand<Unit, Unit> RestoreArtistsCommand { get; }
         public ICommand PlayTrack { get; }
         public ICommand PlayArtist => PlayTrack;
-
-        public ViewModelActivator Activator => throw new NotImplementedException();
-
-        //private ReadOnlyObservableCollection<TrackViewModel> _trackList;
+        public ICommand PlayAlbum => PlayTrack;
 
         public FullPlayerArtistViewModel()
         {
+            var artistFilter = new Subject<Func<ArtistViewModel, bool>>();
+            var albumFilter = new Subject<Func<AlbumViewModel, bool>>();
+            var trackFilter = new Subject<Func<TrackViewModel, bool>>();
 
-            RestoreArtistsCommand = ReactiveCommand.Create(() =>
-            {
-                ArtistListSelectedIndex = -1;
-            });
+            // ---------------- Artist ----------------
 
             var artistList = ServiceFacade.IndexService.ArtistSource
                 .Transform(x => new ArtistViewModel(x));
-            //artistList.Subscribe();
 
             artistList
                 .GroupOn(x => x.Artist.Name[0])
@@ -64,15 +57,52 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Bind(out _artistCvsSource)
                 .Subscribe();
 
-            var artistFilter = this.WhenAnyValue(x => x.ArtistListSelectedItem)
-                .Select(BuildArtistFilter);
+            // ---------------- Album ----------------
 
-            var trackVmList = ServiceFacade.IndexService.TrackSource
-                .Transform(x => new TrackViewModel(x));
-            trackVmList.Subscribe();
+            var albumVmListObservable = ServiceFacade.IndexService.AlbumSource
+                .Transform(x => new AlbumViewModel(x));
+            var filteredAlbumVmObservable = albumVmListObservable.Filter(albumFilter);
+            filteredAlbumVmObservable.Bind(out var filteredAlbumVm).Subscribe();
 
-            var filteredTrackVm = trackVmList.Filter(artistFilter);
-            filteredTrackVm.Bind(out var _filteredTrackVm).Subscribe();
+            filteredAlbumVm
+                .ToObservableChangeSet()
+                .Bind(out _albumCvsSource)
+                .Subscribe();
+
+            // ---------------- Track ----------------
+
+            ServiceFacade.IndexService.TrackSource
+                .Transform(x => new TrackViewModel(x))
+                .Bind(out var trackVmList)
+                .Subscribe();
+
+            trackVmList.ToObservableChangeSet()
+                .Filter(trackFilter)
+                .Bind(out var _filteredTrackVm)
+                .Subscribe();
+
+            _filteredTrackVm.ToObservableChangeSet()
+                .GroupOn(x => x.Track.TrackTitle[0])
+                .Transform(x => new Grouping<char, TrackViewModel>(x))
+                .Sort(SortExpressionComparer<Grouping<char, TrackViewModel>>.Ascending(x => x.Key))
+                .Bind(out _trackCvsSource)
+                .Subscribe();
+
+            this.WhenAnyValue(x => x.ArtistListSelectedItem, x => x.AlbumGridViewSelectedItem)
+                .Subscribe(_ =>
+                {
+                    (var artist, var album) = _;
+
+                    if (artist != null)
+                    {
+                        albumFilter.OnNext(vm => vm.Album.Artist == artist.Artist);
+                        trackFilter.OnNext(vm => vm.Track.Artist == artist.Artist);
+                    }
+                    else if (album != null)
+                    {
+                        trackFilter.OnNext(vm => vm.Track.Album == album.Album);
+                    }
+                });
 
             PlayTrack = ReactiveCommand.Create<object>(async _ =>
             {
@@ -80,18 +110,9 @@ namespace Magentaize.FluentPlayer.ViewModels
                 await ServiceFacade.PlaybackService.PlayAsync(playlist, TrackListSelected?.Track);
             });
 
-            _filteredTrackVm
-                .ToObservableChangeSet()
-                .GroupOn(x => x.Track.TrackTitle[0])
-                .Transform(x => new Grouping<char, TrackViewModel>(x))
-                .Sort(SortExpressionComparer<Grouping<char, TrackViewModel>>.Ascending(x => x.Key))
-                .Bind(out _trackCvsSource)
-                .Subscribe();
-
             TrackViewModel lastPlayedTrack = null;
 
             ServiceFacade.PlaybackService.CurrentTrack
-                .ObserveOnDispatcher()
                 .Subscribe(x =>
                 {
                     if (lastPlayedTrack != null) lastPlayedTrack.IsPlaying = false;
@@ -99,18 +120,20 @@ namespace Magentaize.FluentPlayer.ViewModels
                     xvm.IsPlaying = true;
                     lastPlayedTrack = xvm;
                 });
+
+            RestoreArtistsCommand = ReactiveCommand.Create(() =>
+            {
+                albumFilter.OnNext(_ => true);
+                trackFilter.OnNext(_ => true);
+            });
+
+            Activator = new ViewModelActivator();
+            this.WhenActivated(async (CompositeDisposable d) =>
+            {
+                await RestoreArtistsCommand.Execute();
+            });
         }
 
-        private Func<TrackViewModel, bool> BuildArtistFilter(ArtistViewModel vm)
-        {
-            if (vm == null)
-            {
-                return t => true;
-            }
-            else
-            {
-                return t => t.Track.Artist == vm.Artist;
-            }
-        }
+        public ViewModelActivator Activator { get; }
     }
 }
