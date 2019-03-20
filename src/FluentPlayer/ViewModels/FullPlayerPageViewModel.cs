@@ -48,8 +48,8 @@ namespace Magentaize.FluentPlayer.ViewModels
             ServiceFacade.PlaybackService.PlayerPositionChanged += PlaybackService_PlayerPositionChanged;
             ServiceFacade.PlaybackService.NewTrackPlayed += PlaybackService_NewTrackPlayed;
 
-            ServiceFacade.PlaybackService.IsPlaying.DistinctUntilChanged()
-                .ToPropertyEx(this, x => x.IsPlaying);
+            //ServiceFacade.PlaybackService.IsPlaying.DistinctUntilChanged()
+            //    .ToPropertyEx(this, x => x.IsPlaying);
         }
 
         private void PlaybackService_NewTrackPlayed(object sender, NewTrackPlayedEventArgs e)

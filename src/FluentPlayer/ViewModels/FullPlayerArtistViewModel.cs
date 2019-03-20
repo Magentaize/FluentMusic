@@ -43,13 +43,15 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public ViewModelActivator Activator => throw new NotImplementedException();
 
+        //private ReadOnlyObservableCollection<TrackViewModel> _trackList;
+
         public FullPlayerArtistViewModel()
         {
+
             RestoreArtistsCommand = ReactiveCommand.Create(() =>
             {
                 ArtistListSelectedIndex = -1;
             });
-
 
             var artistList = ServiceFacade.IndexService.ArtistSource
                 .Transform(x => new ArtistViewModel(x));
@@ -60,29 +62,43 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Transform(x => new Grouping<char, ArtistViewModel>(x))
                 .Sort(SortExpressionComparer<Grouping<char, ArtistViewModel>>.Ascending(x => x.Key))
                 .Bind(out _artistCvsSource)
-                .Subscribe(_ => RestoreArtistsCommand.Execute(null));
+                .Subscribe();
 
             var artistFilter = this.WhenAnyValue(x => x.ArtistListSelectedItem)
                 .Select(BuildArtistFilter);
 
-            var trackList = ServiceFacade.IndexService.TrackSource
+            var trackVmList = ServiceFacade.IndexService.TrackSource
                 .Transform(x => new TrackViewModel(x));
-            trackList.Subscribe();
+            trackVmList.Subscribe();
+
+            var filteredTrackVm = trackVmList.Filter(artistFilter);
+            filteredTrackVm.Bind(out var _filteredTrackVm).Subscribe();
 
             PlayTrack = ReactiveCommand.Create<object>(async _ =>
             {
-                var playlist = _trackCvsSource.SelectMany(x => x).Select(x => x.Track);
+                var playlist = _filteredTrackVm.Select(x => x.Track);
                 await ServiceFacade.PlaybackService.PlayAsync(playlist, TrackListSelected?.Track);
             });
 
-            trackList
-                .Filter(artistFilter)
+            _filteredTrackVm
+                .ToObservableChangeSet()
                 .GroupOn(x => x.Track.TrackTitle[0])
                 .Transform(x => new Grouping<char, TrackViewModel>(x))
                 .Sort(SortExpressionComparer<Grouping<char, TrackViewModel>>.Ascending(x => x.Key))
                 .Bind(out _trackCvsSource)
-                .DisposeMany()
                 .Subscribe();
+
+            TrackViewModel lastPlayedTrack = null;
+
+            ServiceFacade.PlaybackService.CurrentTrack
+                .ObserveOnDispatcher()
+                .Subscribe(x =>
+                {
+                    if (lastPlayedTrack != null) lastPlayedTrack.IsPlaying = false;
+                    var xvm = _filteredTrackVm.First(vm => vm.Track == x);
+                    xvm.IsPlaying = true;
+                    lastPlayedTrack = xvm;
+                });
         }
 
         private Func<TrackViewModel, bool> BuildArtistFilter(ArtistViewModel vm)

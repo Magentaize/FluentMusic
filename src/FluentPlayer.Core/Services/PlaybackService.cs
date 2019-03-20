@@ -15,6 +15,7 @@ using Windows.ApplicationModel.Core;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 using ReactiveUI;
+using System.Diagnostics;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -23,10 +24,11 @@ namespace Magentaize.FluentPlayer.Core.Services
         public event EventHandler<MediaPlaybackSession> PlayerPositionChanged;
         public event EventHandler<NewTrackPlayedEventArgs> NewTrackPlayed;
 
-        public SubjectBase<bool> IsPlaying => new Subject<bool>();
+        public SubjectBase<bool> IsPlaying { get; } = new Subject<bool>();
         public IObservable<MediaPlaybackSession> MediaPlaybackSession => new Subject<MediaPlaybackSession>();
+        public SubjectBase<Track> CurrentTrack { get; } = new Subject<Track>(); 
 
-        public Track CurrentTrack { get; private set; }
+        //public Track CurrentTrack { get; private set; }
         public MediaPlayer Player { get; private set; }
 
         private ThreadPoolTimer _positionUpdateTimer;
@@ -65,18 +67,18 @@ namespace Magentaize.FluentPlayer.Core.Services
         private async void Player_MediaOpened(MediaPlayer sender, object args)
         {
             IsPlaying.OnNext(true);
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
-                () =>
-                {
-                    NewTrackPlayed?.Invoke(this, new NewTrackPlayedEventArgs()
-                    {
-                        TrackTitle = CurrentTrack.TrackTitle,
-                        TrackArtist = CurrentTrack.Artist.Name,
-                        NaturalDuration = _currentPlaybackItem.Source.Duration.Value,
-                    });
-                });
+            //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
+            //    () =>
+            //    {
+            //        NewTrackPlayed?.Invoke(this, new NewTrackPlayedEventArgs()
+            //        {
+            //            TrackTitle = CurrentTrack.TrackTitle,
+            //            TrackArtist = CurrentTrack.Artist.Name,
+            //            NaturalDuration = _currentPlaybackItem.Source.Duration.Value,
+            //        });
+            //    });
 
-            await WriteSmtcThumbnailAsync(_currentPlaybackItem, CurrentTrack);
+            await WriteSmtcThumbnailAsync(_currentPlaybackItem, await CurrentTrack.LastAsync());
 
             CreatePositionUpdateTimer();
         }
@@ -100,9 +102,8 @@ namespace Magentaize.FluentPlayer.Core.Services
             _trackPlaybackList = new List<Track>(tracks);
 
             if (selected == null) selected = _trackPlaybackList[0];
-
             var mpi = await CreateMediaPlaybackItemAsync(selected);
-            CurrentTrack = selected;
+            CurrentTrack.OnNext(selected);
             _currentPlaybackItem = mpi;
 
             Player.Source = mpi;

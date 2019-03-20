@@ -133,7 +133,7 @@
                             Glyph="&#xE93D;"
                             controls:DockPanel.Dock="Right"
                             Visibility="{x:Bind IsPlaying, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Foreground="{x:Bind IsPlaying, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}" />
+                            Foreground="{StaticResource SystemAccentColorDark1Brush}" />
                   <TextBlock Foreground="{x:Bind IsPlaying, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
                              Text="{x:Bind Track.TrackTitle, Mode=OneWay}"
                              VerticalAlignment="Center" 
