@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentPlayer", "FluentPlaye
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentPlayer.Core", "FluentPlayer.Core\FluentPlayer.Core.csproj", "{50281E98-D769-4459-BBAD-307EADFE015B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magentaize.FluentPlayer.Data", "Magentaize.FluentPlayer.Data\Magentaize.FluentPlayer.Data.csproj", "{487A9413-55E7-44E0-A5DF-97FB1BD77859}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentPlayer.Data", "FluentPlayer.Data\FluentPlayer.Data.csproj", "{487A9413-55E7-44E0-A5DF-97FB1BD77859}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Magentaize.FluentPlayer.Data.Migration.Startup", "Magentaize.FluentPlayer.Data.Migration.Startup\Magentaize.FluentPlayer.Data.Migration.Startup.csproj", "{27E34B88-17EA-41CC-8FED-83230F2564E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentPlayer.Data.Migration.Startup", "FluentPlayer.Data.Migration.Startup\FluentPlayer.Data.Migration.Startup.csproj", "{27E34B88-17EA-41CC-8FED-83230F2564E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaglibSharp.NetStandard", "taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj", "{59F49E09-2092-46C3-9F9B-1234FECCBB06}"
 EndProject

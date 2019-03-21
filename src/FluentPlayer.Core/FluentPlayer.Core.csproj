@@ -119,9 +119,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Magentaize.FluentPlayer.Data\Magentaize.FluentPlayer.Data.csproj">
+    <ProjectReference Include="..\FluentPlayer.Data\FluentPlayer.Data.csproj">
       <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>
-      <Name>Magentaize.FluentPlayer.Data</Name>
+      <Name>FluentPlayer.Data</Name>
     </ProjectReference>
     <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj">
       <Project>{59f49e09-2092-46c3-9f9b-1234feccbb06}</Project>

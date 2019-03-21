@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FluentPlayer.Data.Migration.Startup
+namespace Magentaize.FluentPlayer.Data.Migration.Startup
 {
     class Program
     {
