@@ -32,6 +32,7 @@ namespace Magentaize.FluentPlayer
             base.OnLaunched(e);
 
             await ServiceFacade.StartupAsync();
+            await ViewModelAccessor.StartupAsync();
 
             await ServiceFacade.IndexService.BeginIndexAsync();
 

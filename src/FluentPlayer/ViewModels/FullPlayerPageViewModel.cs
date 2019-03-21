@@ -3,7 +3,6 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Reactive.Linq;
-using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -34,7 +33,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 CurrentPosition = @"00:00";
                 NaturalPosition = $"{x.NaturalDuration:mm\\:ss}";
             });
-            ServiceFacade.PlaybackService.PlaybackPosition.Subscribe(x =>
+            pbs.PlaybackPosition.Subscribe(x =>
             {
                 CurrentPosition = $"{x.Position:mm\\:ss}";
             });

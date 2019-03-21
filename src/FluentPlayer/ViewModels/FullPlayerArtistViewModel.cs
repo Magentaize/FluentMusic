@@ -61,10 +61,10 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Album ----------------
 
-            var albumVmListObservable = ServiceFacade.IndexService.AlbumSource
-                .Transform(x => new AlbumViewModel(x));
-            var filteredAlbumVmObservable = albumVmListObservable.Filter(albumFilter);
-            filteredAlbumVmObservable.Bind(out var filteredAlbumVm).Subscribe();
+            ViewModelAccessor.AlbumVmSource
+                .ToObservableChangeSet<IObservableCollection<AlbumViewModel>, AlbumViewModel>()
+                .Filter(albumFilter)
+                .Bind(out var filteredAlbumVm).Subscribe();
 
             filteredAlbumVm
                 .ToObservableChangeSet()

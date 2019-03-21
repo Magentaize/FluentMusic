@@ -1,5 +1,6 @@
 ﻿using Magentaize.FluentPlayer.Core;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System.Reactive.Linq;
 using System.Windows.Input;
 
@@ -7,11 +8,11 @@ namespace Magentaize.FluentPlayer.ViewModels
 {
     public class PlaybackControllerViewModel : ReactiveObject
     {
-        private readonly ObservableAsPropertyHelper<bool> _pauseIconVisible;
-        public bool PauseIconVisible => _pauseIconVisible.Value;
+        [ObservableAsProperty]
+        public bool PauseIconVisible { get; set; }
 
-        private readonly ObservableAsPropertyHelper<bool> _resumeIconVisible;
-        public bool ResumeIconVisible => _resumeIconVisible.Value;
+        [ObservableAsProperty]
+        public bool ResumeIconVisible { get; set; }
 
         public ICommand Resume { get; }
 
@@ -23,14 +24,13 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public PlaybackControllerViewModel()
         {
-            _pauseIconVisible = ServiceFacade.PlaybackService.IsPlaying
+            ServiceFacade.PlaybackService.IsPlaying
                 .DistinctUntilChanged()
-                .ToProperty(this, x => x.PauseIconVisible, false);
+                .ToPropertyEx(this, x => x.PauseIconVisible, false);
 
-            _resumeIconVisible = this
-                 .WhenAnyValue(x => x.PauseIconVisible)
+            this.WhenAnyValue(x => x.PauseIconVisible)
                  .Select(x => !x)
-                 .ToProperty(this, x => x.ResumeIconVisible, true);
+                 .ToPropertyEx(this, x => x.ResumeIconVisible, true);
 
             Resume = ReactiveCommand.Create(ServiceFacade.PlaybackService.Resume);
 

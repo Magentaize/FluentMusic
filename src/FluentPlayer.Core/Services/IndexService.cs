@@ -25,9 +25,9 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public IObservable<IChangeSet<Artist>> ArtistSource => _artistSource.Connect();
 
-        private readonly ISourceList<Album> _albumSource = new SourceList<Album>();
+        private readonly ISourceCache<Album, long> _albumSource = new SourceCache<Album, long>(x => x.Id);
 
-        public IObservable<IChangeSet<Album>> AlbumSource => _albumSource.Connect();
+        public IObservable<IChangeSet<Album, long>> AlbumSource => _albumSource.Connect();
 
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
@@ -52,7 +52,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
                 .ToAsyncEnumerable()
-                .ForEachAsync(x => index._albumSource.Add(x));
+                .ForEachAsync(x => index._albumSource.AddOrUpdate(x));
 
             return await Task.FromResult(index);
         }
@@ -182,7 +182,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             if (albumCreated)
             {
-                _albumSource.Add(album);
+                _albumSource.AddOrUpdate(album);
                 album.Artist = artist;
             }
 

@@ -16,14 +16,15 @@ using Windows.UI.Core;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
-    public class TrackMixed
-    {
-        public Track Track { get; internal set; }
-        public TimeSpan NaturalDuration { get; internal set; }
-    }
-
     public class PlaybackService
     {
+        public class TrackMixed
+        {
+            public bool IsPlayingPreviousTrack { get; internal set; }
+            public Track Track { get; internal set; }
+            public TimeSpan NaturalDuration { get; internal set; }
+        }
+
         public BehaviorSubject<bool> IsPlaying { get; } = new BehaviorSubject<bool>(false);
         public SubjectBase<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
         public SubjectBase<TrackMixed> CurrentTrack { get; } = new Subject<TrackMixed>(); 

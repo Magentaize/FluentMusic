@@ -78,6 +78,8 @@
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Static.cs" />
+    <Compile Include="ViewModelAccessor.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoCoverViewModel.cs" />
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
     <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
@@ -86,6 +88,9 @@
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\TrackViewModel.cs" />
+    <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
+      <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FullPlayerArtistView.xaml.cs">
       <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
     </Compile>
@@ -152,6 +157,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\TextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\PlaybackInfoCover.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
