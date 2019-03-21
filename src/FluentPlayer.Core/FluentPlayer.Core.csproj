@@ -109,10 +109,10 @@
       <Version>6.2.8</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI">
-      <Version>9.11.3</Version>
+      <Version>9.12.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events">
-      <Version>9.11.3</Version>
+      <Version>9.12.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>4.2.0-preview.102</Version>

@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FluentPlayer.Data\FluentPlayer.Data.csproj" />
-    <ProjectReference Include="..\Magentaize.FluentPlayer.Data\Magentaize.FluentPlayer.Data.csproj" />
   </ItemGroup>
 
 </Project>
