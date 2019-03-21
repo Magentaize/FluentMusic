@@ -56,12 +56,7 @@
     </Border>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
-      <cc:DragNotifySlider Style="{StaticResource BaseDragNotifySliderStyle}"
-                           Maximum="{x:Bind ViewModel.SliderNaturalPosition, Mode=OneWay}"
-                           Value="{x:Bind ViewModel.SliderCurrentPosition, Mode=OneWay}" 
-                           ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}" 
-                           SliderDragStarted="{x:Bind ViewModel.ProgressSlider_OnManipulationStarting}"
-                           SliderDragCompleted="{x:Bind ViewModel.ProgressSlider_OnManipulationCompleted}"/>
+      <local:PlaybackSlider/>
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>

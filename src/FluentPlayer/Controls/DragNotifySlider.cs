@@ -34,7 +34,7 @@ namespace Magentaize.FluentPlayer.Controls
             }
         }
 
-        private void DragNotifySlider_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        private void DragNotifySlider_Tapped(object sender, TappedRoutedEventArgs e)
         {
             SliderDragCompleted?.Invoke(this, null);
         }

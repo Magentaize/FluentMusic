@@ -81,7 +81,7 @@
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
     <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
-    <Compile Include="ViewModels\DataViewModel\CombinedDbViewModel.cs" />
+    <Compile Include="ViewModels\PlaybackSliderViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerArtistViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
@@ -94,6 +94,9 @@
     </Compile>
     <Compile Include="Views\PlaybackControllerView.xaml.cs">
       <DependentUpon>PlaybackControllerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaybackSlider.xaml.cs">
+      <DependentUpon>PlaybackSlider.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -164,6 +167,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlaybackSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -185,7 +192,7 @@
       <Version>6.8.0.2561</Version>
     </PackageReference>
     <PackageReference Include="Kasay.DependencyProperty.UWP.Fody">
-      <Version>1.0.5</Version>
+      <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
       <Version>3.0.0-preview.19074.3</Version>

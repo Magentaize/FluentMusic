@@ -1,6 +1,6 @@
-﻿using Magentaize.FluentPlayer.ViewModels;
+﻿using Kasay.DependencyProperty;
+using Magentaize.FluentPlayer.ViewModels;
 using ReactiveUI;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.Views
@@ -14,14 +14,8 @@ namespace Magentaize.FluentPlayer.Views
             this.WhenActivated(disposables => { });
         }
 
-        public PlaybackControllerViewModel ViewModel
-        {
-            get => (PlaybackControllerViewModel)GetValue(ViewModelProperty);
-
-            set => SetValue(ViewModelProperty, value);
-        }
-
-        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(PlaybackControllerViewModel), typeof(PlaybackControllerView), null);
+        [Bind]
+        public PlaybackControllerViewModel ViewModel { get; set; }
 
         object IViewFor.ViewModel
         {

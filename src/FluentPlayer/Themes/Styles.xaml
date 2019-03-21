@@ -155,7 +155,8 @@
                                Fill="{TemplateBinding Foreground}"
                                RenderTransformOrigin="0.5,0.5"
                                Stroke="{StaticResource TextRevealAccentForeground}"
-                               StrokeThickness="2">
+                               StrokeThickness="2"
+                               Opacity="0">
                         <VisualStateManager.VisualStateGroups>
                           <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal" />

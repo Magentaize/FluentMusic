@@ -1,10 +1,6 @@
-﻿using Magentaize.FluentPlayer.Core.Extensions;
+﻿using Kasay.DependencyProperty;
 using Magentaize.FluentPlayer.ViewModels;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI;
-using System;
-using System.Diagnostics;
-using System.Reactive.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -36,21 +32,13 @@ namespace Magentaize.FluentPlayer.Views
             this.WhenActivated(d => { });
         }
 
-        public FullPlayerArtistViewModel ViewModel
-        {
-            get => (FullPlayerArtistViewModel)GetValue(ViewModelProperty);
-
-            set => SetValue(ViewModelProperty, value);
-        }
-
-        public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(FullPlayerArtistViewModel), typeof(FullPlayerArtistView), null);
+        [Bind]
+        public FullPlayerArtistViewModel ViewModel { get; set; }
 
         object IViewFor.ViewModel
         {
             get => ViewModel;
             set => ViewModel = (FullPlayerArtistViewModel)value;
         }
-
-        private bool _singleTap;
     }
 }

@@ -23,14 +23,6 @@ namespace Magentaize.FluentPlayer.ViewModels
         [Reactive]
         public string TrackArtist { get; set; }
 
-        [Reactive]
-        public double SliderCurrentPosition { get; set; }
-
-        [Reactive]
-        public double SliderNaturalPosition { get; set; }
-
-        private bool _progressSliderIsDragging = false;
-
         public FullPlayerPageViewModel()
         {
             var pbs = ServiceFacade.PlaybackService;
@@ -41,25 +33,11 @@ namespace Magentaize.FluentPlayer.ViewModels
                 TrackArtist = x.Track.Artist.Name;
                 CurrentPosition = @"00:00";
                 NaturalPosition = $"{x.NaturalDuration:mm\\:ss}";
-                SliderNaturalPosition = x.NaturalDuration.TotalSeconds;
             });
             ServiceFacade.PlaybackService.PlaybackPosition.Subscribe(x =>
             {
                 CurrentPosition = $"{x.Position:mm\\:ss}";
-                if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
             });
-        }
-
-        public void ProgressSlider_OnManipulationStarting(object sender, EventArgs e)
-        {
-            _progressSliderIsDragging = true;
-        }
-
-        public void ProgressSlider_OnManipulationCompleted(object sender, EventArgs e)
-        {
-            _progressSliderIsDragging = false;
-
-            ServiceFacade.PlaybackService.Seek(TimeSpan.FromSeconds(((Slider)sender).Value));
         }
     }
 }
