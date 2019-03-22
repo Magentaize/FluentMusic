@@ -5,26 +5,20 @@
     xmlns:local="using:Magentaize.FluentPlayer.Views.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:common="using:Magentaize.FluentPlayer.ViewModels.Common"
+  xmlns:controls="using:Magentaize.FluentPlayer.Controls"
   mc:Ignorable="d">
 
     <Border>
-    <controls:RotatorTile Height="200"
-      Width="200"
-      Background="LightGray"
-      ItemsSource="{x:Bind ViewModel.Thumbnail, Mode=OneWay}">
-      <controls:RotatorTile.ItemTemplate>
-        <DataTemplate>
-          <Border>
-            <Image    
-              Height="200" 
-              Width="200" 
-              Stretch="UniformToFill" 
-              Source="{Binding Mode=OneWay}"/>
-          </Border>
+    <controls:SlideTile Height="200" Width="200"
+                        Duration="0:0:0.5"
+                        Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
+                        Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
+      <controls:SlideTile.ContentTemplate>
+        <DataTemplate x:DataType="common:PlaybackInfoCoverThumbnailViewModel">
+          <Image Source="{x:Bind Uri}"/>
         </DataTemplate>
-      </controls:RotatorTile.ItemTemplate>
-      </controls:RotatorTile>
+      </controls:SlideTile.ContentTemplate>
+    </controls:SlideTile>
   </Border>
 </UserControl>

@@ -6,6 +6,20 @@
 
   <SolidColorBrush x:Key="SystemControlSplitterPointerOver" Color="{ThemeResource SystemBaseLowColor}"/>
   <SolidColorBrush x:Key="SystemControlSplitterPressed" Color="{ThemeResource SystemBaseHighColor}"/>
+
+  <Style TargetType="controls:SlideTile">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:SlideTile">
+          <Grid x:Name="OuterGird">
+            <ContentPresenter x:Name="Current" />
+            <ContentPresenter x:Name="Next"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="GridSplitterStyle" TargetType="local:GridSplitter">
     <Setter Property="IsTabStop" Value="True"/>
     <Setter Property="UseSystemFocusVisuals" Value="True"/>
