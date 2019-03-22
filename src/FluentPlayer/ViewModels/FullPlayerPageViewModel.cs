@@ -31,7 +31,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 TrackTitle = x.Track.TrackTitle;
                 TrackArtist = x.Track.Artist.Name;
                 CurrentPosition = @"00:00";
-                NaturalPosition = $"{x.NaturalDuration:mm\\:ss}";
+                NaturalPosition = $"{x.PlaybackItem.Source.Duration:mm\\:ss}";
             });
             pbs.PlaybackPosition.Subscribe(x =>
             {

@@ -24,7 +24,7 @@ namespace Magentaize.FluentPlayer.ViewModels
             var pbs = ServiceFacade.PlaybackService;
             pbs.CurrentTrack.Subscribe(x =>
             {
-                SliderNaturalPosition = x.NaturalDuration.TotalSeconds;
+                SliderNaturalPosition = x.PlaybackItem.Source.Duration.Value.TotalSeconds;
             });
             pbs.PlaybackPosition.Subscribe(x =>
             {

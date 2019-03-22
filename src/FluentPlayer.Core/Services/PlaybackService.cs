@@ -22,16 +22,15 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             public bool IsPlayingPreviousTrack { get; internal set; }
             public Track Track { get; internal set; }
-            public TimeSpan NaturalDuration { get; internal set; }
+            public MediaPlaybackItem PlaybackItem { get; internal set; }
         }
 
-        public BehaviorSubject<bool> IsPlaying { get; } = new BehaviorSubject<bool>(false);
-        public SubjectBase<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
-        public SubjectBase<TrackMixed> CurrentTrack { get; } = new Subject<TrackMixed>(); 
+        public ISubject<bool> IsPlaying { get; } = new Subject<bool>();
+        public ISubject<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
+        public ISubject<TrackMixed> CurrentTrack { get; } = new Subject<TrackMixed>(); 
 
         public MediaPlayer Player { get; private set; }
 
-        //private ThreadPoolTimer _positionUpdateTimer;
         private IList<Track> _trackPlaybackList;
         private MediaPlaybackItem _currentPlaybackItem;
 
@@ -57,13 +56,18 @@ namespace Magentaize.FluentPlayer.Core.Services
                         _positionUpdateTimer?.Cancel();
                     }
                 });
+
+            CurrentTrack
+                .Subscribe(async x =>
+                {
+                    await WriteSmtcThumbnailAsync(x.PlaybackItem, x.Track);
+                });
         }
 
         internal static async Task<PlaybackService> CreateAsync()
         {
             var ins = new PlaybackService();
             ins.Player = new MediaPlayer();
-            ins.Player.MediaOpened += ins.Player_MediaOpened;
             ins.Player.MediaEnded += ins.Player_MediaEnded;
 
             return await Task.FromResult(ins);
@@ -72,17 +76,6 @@ namespace Magentaize.FluentPlayer.Core.Services
         private void Player_MediaEnded(MediaPlayer sender, object args)
         {
 
-        }
-
-        private async void Player_MediaOpened(MediaPlayer sender, object args)
-        {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High,
-                () =>
-                {
-                    IsPlaying.OnNext(true);
-                });
-
-            await WriteSmtcThumbnailAsync(_currentPlaybackItem, (await CurrentTrack.LastAsync()).Track);
         }
 
         public void Pause()
@@ -105,11 +98,16 @@ namespace Magentaize.FluentPlayer.Core.Services
 
             if (selected == null) selected = _trackPlaybackList[0];
             var mpi = await CreateMediaPlaybackItemAsync(selected);
-            CurrentTrack.OnNext(new TrackMixed { Track = selected, NaturalDuration = mpi.Source.Duration.Value });
-            _currentPlaybackItem = mpi;
 
             Player.Source = mpi;
             Player.Play();
+
+            CurrentTrack.OnNext(new TrackMixed
+            {
+                Track = selected,
+                PlaybackItem = mpi,
+            });
+            IsPlaying.OnNext(true);
         }
 
         public void Seek(TimeSpan position)
@@ -134,8 +132,8 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             var prop = item.GetDisplayProperties();
 
-            var thumbF = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, track.Album.AlbumCover));
-            var rasf = RandomAccessStreamReference.CreateFromFile(thumbF);
+            var thumbFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, track.Album.AlbumCover));
+            var rasf = RandomAccessStreamReference.CreateFromFile(thumbFile);
             prop.Thumbnail = rasf;
             prop.Type = MediaPlaybackType.Music;
             prop.MusicProperties.Title = track.TrackTitle;

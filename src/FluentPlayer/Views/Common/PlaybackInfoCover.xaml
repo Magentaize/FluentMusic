@@ -10,7 +10,7 @@
   mc:Ignorable="d">
 
     <Border>
-    <controls:RotatorTile Height="200" Tapped="RotatorTile_Tapped"
+    <controls:RotatorTile Height="200"
       Width="200"
       Background="LightGray"
       ItemsSource="{x:Bind ViewModel.Thumbnail, Mode=OneWay}">
