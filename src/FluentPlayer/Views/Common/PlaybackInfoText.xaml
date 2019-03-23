@@ -1,0 +1,32 @@
+﻿<UserControl
+    x:Class="Magentaize.FluentPlayer.Views.Common.PlaybackInfoText"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Magentaize.FluentPlayer.Views.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:controls="using:Magentaize.FluentPlayer.Controls"
+  xmlns:common="using:Magentaize.FluentPlayer.ViewModels.Common"
+  mc:Ignorable="d">
+
+  <Border>
+    <controls:SlideTile
+      Duration="0:0:0.5"
+      Content="{x:Bind ViewModel.Property, Mode=OneWay}"
+      Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
+      <controls:SlideTile.ContentTemplate>
+        <DataTemplate x:DataType="common:PlaybackInfoTextPropertyViewModel">
+          <StackPanel Orientation="Vertical">
+            <TextBlock Text="{x:Bind Title}" />
+            <TextBlock Text="{x:Bind Artist}" />
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{x:Bind CurrentPosition, Mode=OneWay}" />
+              <TextBlock Text="/"/>
+              <TextBlock Text="{x:Bind NaturalPosition}"/>
+            </StackPanel>
+          </StackPanel>
+        </DataTemplate>
+      </controls:SlideTile.ContentTemplate>
+    </controls:SlideTile>
+  </Border>
+</UserControl>

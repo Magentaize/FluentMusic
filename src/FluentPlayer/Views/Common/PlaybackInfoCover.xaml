@@ -10,10 +10,10 @@
   mc:Ignorable="d">
 
     <Border>
-    <controls:SlideTile Height="200" Width="200"
-                        Duration="0:0:0.5"
-                        Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
-                        Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
+      <controls:SlideTile Height="200" Width="200"
+                          Duration="0:0:0.5"
+                          Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
+                          Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
       <controls:SlideTile.ContentTemplate>
         <DataTemplate x:DataType="common:PlaybackInfoCoverThumbnailViewModel">
           <Image Source="{x:Bind Uri}"/>

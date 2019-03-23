@@ -67,16 +67,7 @@
 
         <StackPanel Orientation="Horizontal">
           <common:PlaybackInfoCover />
-          
-          <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.IsPlaying, Mode=OneWay}">
-            <TextBlock Text="{x:Bind ViewModel.TrackTitle, Mode=OneWay}" />
-            <TextBlock Text="{x:Bind ViewModel.TrackArtist, Mode=OneWay}" />
-            <StackPanel Orientation="Horizontal">
-              <TextBlock Text="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" />
-              <TextBlock Text="/"/>
-              <TextBlock Text="{x:Bind ViewModel.NaturalPosition, Mode=OneWay}"/>
-            </StackPanel>
-          </StackPanel>
+          <common:PlaybackInfoText />
         </StackPanel>
 
         <local:PlaybackControllerView Grid.Column="1" />

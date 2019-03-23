@@ -82,6 +82,8 @@
     <Compile Include="ViewModelAccessor.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverThumbnailViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoTextPropertyViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoTextViewModel.cs" />
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
     <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
@@ -92,6 +94,9 @@
     <Compile Include="ViewModels\DataViewModel\TrackViewModel.cs" />
     <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
       <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Common\PlaybackInfoText.xaml.cs">
+      <DependentUpon>PlaybackInfoText.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FullPlayerArtistView.xaml.cs">
       <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
@@ -163,6 +168,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Common\PlaybackInfoCover.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\PlaybackInfoText.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
