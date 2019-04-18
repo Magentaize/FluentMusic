@@ -1,6 +1,7 @@
 ﻿using Kasay.DependencyProperty;
 using Magentaize.FluentPlayer.ViewModels;
 using ReactiveUI;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.Views

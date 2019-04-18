@@ -84,13 +84,19 @@
       <GridView
         x:Name="AlbumGridView"
         ItemsSource="{x:Bind ViewModel.AlbumCvsSource, Mode=OneWay}" 
+        ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
         IsSynchronizedWithCurrentItem="False"
         SelectionMode="Single"
         SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         ScrollViewer.VerticalScrollBarVisibility="Auto">
         <GridView.ItemTemplate>
           <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
-            <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
+            <StackPanel>
+              <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
+              <TextBlock Text="{x:Bind Album.Title, Mode=OneWay}" FontSize="12"/>
+              <TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>
+              <Rectangle Height="12" Fill="Transparent"/>
+            </StackPanel>
           </DataTemplate>
         </GridView.ItemTemplate>
       </GridView>
@@ -139,7 +145,8 @@
                   <TextBlock Foreground="{x:Bind IsPlaying, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
                              Text="{x:Bind Track.TrackTitle, Mode=OneWay}"
                              VerticalAlignment="Center" 
-                             HorizontalAlignment="Left"/>
+                             HorizontalAlignment="Left"
+                             FontSize="14"/>
                 </controls:DockPanel>
               </DataTemplate>
             </ListView.ItemTemplate>
