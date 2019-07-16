@@ -92,6 +92,7 @@
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
     <Compile Include="ViewModels\DataViewModel\TrackViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
       <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
     </Compile>
@@ -209,7 +210,7 @@
       <Version>3.0.0-beta1</Version>
     </PackageReference>
     <PackageReference Include="DynamicData">
-      <Version>6.8.0.2561</Version>
+      <Version>6.12.6</Version>
     </PackageReference>
     <PackageReference Include="Kasay.DependencyProperty.UWP.Fody">
       <Version>1.0.4</Version>
@@ -227,19 +228,19 @@
       <Version>5.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.0.181018004</Version>
+      <Version>2.1.190606001</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
-      <Version>2.0.0</Version>
+      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI">
-      <Version>9.12.1</Version>
+      <Version>9.19.5</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events">
-      <Version>9.12.1</Version>
+      <Version>9.19.5</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Fody">
-      <Version>9.12.1</Version>
+      <Version>9.19.5</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>4.2.0-preview.102</Version>

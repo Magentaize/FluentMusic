@@ -52,6 +52,7 @@
             <TextBlock Text="Settings" Foreground="{ThemeResource TextRevealAccentForeground}"/>
           </PivotItem.Header>
 
+          <local:SettingsPage/>
         </PivotItem>
       </Pivot>
     </Border>

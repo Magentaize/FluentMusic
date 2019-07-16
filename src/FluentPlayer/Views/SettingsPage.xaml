@@ -5,8 +5,9 @@
     xmlns:local="using:Magentaize.FluentPlayer.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:storage="using:Windows.Storage"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d">
 
   <Grid>
     <Pivot>
@@ -14,6 +15,22 @@
         <PivotItem.Header>
           <TextBlock Text="Behavior" Foreground="{ThemeResource TextRevealAccentForeground}"/>
         </PivotItem.Header>
+
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="Music Collection"/>
+            <ListView ItemsSource="{x:Bind ViewModel.MusicFolders}" ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="storage:StorageFolder">
+                  <controls:DockPanel LastChildFill="True">
+                    <Button Content="X" controls:DockPanel.Dock="Right"/>
+                    <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center" Tapped="TextBlock_Tapped"/>
+                  </controls:DockPanel>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
+          </StackPanel>
+        </ScrollViewer>
       </PivotItem>
     </Pivot>
   </Grid>

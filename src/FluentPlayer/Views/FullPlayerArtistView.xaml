@@ -93,9 +93,13 @@
           <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
             <StackPanel>
               <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
-              <TextBlock Text="{x:Bind Album.Title, Mode=OneWay}" FontSize="12"/>
-              <TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>
-              <Rectangle Height="12" Fill="Transparent"/>
+              <StackPanel 
+                Orientation="Vertical" 
+                Background="{ThemeResource SystemControlHighlightListLowBrush}"
+                Padding="4 4 4 8">
+                <TextBlock Text="{x:Bind Album.Title, Mode=OneWay}" FontSize="12"/>
+                <TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>
+              </StackPanel>
             </StackPanel>
           </DataTemplate>
         </GridView.ItemTemplate>

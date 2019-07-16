@@ -1,15 +1,21 @@
 ﻿using DynamicData;
+using DynamicData.Kernel;
 using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
+using ReactiveUI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TagLib;
+using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -29,6 +35,10 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public IObservable<IChangeSet<Album, long>> AlbumSource => _albumSource.Connect();
 
+        private readonly ObservableCollection<StorageFolder> _musicFolders = new ObservableCollection<StorageFolder>();
+
+        public ReadOnlyObservableCollection<StorageFolder> MusicFolders { get; }
+
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
         public event EventHandler IndexFinished;
@@ -36,11 +46,17 @@ namespace Magentaize.FluentPlayer.Core.Services
         public int QueueIndexingCount { get; private set; }
         public int QueueIndexedCount { get; private set; }
 
-        private IndexService() {}
+        private IndexService()
+        {
+            MusicFolders = new ReadOnlyObservableCollection<StorageFolder>(_musicFolders);
+        }
 
         internal static async Task<IndexService> CreateAsync()
         {
             var index = new IndexService();
+
+            var lib = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
+            index._musicFolders.AddRange(lib.Folders);
 
             await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
                 .ToAsyncEnumerable()
