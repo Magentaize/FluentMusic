@@ -1,5 +1,6 @@
 ﻿using Kasay.DependencyProperty;
 using Magentaize.FluentPlayer.ViewModels;
+using ReactiveUI;
 using Windows.UI.Xaml.Controls;
 
 namespace Magentaize.FluentPlayer.Views
@@ -12,7 +13,6 @@ namespace Magentaize.FluentPlayer.Views
         public SettingsPage()
         {
             ViewModel = new SettingsPageViewModel();
-
             this.InitializeComponent();
         }
 

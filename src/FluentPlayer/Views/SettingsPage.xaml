@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storage="using:Windows.Storage"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    x:Name="PART_SettingsPage">
 
   <Grid>
     <Pivot>
@@ -16,15 +17,34 @@
           <TextBlock Text="Behavior" Foreground="{ThemeResource TextRevealAccentForeground}"/>
         </PivotItem.Header>
 
-        <ScrollViewer>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
-            <TextBlock Text="Music Collection"/>
-            <ListView ItemsSource="{x:Bind ViewModel.MusicFolders}" ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Music Collection"/>
+              <Button Command="{x:Bind ViewModel.AddMusicFolderCommand}"
+                      Style="{StaticResource TextButtonWithAccentColor}"
+                      VerticalAlignment="Bottom"
+                      Margin="8,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                  <FontIcon Glyph="&#xE109;" FontSize="12"/>
+                  <TextBlock Text="Add Folder" FontSize="12"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            
+            <ListView x:Name="MusicFolderListView"
+                      ItemsSource="{x:Bind ViewModel.MusicFolders}"
+                      ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
               <ListView.ItemTemplate>
                 <DataTemplate x:DataType="storage:StorageFolder">
                   <controls:DockPanel LastChildFill="True">
-                    <Button Content="X" controls:DockPanel.Dock="Right"/>
-                    <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center" Tapped="TextBlock_Tapped"/>
+                    <Button controls:DockPanel.Dock="Right" 
+                            Style="{StaticResource TextButtonWithAccentColor}"
+                            Command="{Binding Path=ViewModel.RemoveMusicFolderCommand, ElementName=PART_SettingsPage}"
+                            CommandParameter="{x:Bind}">
+                      <SymbolIcon Symbol="Cancel" />
+                    </Button>
+                    <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center"/>
                   </controls:DockPanel>
                 </DataTemplate>
               </ListView.ItemTemplate>

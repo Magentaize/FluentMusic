@@ -6,6 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:dataViewModel="using:Magentaize.FluentPlayer.ViewModels.DataViewModel"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -55,7 +57,7 @@
             ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
             SelectedItem="{x:Bind Mode=TwoWay, Path=ViewModel.ArtistListSelectedItem}"
             ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-            SelectionMode="Single" 
+            SelectionMode="Extended" 
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListView.ItemTemplate>

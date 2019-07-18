@@ -12,7 +12,7 @@ namespace Magentaize.FluentPlayer.Core
             Db = new FluentPlayerDbContext();
             Db.Database.Migrate();
 
-            IndexService = await IndexService.CreateAsync();
+            IndexService = await new IndexService().InitializeAsync();
             CacheService = await CacheService.CreateAsync();
             PlaybackService = await PlaybackService.CreateAsync();
         }

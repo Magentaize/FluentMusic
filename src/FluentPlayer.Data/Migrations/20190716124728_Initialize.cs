@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Magentaize.FluentPlayer.Data.Migrations
+namespace FluentPlayer.Data.Migrations
 {
     public partial class Initialize : Migration
     {
@@ -24,15 +24,14 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                 name: "Folders",
                 columns: table => new
                 {
-                    FolderId = table.Column<long>(nullable: false)
+                    Id = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Path = table.Column<string>(nullable: true),
-                    SafePath = table.Column<string>(nullable: true),
-                    ShowInCollection = table.Column<bool>(nullable: false)
+                    ModifiedDate = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Folders", x => x.FolderId);
+                    table.PrimaryKey("PK_Folders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,6 +88,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    FolderId = table.Column<long>(nullable: true),
                     ArtistId = table.Column<long>(nullable: true),
                     Genres = table.Column<string>(nullable: true),
                     AlbumId = table.Column<long>(nullable: true),
@@ -136,6 +136,12 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                         principalTable: "Artists",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tracks_Folders_FolderId",
+                        column: x => x.FolderId,
+                        principalTable: "Folders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,7 +160,7 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                         name: "FK_FolderTracks_Folders_FolderId",
                         column: x => x.FolderId,
                         principalTable: "Folders",
-                        principalColumn: "FolderId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_FolderTracks_Tracks_TrackId",
@@ -188,6 +194,11 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                 name: "IX_Tracks_ArtistId",
                 table: "Tracks",
                 column: "ArtistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tracks_FolderId",
+                table: "Tracks",
+                column: "FolderId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -202,13 +213,13 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                 name: "RemovingTracks");
 
             migrationBuilder.DropTable(
-                name: "Folders");
-
-            migrationBuilder.DropTable(
                 name: "Tracks");
 
             migrationBuilder.DropTable(
                 name: "Albums");
+
+            migrationBuilder.DropTable(
+                name: "Folders");
 
             migrationBuilder.DropTable(
                 name: "Artists");

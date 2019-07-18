@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Magentaize.FluentPlayer.Data.Migrations
+namespace FluentPlayer.Data.Migrations
 {
     [DbContext(typeof(FluentPlayerDbContext))]
-    [Migration("20190318073220_Initialize")]
+    [Migration("20190716124728_Initialize")]
     partial class Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,16 +52,14 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
             modelBuilder.Entity("Magentaize.FluentPlayer.Data.Folder", b =>
                 {
-                    b.Property<long>("FolderId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<DateTimeOffset>("ModifiedDate");
 
                     b.Property<string>("Path");
 
-                    b.Property<string>("SafePath");
-
-                    b.Property<bool>("ShowInCollection");
-
-                    b.HasKey("FolderId");
+                    b.HasKey("Id");
 
                     b.ToTable("Folders");
                 });
@@ -139,6 +137,8 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
                     b.Property<ulong?>("FileSize");
 
+                    b.Property<long?>("FolderId");
+
                     b.Property<string>("Genres");
 
                     b.Property<long?>("HasLyrics");
@@ -181,6 +181,8 @@ namespace Magentaize.FluentPlayer.Data.Migrations
 
                     b.HasIndex("ArtistId");
 
+                    b.HasIndex("FolderId");
+
                     b.ToTable("Tracks");
                 });
 
@@ -211,6 +213,10 @@ namespace Magentaize.FluentPlayer.Data.Migrations
                     b.HasOne("Magentaize.FluentPlayer.Data.Artist", "Artist")
                         .WithMany("Tracks")
                         .HasForeignKey("ArtistId");
+
+                    b.HasOne("Magentaize.FluentPlayer.Data.Folder", "Folder")
+                        .WithMany()
+                        .HasForeignKey("FolderId");
                 });
 #pragma warning restore 612, 618
         }

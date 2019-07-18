@@ -13,7 +13,11 @@
       <controls:SlideTile Height="200" Width="200"
                           Duration="0:0:0.5"
                           Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
-                          Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
+                          Direction="{x:Bind ViewModel.Direction, Mode=OneWay}"
+                          >
+      <controls:SlideTile.DefaultContent>
+        <Image Source="ms-appx:///Assets/LockScreenLogo.scale-200.png"/>
+      </controls:SlideTile.DefaultContent>
       <controls:SlideTile.ContentTemplate>
         <DataTemplate x:DataType="common:PlaybackInfoCoverThumbnailViewModel">
           <Image Source="{x:Bind Uri}"/>

@@ -1,27 +1,26 @@
 ﻿using Kasay.DependencyProperty;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Magentaize.FluentPlayer.Controls
 {
     public class SlideTile : ContentControl
     {
         private Grid _outerGrid;
+        private ContentPresenter _previous;
         private ContentPresenter _current;
-        private ContentPresenter _next;
         private EasingFunctionBase _ease;
         private readonly TranslateTransform _newCt = new TranslateTransform();
         private readonly TranslateTransform _oldCt = new TranslateTransform();
 
         public SlideTile()
         {
-            _ease = new BackEase
+            _ease = new SineEase
             {
-                Amplitude = EasingAmplitude,
                 EasingMode = EasingMode.EaseOut,
             };
 
@@ -36,16 +35,14 @@ namespace Magentaize.FluentPlayer.Controls
         protected override void OnApplyTemplate()
         {
             _outerGrid = (Grid)GetTemplateChild("OuterGird");
+            _previous = (ContentPresenter)GetTemplateChild("Previous");
             _current = (ContentPresenter)GetTemplateChild("Current");
-            _next = (ContentPresenter)GetTemplateChild("Next");
-
-            base.OnApplyTemplate();
+            if (_previous.Content == null) _previous.Content = DefaultContent;
         }
 
         protected override void OnContentChanged(object oldContent, object newContent)
         {
             SlideToNewContent(oldContent, newContent);
-            base.OnContentChanged(oldContent, newContent);
         }
 
         private DoubleAnimation CreateAnimation(double from, double to)
@@ -63,12 +60,11 @@ namespace Magentaize.FluentPlayer.Controls
         {
             if (ActualWidth > 0 && ActualHeight > 0)
             {
-                
                 DoubleAnimation newAn = null;
                 DoubleAnimation oldAn = null;
 
-                _current.RenderTransform = _oldCt;
-                _next.RenderTransform = _newCt;
+                _previous.RenderTransform = _oldCt;
+                _current.RenderTransform = _newCt;
 
                 switch (Direction)
                 {
@@ -100,7 +96,7 @@ namespace Magentaize.FluentPlayer.Controls
 
                 oldAn.Completed += (_, __) =>
                 {
-                    _current.Content = newContent;
+                    _previous.Content = newContent;
                 };
                 Storyboard.SetTarget(newAn, _newCt);
                 Storyboard.SetTarget(oldAn, _oldCt);
@@ -109,7 +105,7 @@ namespace Magentaize.FluentPlayer.Controls
                 sb.Children.Add(newAn);
                 sb.Children.Add(oldAn);
 
-                _next.Content = newContent;
+                _current.Content = newContent;
 
                 sb.Begin();
             }
@@ -120,7 +116,7 @@ namespace Magentaize.FluentPlayer.Controls
         [Bind]
         public Duration Duration { get; set; }
         [Bind]
-        public double EasingAmplitude { get; set; }
+        public object DefaultContent { get; set; }
 
         public enum SlideDirection
         {

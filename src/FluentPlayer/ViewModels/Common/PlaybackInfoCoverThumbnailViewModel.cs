@@ -3,5 +3,7 @@
     public class PlaybackInfoCoverThumbnailViewModel
     {
         public string Uri { get; set; }
+
+        public override string ToString() => Uri;
     }
 }

@@ -1,16 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Magentaize.FluentPlayer.Data
 {
     public class Folder
     {
         [Key]
-        public long FolderId { get; set; }
+        public long Id { get; set; }
 
         public string Path { get; set; }
 
-        public string SafePath { get; set; }
-
-        public bool ShowInCollection { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
     }
 }

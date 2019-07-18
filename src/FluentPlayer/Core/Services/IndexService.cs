@@ -1,6 +1,4 @@
 ﻿using DynamicData;
-using DynamicData.Kernel;
-using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +35,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         private readonly ObservableCollection<StorageFolder> _musicFolders = new ObservableCollection<StorageFolder>();
 
-        public ReadOnlyObservableCollection<StorageFolder> MusicFolders { get; }
+        public ReadOnlyObservableCollection<StorageFolder> MusicFolders { get; private set; }
 
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
@@ -46,36 +44,105 @@ namespace Magentaize.FluentPlayer.Core.Services
         public int QueueIndexingCount { get; private set; }
         public int QueueIndexedCount { get; private set; }
 
-        private IndexService()
+        private StorageLibrary _musicLibrary;
+
+        internal IndexService()
         {
-            MusicFolders = new ReadOnlyObservableCollection<StorageFolder>(_musicFolders);
+            
         }
 
-        internal static async Task<IndexService> CreateAsync()
+        private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolder> changedFolders)> GetChangedLibraryFolders()
         {
-            var index = new IndexService();
+            var dbFolders = await ServiceFacade.Db.Folders.ToListAsync();
+            var removedFolders = dbFolders.Except(_musicFolders, a => a.Path, b => b.Path).ToList();
 
-            var lib = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
-            index._musicFolders.AddRange(lib.Folders);
+            dbFolders.RemoveAll(x => removedFolders.Contains(x));
+            var musicFoldersMixin = await Task.WhenAll(
+                _musicFolders.Select(async x =>
+                {
+                    var prop = await x.GetBasicPropertiesAsync();
+                    return new { Obj = x, Prop = prop };
+                }));
+
+            var indexNeededFolders = musicFoldersMixin.Where(x =>
+            {
+                var f = dbFolders.FirstOrDefault(y => y.Path == x.Obj.Path);
+                if (f == default(Folder)) return true;
+                if (f.ModifiedDate != x.Prop.DateModified) return true;
+                return false;
+            }).Select(x => x.Obj);
+
+            return (removedFolders, indexNeededFolders);
+        }
+
+        private async Task IndexChangedFolders(IEnumerable<StorageFolder> folders)
+        {
+            var libFiles = (await folders.SelectManyAsync<StorageFolder, StorageFile>(async f =>
+               await StorageFolderQuery.Create(f, StorageFolderQuery.AudioExtensions).ExecuteQueryAsync())).ToList();
+            var dbTracks = await ServiceFacade.Db.Tracks.ToListAsync();
+            var commonPath = libFiles.Intersect(dbTracks, a => a.Path, b => b.Path).ToHashSet();
+
+            var newFiles = libFiles.Except(commonPath, f => f.Path).ToArray();
+            var deletedTracks = dbTracks.Except(commonPath, t => t.Path);
+
+            // if there are some files need to be indexed, query cover pictures in library
+            if (newFiles.Count() != 0)
+            {
+                var pics = (await folders.SelectManyAsync<StorageFolder, StorageFile>(async f =>
+                    await StorageFolderQuery.Create(f, StorageFolderQuery.AlbumCoverExtensions).ExecuteQueryAsync())).ToList();
+                _albumCoverList = pics.ToDictionary(p => Path.GetDirectoryName(p.Path));
+            }
+
+            foreach (var file in newFiles)
+            {
+                await IndexFileAsync(file);
+            }
+
+            await RemoveIndexedFileAsync(deletedTracks);
+        }
+
+        private async Task IndexRemovedFolders(IEnumerable<Folder> folders)
+        {
+
+        }
+
+        public async Task BeginIndexAsync()
+        {
+            var (r, i) = await GetChangedLibraryFolders();
+            await IndexRemovedFolders(r);
+            await IndexChangedFolders(i);
+        }
+
+        internal async Task<IndexService> InitializeAsync()
+        {
+            MusicFolders = new ReadOnlyObservableCollection<StorageFolder>(_musicFolders);
+            _musicLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
+            _musicFolders.AddRange(_musicLibrary.Folders);
+            _musicLibrary.DefinitionChanged += _musicLibrary_DefinitionChanged;
 
             await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
                 .ToAsyncEnumerable()
-                .ForEachAsync(x => index._trackSource.Add(x));
+                .ForEachAsync(x => _trackSource.Add(x));
 
             await ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums)
                 .ToAsyncEnumerable()
-                .ForEachAsync(x => index._artistSource.Add(x));
+                .ForEachAsync(x => _artistSource.Add(x));
 
             await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
                 .ToAsyncEnumerable()
-                .ForEachAsync(x => index._albumSource.AddOrUpdate(x));
+                .ForEachAsync(x => _albumSource.AddOrUpdate(x));
 
-            return await Task.FromResult(index);
+            return this;
+        }
+
+        private static void _musicLibrary_DefinitionChanged(StorageLibrary sender, object args)
+        {
+            
         }
 
         private IDictionary<string, StorageFile> _albumCoverList;
 
-        public async Task BeginIndexAsync()
+        public async Task BeginIndexAsync2()
         {
             var list = new List<StorageFolder> {KnownFolders.MusicLibrary};
 
@@ -225,6 +292,24 @@ namespace Magentaize.FluentPlayer.Core.Services
             _trackSource.Add(track);
 
             await ServiceFacade.Db.SaveChangesAsync();
+        }
+
+        public async Task RequestRemoveFolderAsync(StorageFolder folder)
+        {
+            var result = await _musicLibrary.RequestRemoveFolderAsync(folder);
+            if (result)
+            {
+                _musicFolders.Remove(folder);
+            }
+        }
+
+        public async Task RequestAddFolderAsync()
+        {
+            var f = await _musicLibrary.RequestAddFolderAsync();
+            if (f != null)
+            {
+                _musicFolders.Add(f);
+            }
         }
     }
 }

@@ -1,6 +1,10 @@
 ﻿using Kasay.DependencyProperty;
+using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels;
 using ReactiveUI;
+using System;
+using System.Reactive.Linq;
+using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -13,6 +17,13 @@ namespace Magentaize.FluentPlayer.Views
             ViewModel = new FullPlayerArtistViewModel();
 
             InitializeComponent();
+
+            //ArtistList.SelectionChanged += (o, e) => ViewModel.ArtistListSelectionChanged.Execute(((ListView)o, e));
+
+            Observable.FromEventPattern<SelectionChangedEventHandler, SelectionChangedEventArgs>
+                (x => ArtistList.SelectionChanged += x, x => ArtistList.SelectionChanged -= x)
+                .Select(x => ((ListView)x.Sender, x.EventArgs))
+                .InvokeCommand(ViewModel.ArtistListSelectionChanged);
 
             ArtistList.Events().Tapped
                 .InvokeCommand(ViewModel.ArtistListTapped);

@@ -12,9 +12,9 @@
                      TargetTheme="Dark"/>
 
   <RevealBackgroundBrush x:Key="GridViewItemRevalBackround"
-                         Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.3" TargetTheme="Dark"/>
+                         Color="{ThemeResource SystemAccentColorLight1}" Opacity="0.3" TargetTheme="Dark"/>
 
-  <SolidColorBrush x:Key="AccentDarkBackground" Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.66"/>
+  <SolidColorBrush x:Key="AccentDarkBackground" Color="{ThemeResource SystemAccentColorLight1}" Opacity="0.66"/>
 
-  <SolidColorBrush x:Key="SystemAccentColorDark1Brush" Color="{ThemeResource SystemAccentColorDark1}"/>
+  <SolidColorBrush x:Key="SystemAccentColorDark1Brush" Color="{ThemeResource SystemAccentColorLight1}"/>
 </ResourceDictionary>

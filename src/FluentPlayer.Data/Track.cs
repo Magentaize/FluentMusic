@@ -10,6 +10,8 @@ namespace Magentaize.FluentPlayer.Data
         [Key]
         public long Id { get; set; }
 
+        public Folder Folder { get; set; }
+
         public Artist Artist { get; set; }
 
         public string Genres { get; set; }
