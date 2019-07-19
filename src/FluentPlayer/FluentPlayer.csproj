@@ -78,6 +78,7 @@
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
     <Compile Include="Core\Defaults.cs" />
+    <Compile Include="Core\Extensions\ExtendedListExtension.cs" />
     <Compile Include="Core\Extensions\EnumerableExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Extensions\StringExtension.cs" />

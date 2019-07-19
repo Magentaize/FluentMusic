@@ -8,6 +8,11 @@ namespace System.Linq
 {
     public static class EnumerableExtension
     {
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (var x in source) action(x);
+        }
+
         public static async Task<IEnumerable<TResult>> SelectManyAsync<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, Task<IEnumerable<TResult>>> selector)

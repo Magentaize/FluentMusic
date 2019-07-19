@@ -1,8 +1,12 @@
-﻿using Kasay.DependencyProperty;
+﻿using DynamicData;
+using Kasay.DependencyProperty;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI;
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using Windows.UI.Xaml;
@@ -22,9 +26,15 @@ namespace Magentaize.FluentPlayer.Views
 
             Observable.FromEventPattern<SelectionChangedEventHandler, SelectionChangedEventArgs>
                 (x => ArtistList.SelectionChanged += x, x => ArtistList.SelectionChanged -= x)
-                .Select(x => ((ListView)x.Sender, x.EventArgs))
-                .InvokeCommand(ViewModel.ArtistListSelectionChanged);
-
+                .Subscribe(x =>
+                {
+                    ViewModel.ArtistListSelectedItems.Edit(a =>
+                    {
+                        a.RemoveMany(x.EventArgs.RemovedItems.Cast<ArtistViewModel>());
+                        a.AddRange(x.EventArgs.AddedItems.Cast<ArtistViewModel>());
+                    });
+                });
+    
             ArtistList.Events().Tapped
                 .InvokeCommand(ViewModel.ArtistListTapped);
 

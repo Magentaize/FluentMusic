@@ -4,6 +4,7 @@ using Magentaize.FluentPlayer.Collections;
 using Magentaize.FluentPlayer.Core;
 using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -30,8 +31,7 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ReadOnlyObservableCollection<Grouping<char, ArtistViewModel>> ArtistCvsSource => _artistCvsSource;
 
         private ReadOnlyObservableCollection<AlbumViewModel> _albumCvsSource;
-        [Reactive]
-        public IEnumerable<AlbumViewModel> AlbumCvsSource { get; set; }
+        public IEnumerable<AlbumViewModel> AlbumCvsSource => _albumCvsSource;
 
         [Reactive]
         public TrackViewModel TrackListSelected { get; set; }
@@ -48,6 +48,8 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ICommand PlayAlbum => PlayTrack;
         public ICommand ArtistListSelectionChanged { get; }
 
+        public ISourceList<ArtistViewModel> ArtistListSelectedItems = new SourceList<ArtistViewModel>();
+
         public FullPlayerArtistViewModel()
         {
             //ReadOnlyObservableCollection<ArtistViewModel> ungroupedFilteredArtistList;
@@ -56,8 +58,6 @@ namespace Magentaize.FluentPlayer.ViewModels
             var trackFilter = new Subject<Func<TrackViewModel, bool>>();
 
             // ---------------- Artist ----------------
-            IObservable<IChangeSet<TrackViewModel>> selectedArtists = new Subject<IChangeSet<TrackViewModel>>();
-
 
             var ungroupedFilteredArtistList = ServiceFacade.IndexService.ArtistSource
                 .Transform(x => new ArtistViewModel(x))
@@ -70,73 +70,112 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Bind(out _artistCvsSource)
                 .Subscribe();
 
-            // ---------------- Album ----------------
-            var artistListViewMixin = new Subject<(ListView sender, SelectionChangedEventArgs e)>();
+            var unprocessedArtists = new SourceList<ArtistViewModel>();
+            var usingSelectedItems = false;
+            var artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround = true;
 
-            ArtistListSelectionChanged = ReactiveCommand.Create<(ListView, SelectionChangedEventArgs)>(artistListViewMixin.OnNext);
-
-            var preprocessArtists = Observable.Create<IObservable<IChangeSet<ArtistViewModel>>>(o =>
+            Func<IChangeSet<ArtistViewModel>, bool> originalArtistMux = _ => !usingSelectedItems;
+            Func<IChangeSet<ArtistViewModel>, bool> selectedArtistMux = _ => usingSelectedItems;
+            ungroupedFilteredArtistList.Where(originalArtistMux)
+                .Merge(ArtistListSelectedItems.Connect().Where(selectedArtistMux))
+                .Subscribe(x =>
                 {
-                    var usingSelectedItems = false;
-
-                    artistFilter.Subscribe(_ =>
+                    unprocessedArtists.Edit(a =>
                     {
-                        if (usingSelectedItems)
-                        {
-                            usingSelectedItems = false;
-                            o.OnNext(ungroupedFilteredArtistList);
-                        }
+                        x.ForEach(a.Edit);
                     });
-
-                    var selectedItems = new SourceList<ArtistViewModel>();
-                    var connector = selectedItems.Connect();
-
-                    artistListViewMixin.Subscribe(x =>
-                    {
-                        if (!usingSelectedItems)
-                        {
-                            var senderItems = x.sender.SelectedItems;
-                            if (senderItems.Count == 0) return;
-
-                            usingSelectedItems = true;
-                            selectedItems.Clear();
-                            o.OnNext(connector);
-                            selectedItems.AddRange(senderItems.Cast<ArtistViewModel>());
-                        }
-                        else
-                        {
-                            selectedItems.Edit(y =>
-                            {
-                                y.AddRange(x.e.AddedItems.Cast<ArtistViewModel>());
-                                y.RemoveMany(x.e.RemovedItems.Cast<ArtistViewModel>());
-                            });
-                        }
-                    });
-
-                    return Disposable.Empty;
                 });
 
-            preprocessArtists.Subscribe(x =>
+            ungroupedFilteredArtistList.Bind(out var ungroupedFilteredArtistListCollection).Subscribe();
+            artistFilter
+                .Where(_ => usingSelectedItems)
+                .Subscribe(x =>
+                {
+                    artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround = false;
+                    usingSelectedItems = false;
+                    unprocessedArtists.Edit(a =>
+                    {
+                        a.Clear();
+                        a.AddRange(ungroupedFilteredArtistListCollection);
+                    });
+                });
+
+            ArtistListSelectedItems.Connect()
+                .Where(_ =>
+                {
+                    var old = artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround;
+                    artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround = true;
+                    return old;
+                })
+                .Where(_ => !usingSelectedItems)
+                .Subscribe(_ =>
+                {
+                    usingSelectedItems = true;
+                    unprocessedArtists.Edit(a =>
+                    {
+                        a.Clear();
+                        a.AddRange(ArtistListSelectedItems.Items);
+                    });
+                });
+
+            // ---------------- Album ----------------
+
+            var albumVmList = new SourceList<AlbumViewModel>();
+            var connectedAlbumSource = new Dictionary<ArtistViewModel, IDisposable>();
+            unprocessedArtists.Connect().Subscribe(x =>
             {
-                ReadOnlyObservableCollection<ArtistViewModel> y;
-                x.Bind(out y).Subscribe(x => {
-                    Debug.WriteLine(y);
+                Action<ArtistViewModel> disconnectAlbumSource = a =>
+                {
+                    if (connectedAlbumSource.TryGetValue(a, out var d))
+                    {
+                        d.Dispose();
+                        connectedAlbumSource.Remove(a);
+                        albumVmList.RemoveMany(a.AlbumViewModels.Items);
+                    }
+                };
+
+                albumVmList.Edit(a =>
+                {
+                    x.ForEach(change =>
+                    {
+                        switch (change.Reason)
+                        {
+                            case ListChangeReason.AddRange:
+                                change.Range.ForEach(i =>
+                                {
+                                    a.Add(i.AlbumViewModels.Items);
+                                    connectedAlbumSource.Add(i, i.AlbumViewModels.Connect().Subscribe(y =>
+                                    {
+                                        y.ForEach(albumChange =>
+                                        {
+                                            switch (albumChange.Reason)
+                                            {
+                                                case ListChangeReason.Add:
+                                                    albumVmList.Add(albumChange.Item.Current);
+                                                    break;
+                                                case ListChangeReason.Remove:
+                                                    albumVmList.Remove(albumChange.Item.Current);
+                                                    break;
+                                            }
+                                        });
+                                    }));
+                                });
+                                break;
+                            case ListChangeReason.Remove:
+                                disconnectAlbumSource(change.Item.Current);
+                                break;
+                            case ListChangeReason.Clear:
+                            case ListChangeReason.RemoveRange:
+                                change.Range.ForEach(disconnectAlbumSource);
+                                break;
+                        }
+                    });
                 });
             });
 
-            var albums = new Subject<IEnumerable<AlbumViewModel>>();
-
-            albums.Subscribe(x => AlbumCvsSource = x);
-
-            ViewModelAccessor.AlbumVmSource
-                .ToObservableChangeSet<IObservableCollection<AlbumViewModel>, AlbumViewModel>()
-                .Filter(albumFilter)
-                .Bind(out var filteredAlbumVm).Subscribe();
-
-            filteredAlbumVm
-                .ToObservableChangeSet()
+            albumVmList.Connect()
                 .Bind(out _albumCvsSource)
-                .Subscribe();
+                .Subscribe(x=> { Debug.WriteLine(_albumCvsSource); });
 
             // ---------------- Track ----------------
 
