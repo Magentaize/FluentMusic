@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Search;
 
@@ -14,32 +18,26 @@ namespace Magentaize.FluentPlayer.Core.Storage
         private StorageFolderQuery() { }
 
         private StorageFolder _folder;
-        private StorageFileQueryResult _queryResult;
+        public StorageFileQueryResult QueryResult { get; private set; }
+        public IObservable<EventPattern<IStorageQueryResultBase, object>> ContentsChangedStream { get; private set; }
 
-        public static StorageFolderQuery Create(StorageFolder folder, IList<string> typeFilter)
+        public StorageFolderQuery(StorageFolder folder, IList<string> typeFilter)
         {
-            var sfq = new StorageFolderQuery {_folder = folder};
+            _folder = folder;
             var options = new QueryOptions(CommonFileQuery.DefaultQuery, typeFilter)
             {
                 FolderDepth = FolderDepth.Deep,
                 //IndexerOption = IndexerOption.DoNotUseIndexer,
             };
-            sfq._queryResult = sfq._folder.CreateFileQueryWithOptions(options);
-            sfq._queryResult.ContentsChanged += _queryResult_ContentsChanged;
+            QueryResult = _folder.CreateFileQueryWithOptions(options);
 
-            return sfq;
-        }
-
-        private static void _queryResult_ContentsChanged(IStorageQueryResultBase sender, object args)
-        {
-
+            ContentsChangedStream = Observable.FromEventPattern<TypedEventHandler<IStorageQueryResultBase, object>, IStorageQueryResultBase, object>(
+                h => QueryResult.ContentsChanged += h, h => QueryResult.ContentsChanged -= h);
         }
 
         public async Task<IReadOnlyList<StorageFile>> ExecuteQueryAsync()
         {
-            _queryResult.ContentsChanged -= _queryResult_ContentsChanged;
-            var files = await _queryResult.GetFilesAsync();
-            _queryResult.ContentsChanged += _queryResult_ContentsChanged;
+            var files = await QueryResult.GetFilesAsync();
             return files;
         }
     }
