@@ -22,8 +22,6 @@ namespace Magentaize.FluentPlayer.Views
 
             InitializeComponent();
 
-            //ArtistList.SelectionChanged += (o, e) => ViewModel.ArtistListSelectionChanged.Execute(((ListView)o, e));
-
             Observable.FromEventPattern<SelectionChangedEventHandler, SelectionChangedEventArgs>
                 (x => ArtistList.SelectionChanged += x, x => ArtistList.SelectionChanged -= x)
                 .Subscribe(x =>
@@ -41,8 +39,8 @@ namespace Magentaize.FluentPlayer.Views
             ArtistList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayArtist);
             
-            TrackList.Events().DoubleTapped
-                .InvokeCommand(ViewModel.PlayTrack);
+            //TrackList.Events().DoubleTapped
+            //    .InvokeCommand(ViewModel.PlayTrack);
 
             AlbumGridView.Events().Tapped
                 .InvokeCommand(ViewModel.AlbumGridViewTapped);

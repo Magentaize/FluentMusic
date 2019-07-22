@@ -8,10 +8,11 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
-    mc:Ignorable="d"
+  xmlns:collections="using:Magentaize.FluentPlayer.Collections"
+  mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-
+  
   <Grid BorderBrush="{ThemeResource SystemControlHighlightChromeHighBrush}"
         VerticalAlignment="Top">
     <Grid.ColumnDefinitions>
@@ -29,7 +30,10 @@
 
       <Border controls:DockPanel.Dock="Bottom">
         <Border.Resources>
-          <CollectionViewSource x:Name="ArtistCvs" IsSourceGrouped="True" Source="{x:Bind Mode=OneWay, Path=ViewModel.ArtistCvsSource}"/>
+          <CollectionViewSource x:Name="ArtistCvs" 
+                                IsSourceGrouped="True"
+                                Source="{x:Bind Mode=OneWay, Path=ViewModel.ArtistCvsSource}"
+                                ItemsPath="Items"/>
         </Border.Resources>
 
         <SemanticZoom>
@@ -38,9 +42,11 @@
             <GridView ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View.CollectionGroups}"
                       ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
               <GridView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="ICollectionViewGroup">
                   <Border Height="60" Width="60">
-                    <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Text="{x:Bind ((collections:GroupArtistViewModel)Group).Key, Mode=OneWay}"
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" />
                   </Border>
                 </DataTemplate>
               </GridView.ItemTemplate>
@@ -51,7 +57,9 @@
               </GridView.ItemsPanel>
             </GridView>
           </SemanticZoom.ZoomedOutView>
-          <ListView 
+
+          <SemanticZoom.ZoomedInView>
+            <ListView 
             x:Name="ArtistList"
             IsSynchronizedWithCurrentItem="False"
             ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
@@ -60,23 +68,24 @@
             SelectionMode="Extended" 
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListView.ItemTemplate>
-              <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
-                <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
-                  <TextBlock Text="{x:Bind Mode=OneWay, Path=Artist.Name}" VerticalAlignment="Center"/>
-                </StackPanel>
-              </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.GroupStyle>
-              <GroupStyle>
-                <GroupStyle.HeaderTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Key}"/>
-                  </DataTemplate>
-                </GroupStyle.HeaderTemplate>
-              </GroupStyle>
-            </ListView.GroupStyle>
-          </ListView>
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
+                  <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
+                    <TextBlock Text="{x:Bind Artist.Name, Mode=OneWay}" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+              <ListView.GroupStyle>
+                <GroupStyle>
+                  <GroupStyle.HeaderTemplate>
+                    <DataTemplate x:DataType="collections:GroupArtistViewModel">
+                      <TextBlock Text="{x:Bind Key, Mode=OneWay}"/>
+                    </DataTemplate>
+                  </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+              </ListView.GroupStyle>
+            </ListView>
+          </SemanticZoom.ZoomedInView>
         </SemanticZoom>
       </Border>
     </controls:DockPanel>
@@ -109,7 +118,7 @@
     </Border>
 
     <!-- Track List -->
-    <Border Grid.Column="2">
+    <!--<Border Grid.Column="2">
       <Border.Resources>
         <CollectionViewSource x:Name="TrackCvs" IsSourceGrouped="True" Source="{x:Bind ViewModel.TrackCvsSource, Mode=OneWay}"/>
       </Border.Resources>
@@ -187,6 +196,6 @@
           </GridView>
         </SemanticZoom.ZoomedOutView>
       </SemanticZoom>
-    </Border>
+    </Border>-->
   </Grid>
 </UserControl>

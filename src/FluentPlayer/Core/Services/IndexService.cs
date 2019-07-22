@@ -212,7 +212,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                 IBuffer picData = null;
                 var folder = Path.GetDirectoryName(path);
 
-                StorageFile folderCover = null;
+                IStorageFile folderCover = null;
                 foreach(var f in AlbumCoverFileNames)
                 {
                     var fn = Path.Combine(folder, f);
@@ -225,7 +225,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                     catch { }
                 }
 
-                if (folderCover != default(StorageFile))
+                if (folderCover != default(IStorageFile))
                 {
                     picData = await FileIO.ReadBufferAsync(folderCover);
                 }
@@ -234,7 +234,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                     picData = tag.Pictures[0].Data.Data.AsBuffer();
                 }
 
-                album.AlbumCover = picData == null ? default : await ServiceFacade.CacheService.CacheAsync(picData);
+                album.AlbumCover = picData == default(IBuffer) ? DefaultCoverImage : await ServiceFacade.CacheService.CacheAsync(picData);
 
                 _albumSource.AddOrUpdate(album);
             }
