@@ -1,4 +1,6 @@
-﻿namespace DynamicData
+﻿using System.Linq;
+
+namespace DynamicData
 {
     public static class ExtendedListExtension
     {
@@ -19,6 +21,14 @@
                     source.RemoveMany(change.Range);
                     break;
                 default: break;
+            }
+        }
+
+        public static void Edit<T>(this IExtendedList<T> source, IChangeSet<T> changes)
+        {
+            foreach(var c in changes)
+            {
+                source.Edit(c);
             }
         }
     }

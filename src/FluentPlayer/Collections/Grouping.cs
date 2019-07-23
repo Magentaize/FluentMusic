@@ -35,7 +35,21 @@ namespace Magentaize.FluentPlayer.Collections
                 .ObserveOnDispatcher()
                 .Bind(Items)
                 .DisposeMany()
-                .Subscribe(x => Console.WriteLine(x), ex => { Debugger.Break(); });
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
+        }
+    }
+
+    public class GroupTrackViewModel : Grouping<TrackViewModel>
+    {
+       public GroupTrackViewModel(IGroup<TrackViewModel, string> group)
+        {
+            Key = group.GroupKey;
+            group.List.Connect()
+                .Sort(SortExpressionComparer<TrackViewModel>.Ascending(x => x.Title))
+                .ObserveOnDispatcher()
+                .Bind(Items)
+                .DisposeMany()
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
         }
     }
 }

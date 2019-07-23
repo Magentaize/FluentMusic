@@ -81,6 +81,7 @@
     <Compile Include="Core\Extensions\ExtendedListExtension.cs" />
     <Compile Include="Core\Extensions\EnumerableExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Extensions\ObservableListExtension.cs" />
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Extensions\SourceCacheExtension.cs" />
     <Compile Include="Core\Extensions\SourceListExtension.cs" />

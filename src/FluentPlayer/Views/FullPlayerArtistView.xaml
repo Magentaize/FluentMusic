@@ -91,38 +91,45 @@
     </controls:DockPanel>
 
     <!-- Album GridWrap -->
-    <Border Grid.Column="1">
-      <Border.Resources>
-        <CollectionViewSource x:Name="AlbumCvs" 
+
+    <controls:DockPanel Grid.Column="1">
+      <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
+        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind ViewModel.RestoreAlbumCommand}" />
+      </StackPanel>
+
+      <Border>
+        <Border.Resources>
+          <CollectionViewSource x:Name="AlbumCvs" 
                                 IsSourceGrouped="False"
                                 Source="{x:Bind Mode=OneWay, Path=ViewModel.AlbumCvsSource}"
                                 ItemsPath="Items"/>
-      </Border.Resources>
-      
-      <GridView
+        </Border.Resources>
+
+        <GridView
         x:Name="AlbumGridView"
         ItemsSource="{x:Bind AlbumCvs.View, Mode=OneWay}" 
         ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
         IsSynchronizedWithCurrentItem="False"
-        SelectionMode="Single"
+        SelectionMode="Extended"
         SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         ScrollViewer.VerticalScrollBarVisibility="Auto">
-        <GridView.ItemTemplate>
-          <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
-            <StackPanel>
-              <Image Source="{x:Bind AlbumCoverFsPath.Value, Mode=OneWay}" Width="120" />
-              <StackPanel 
+          <GridView.ItemTemplate>
+            <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
+              <StackPanel>
+                <Image Source="{x:Bind AlbumCoverFsPath, Mode=OneWay}" Width="120" />
+                <StackPanel 
                 Orientation="Vertical" 
                 Background="{ThemeResource SystemControlHighlightListLowBrush}"
                 Padding="4 4 4 8">
-                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontSize="12"/>
-                <!--<TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>-->
+                  <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontSize="12"/>
+                  <TextBlock Text="{x:Bind Artist.Name, Mode=OneWay}" FontSize="12"/>
+                </StackPanel>
               </StackPanel>
-            </StackPanel>
-          </DataTemplate>
-        </GridView.ItemTemplate>
-      </GridView>
-    </Border>
+            </DataTemplate>
+          </GridView.ItemTemplate>
+        </GridView>
+      </Border>
+    </controls:DockPanel>
 
     <!-- Track List -->
     <!--<Border Grid.Column="2">

@@ -15,5 +15,16 @@ namespace DynamicData
 
             return ret;
         }
+
+        public static void Edit<T>(this ISourceList<T> source, IChangeSet<T> changes)
+        {
+            source.Edit(a =>
+            {
+                foreach (var c in changes)
+                {
+                    a.Edit(c);
+                }
+            });
+        }
     }
 }
