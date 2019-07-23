@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
 using Magentaize.FluentPlayer.Core.Services;
 using Magentaize.FluentPlayer.Data;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Magentaize.FluentPlayer.Core
@@ -15,6 +17,7 @@ namespace Magentaize.FluentPlayer.Core
             IndexService = await new IndexService().InitializeAsync();
             CacheService = await CacheService.CreateAsync();
             PlaybackService = await PlaybackService.CreateAsync();
+
         }
 
         internal static FluentPlayerDbContext Db;
@@ -22,5 +25,6 @@ namespace Magentaize.FluentPlayer.Core
         public static IndexService IndexService;
         public static CacheService CacheService;
         public static PlaybackService PlaybackService;
+        public static IMapper Mapper;
     }
 }

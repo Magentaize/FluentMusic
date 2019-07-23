@@ -1,7 +1,10 @@
 ﻿using DynamicData;
+using DynamicData.Annotations;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
+using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Toolkit.Extensions;
 using ReactiveUI;
 using System;
 using System.Collections;
@@ -14,6 +17,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TagLib;
+using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Search;
@@ -27,13 +31,13 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public IObservable<IChangeSet<Track>> TrackSource => _trackSource.Connect();
 
-        private readonly ISourceList<Artist> _artistSource = new SourceList<Artist>();
+        private readonly ISourceCache<ArtistViewModel, long> _artistSource;
 
-        public IObservable<IChangeSet<Artist>> ArtistSource => _artistSource.Connect();
+        public IObservableCache<ArtistViewModel, long> ArtistSource => _artistSource.AsObservableCache();
 
-        private readonly ISourceCache<Album, long> _albumSource = new SourceCache<Album, long>(x => x.Id);
+        private readonly ISourceCache<AlbumViewModel, long> _albumSource;
 
-        public IObservable<IChangeSet<Album, long>> AlbumSource => _albumSource.Connect();
+        public IObservable<IChangeSet<AlbumViewModel, long>> AlbumSource { get; private set; }
 
         private readonly ObservableCollection<StorageFolder> _musicFolders = new ObservableCollection<StorageFolder>();
 
@@ -43,7 +47,6 @@ namespace Magentaize.FluentPlayer.Core.Services
         public event EventHandler IndexProgressChanged;
         public event EventHandler IndexFinished;
 
-        private static readonly string DefaultCoverImage = "ms-appx:///Assets/Square150x150Logo.scale-200.png";
         private static readonly IList<string> AlbumCoverFileNames = new List<string> { ".jpg", ".jpeg", ".png", ".bmp" }.Select(x => $"cover{x}").ToList();
 
         public int QueueIndexingCount { get; private set; }
@@ -53,7 +56,10 @@ namespace Magentaize.FluentPlayer.Core.Services
         private IObservable<EventPattern<IStorageQueryResultBase, object>> _libForlderContentChangedStream;
         internal IndexService()
         {
-            
+            _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
+
+            _albumSource = new SourceCache<AlbumViewModel, long>(x => x.Id);
+            AlbumSource = _albumSource.Connect();
         }
 
         private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolder> changedFolders)> GetChangedLibraryFolders()
@@ -92,7 +98,7 @@ namespace Magentaize.FluentPlayer.Core.Services
             _libForlderContentChangedStream = Observable.Never<EventPattern<IStorageQueryResultBase, object>>();
             libFolderSfq.ForEach(x => _libForlderContentChangedStream = _libForlderContentChangedStream.Merge(x.ContentsChangedStream));
             var d = _libForlderContentChangedStream
-                .Throttle(TimeSpan.FromSeconds(5))
+                .Throttle(TimeSpan.FromSeconds(3))
                 .Subscribe(async _ => await IndexChangedFolders(libFolderSfq));
         }
 
@@ -131,26 +137,25 @@ namespace Magentaize.FluentPlayer.Core.Services
             MusicFolders = new ReadOnlyObservableCollection<StorageFolder>(_musicFolders);
             _musicLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
             _musicFolders.AddRange(_musicLibrary.Folders);
-            _musicLibrary.DefinitionChanged += _musicLibrary_DefinitionChanged;
 
-            await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
-                .ToAsyncEnumerable()
-                .ForEachAsync(x => _trackSource.Add(x));
+            var _musicLibrary_DefinitionChanged = Observable.FromEventPattern<TypedEventHandler<StorageLibrary, object>, StorageLibrary, object>(
+                h => _musicLibrary.DefinitionChanged += h, h => _musicLibrary.DefinitionChanged -= h);
 
-            await ServiceFacade.Db.Artists.Include(a => a.Tracks).Include(a => a.Albums)
-                .ToAsyncEnumerable()
-                .ForEachAsync(x => _artistSource.Add(x));
+            //await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
+            //    .ToAsyncEnumerable()
+            //    .ForEachAsync(x => _trackSource.Add(x));
 
-            await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
+            var artists = await ServiceFacade.Db.Artists.Include(a => a.Albums)
                 .ToAsyncEnumerable()
-                .ForEachAsync(x => _albumSource.AddOrUpdate(x));
+                .Select(x => ArtistViewModel.Create(x))
+                .ToList();
+            _artistSource.AddOrUpdateForEach(artists);
+
+            //await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
+            //    .ToAsyncEnumerable()
+            //    .ForEachAsync(x => _albumSource.AddOrUpdate(x));
 
             return this;
-        }
-
-        private static void _musicLibrary_DefinitionChanged(StorageLibrary sender, object args)
-        {
-            
         }
 
         //remove deleted tracks in database
@@ -175,7 +180,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                 .Include(x => x.Albums)
                 .FirstOrDefaultAsync(a => a.Name == artistName);
 
-            if (artist == default)
+            if (artist == default(Artist))
             {
                 artist = new Artist()
                 {
@@ -183,18 +188,52 @@ namespace Magentaize.FluentPlayer.Core.Services
                 };
 
                 await ServiceFacade.Db.Artists.AddAsync(artist);
+                await ServiceFacade.Db.SaveChangesAsync();
 
-                _artistSource.Add(artist);
+                _artistSource.AddOrUpdate(ArtistViewModel.Create(artist));
             }
+
+            await ServiceFacade.Db.SaveChangesAsync();
 
             return artist;
         }
 
+        private async Task<IBuffer> FindAlbumCoverAsync(Tag tag, string path)
+        {
+            var picData = default(IBuffer);
+            var folder = Path.GetDirectoryName(path);
+
+            IStorageFile folderCover = null;
+            foreach (var f in AlbumCoverFileNames)
+            {
+                var fn = Path.Combine(folder, f);
+
+                try
+                {
+                    folderCover = await StorageFile.GetFileFromPathAsync(fn);
+                    break;
+                }
+                catch { }
+            }
+
+            if (folderCover != default(IStorageFile))
+            {
+                picData = await FileIO.ReadBufferAsync(folderCover);
+            }
+            else if (tag.Pictures?.Length >= 1)
+            {
+                picData = tag.Pictures[0].Data.Data.AsBuffer();
+            }
+
+            return picData;
+        }
+
         // search for existed album
-        private async Task<Album> FindOrCreateAlbum(Tag tag, string path, Artist artist)
+        private async Task<Album> FindOrCreateAlbum(Tag tag, string path, [NotNull] Artist artist)
         {
             var albumTitle = string.IsNullOrEmpty(tag.Album) ? "Unknown" : tag.Album;
             var album = artist.Albums.FirstOrDefault(x => x.Title == albumTitle);
+            AlbumViewModel vm = default;
 
             if (album == default)
             {
@@ -205,60 +244,44 @@ namespace Magentaize.FluentPlayer.Core.Services
 
                 artist.Albums.Add(album);
                 album.Artist = artist;
+
+                await ServiceFacade.Db.SaveChangesAsync();
+
+                vm = AlbumViewModel.Create(album);
+                _artistSource.Lookup(artist.Id).Value.AddAlbum(vm);
             }
 
             if (string.IsNullOrEmpty(album.AlbumCover))
             {
-                IBuffer picData = null;
-                var folder = Path.GetDirectoryName(path);
+                var picData = await FindAlbumCoverAsync(tag, path);
 
-                IStorageFile folderCover = null;
-                foreach(var f in AlbumCoverFileNames)
+                if (picData != default(IBuffer))
                 {
-                    var fn = Path.Combine(folder, f);
-
-                    try
+                    var cover = await ServiceFacade.CacheService.CacheAsync(picData);
+                    album.AlbumCover = cover;
+                    if (vm == default(AlbumViewModel))
                     {
-                        folderCover = await StorageFile.GetFileFromPathAsync(fn);
-                        break;
+                        vm = _artistSource.Lookup(artist.Id).Value.Albums.Items.First(x => x.Title == albumTitle);
                     }
-                    catch { }
+                    vm.AlbumCover = cover;
                 }
-
-                if (folderCover != default(IStorageFile))
-                {
-                    picData = await FileIO.ReadBufferAsync(folderCover);
-                }
-                else if (tag.Pictures?.Length >= 1)
-                {
-                    picData = tag.Pictures[0].Data.Data.AsBuffer();
-                }
-
-                album.AlbumCover = picData == default(IBuffer) ? DefaultCoverImage : await ServiceFacade.CacheService.CacheAsync(picData);
-
-                _albumSource.AddOrUpdate(album);
             }
+
+            await ServiceFacade.Db.SaveChangesAsync();
 
             return album;
         }
 
-        private async Task IndexFileAsync(IStorageFile file)
+        private async Task<Track> CreateTrackAsync(IStorageFile file, TagLib.File tFile, Artist artist, Album album)
         {
-            var path = file.Path;
-            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
-
-            var prop = tFile.Properties;
             var tag = tFile.Tag;
-
-            var artist = await FindOrCreateArtist(tag);
-            var album = await FindOrCreateAlbum(tag, path, artist);
-
+            var prop = tFile.Properties;
             var fbp = await file.GetBasicPropertiesAsync();
 
             var track = new Track()
             {
-                Path = path,
-                FileName = Path.GetFileNameWithoutExtension(path),
+                Path = file.Path,
+                FileName = Path.GetFileNameWithoutExtension(file.Path),
                 IndexingSuccess = 0,
                 DateAdded = DateTime.Now.Ticks,
                 TrackTitle = tag.Title,
@@ -269,11 +292,28 @@ namespace Magentaize.FluentPlayer.Core.Services
                 FileSize = fbp.Size
             };
 
+            await ServiceFacade.Db.Tracks.AddAsync(track);
+            await ServiceFacade.Db.SaveChangesAsync();
+
+            var vm = TrackViewModel.Create(track);
+            _artistSource.Lookup(artist.Id).Value.Albums.Items.First(x => x.Id == album.Id).AddTrack(vm);
+
+            return track;
+        }
+
+        private async Task IndexFileAsync(IStorageFile file)
+        {
+            var path = file.Path;
+            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
+       
+            var tag = tFile.Tag;
+
+            var artist = await FindOrCreateArtist(tag);
+            var album = await FindOrCreateAlbum(tag, path, artist);
+            var track = await CreateTrackAsync(file, tFile, artist, album);
+
             artist.Tracks.Add(track);
             album.Tracks.Add(track);
-
-            await ServiceFacade.Db.Tracks.AddAsync(track);
-            _trackSource.Add(track);
 
             await ServiceFacade.Db.SaveChangesAsync();
         }

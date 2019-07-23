@@ -14,7 +14,7 @@ namespace Magentaize.FluentPlayer
         public static async Task StartupAsync()
         {
             ServiceFacade.IndexService.AlbumSource
-                .Transform(x => new AlbumViewModel(x))
+                .RemoveKey()
                 .Bind(AlbumVmSource)
                 .Subscribe();
 

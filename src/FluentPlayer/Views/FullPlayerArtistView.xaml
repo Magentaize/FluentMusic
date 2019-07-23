@@ -71,7 +71,7 @@
               <ListView.ItemTemplate>
                 <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
                   <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
-                    <TextBlock Text="{x:Bind Artist.Name, Mode=OneWay}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" VerticalAlignment="Center"/>
                   </StackPanel>
                 </DataTemplate>
               </ListView.ItemTemplate>
@@ -92,9 +92,16 @@
 
     <!-- Album GridWrap -->
     <Border Grid.Column="1">
+      <Border.Resources>
+        <CollectionViewSource x:Name="AlbumCvs" 
+                                IsSourceGrouped="False"
+                                Source="{x:Bind Mode=OneWay, Path=ViewModel.AlbumCvsSource}"
+                                ItemsPath="Items"/>
+      </Border.Resources>
+      
       <GridView
         x:Name="AlbumGridView"
-        ItemsSource="{x:Bind ViewModel.AlbumCvsSource, Mode=OneWay}" 
+        ItemsSource="{x:Bind AlbumCvs.View, Mode=OneWay}" 
         ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
         IsSynchronizedWithCurrentItem="False"
         SelectionMode="Single"
@@ -108,8 +115,8 @@
                 Orientation="Vertical" 
                 Background="{ThemeResource SystemControlHighlightListLowBrush}"
                 Padding="4 4 4 8">
-                <TextBlock Text="{x:Bind Album.Title, Mode=OneWay}" FontSize="12"/>
-                <TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>
+                <TextBlock Text="{x:Bind Title, Mode=OneWay}" FontSize="12"/>
+                <!--<TextBlock Text="{x:Bind Album.Artist.Name, Mode=OneWay}" FontSize="12"/>-->
               </StackPanel>
             </StackPanel>
           </DataTemplate>

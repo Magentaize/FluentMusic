@@ -1,28 +1,51 @@
 ﻿using DynamicData;
+using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Data;
 using ReactiveUI;
-using System;
+using ReactiveUI.Fody.Helpers;
 using System.Linq;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    public class ArtistViewModel : ReactiveObject
+    public sealed class ArtistViewModel : ReactiveObject
     {
-        public Artist Artist { get; }
+        public long Id { get; }
 
-        public ISourceList<AlbumViewModel> AlbumViewModels { get; }
+        [Reactive]
+        public string Name { get; set; }
 
-        public IObservable<IChangeSet<AlbumViewModel>> AlbumViewModelsConnector { get; } 
+        public IObservableList<AlbumViewModel> Albums => _albums.AsObservableList();
 
-        public ArtistViewModel(Artist artist)
+        private ISourceList<AlbumViewModel> _albums;
+
+        private ArtistViewModel(Artist artist)
         {
-            AlbumViewModels = new SourceList<AlbumViewModel>();
-            AlbumViewModelsConnector = AlbumViewModels.Connect();
-            Artist = artist;
-            AlbumViewModels.Edit(a =>
-            {
-                a.AddRange(artist.Albums.Select(x => new AlbumViewModel(x)));
-            });
+            Id = artist.Id;
+            Name = artist.Name;
+        }
+
+        public ArtistViewModel AddAlbum(AlbumViewModel album)
+        {
+            album.Artist = this;
+            _albums.Add(album);
+
+            return this;
+        }
+
+        public static ArtistViewModel Create(Artist artist)
+        {
+            var vm = new ArtistViewModel(artist);
+            var albums = artist.Albums
+                .Select(x =>
+                {
+                    var v = AlbumViewModel.Create(x);
+                    v.Artist = vm;
+
+                    return v;
+                });
+            vm._albums = SourceList.CreateFromEnumerable(albums);
+
+            return vm;
         }
     }
 }

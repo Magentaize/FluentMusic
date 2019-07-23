@@ -1,22 +1,35 @@
 ﻿using Magentaize.FluentPlayer.Data;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using System;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
     public class TrackViewModel : ReactiveObject
     {
-        public Guid Guid = Guid.NewGuid();
+        public AlbumViewModel Album { get; set; }
 
-        public Track Track { get; }
+        public long Id { get; }
+
+        [Reactive]
+        public string Path { get; set; }
+
+        [Reactive]
+        public string Title { get; set; }
 
         [Reactive]
         public bool IsPlaying { get; set; }
 
-        public TrackViewModel(Track track)
+        private TrackViewModel(Track track)
         {
-            Track = track;
+            Id = track.Id;
+            Path = track.Path;
+            Title = track.TrackTitle;
+        }
+
+        public static TrackViewModel Create(Track track)
+        {
+            var vm = new TrackViewModel(track);
+            return vm;
         }
     }
 }

@@ -1,14 +1,12 @@
 ﻿using DynamicData;
 using Kasay.DependencyProperty;
 using Magentaize.FluentPlayer.Core.Extensions;
-using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

@@ -56,53 +56,49 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Artist ----------------
 
-            var ungroupedFilteredArtistListSubject = new Subject<IChangeSet<ArtistViewModel>>();
-
-            ServiceFacade.IndexService.ArtistSource
-                .Transform(x => new ArtistViewModel(x))
+            var filteredArtists = ServiceFacade.IndexService.ArtistSource
+                .Connect()
+                .RemoveKey()
                 .Filter(artistFilter)
-                .Subscribe(ungroupedFilteredArtistListSubject.OnNext);
+                .Publish();
+            filteredArtists.Connect();
 
-
-            ungroupedFilteredArtistListSubject.Subscribe(x =>
-            {
-
-            });
-
-            ungroupedFilteredArtistListSubject
-                .GroupOn(x => x.Artist.Name.Substring(0, 1))
+            filteredArtists
+                .Bind(out var filteredArtistCollection)
+                .GroupOn(x => x.Name.Substring(0, 1))
                 .Transform(x => new GroupArtistViewModel(x))
                 .Sort(SortExpressionComparer<Grouping<ArtistViewModel>>.Ascending(x => x.Key))
                 .Bind(out _artistCvsSource)
                 .Subscribe();
 
-            var unprocessedArtists = new SourceList<ArtistViewModel>();
+            var artistsWaitForFlatMapAlbum = new SourceList<ArtistViewModel>();
             var usingSelectedItems = false;
             var artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround = true;
 
             Func<IChangeSet<ArtistViewModel>, bool> originalArtistMux = _ => !usingSelectedItems;
             Func<IChangeSet<ArtistViewModel>, bool> selectedArtistMux = _ => usingSelectedItems;
-            ungroupedFilteredArtistListSubject.Where(originalArtistMux)
+
+            filteredArtists
+                .Where(originalArtistMux)
                 .Merge(ArtistListSelectedItems.Connect().Where(selectedArtistMux))
                 .Subscribe(x =>
                 {
-                    unprocessedArtists.Edit(a =>
+                    artistsWaitForFlatMapAlbum.Edit(a =>
                     {
                         x.ForEach(a.Edit);
                     });
                 });
 
-            ungroupedFilteredArtistListSubject.Bind(out var ungroupedFilteredArtistListCollection).Subscribe();
             artistFilter
                 .Where(_ => usingSelectedItems)
                 .Subscribe(x =>
                 {
                     artistFilterChangeTriggerArtistListSelectedItemsChangeWorkaround = false;
                     usingSelectedItems = false;
-                    unprocessedArtists.Edit(a =>
+                    artistsWaitForFlatMapAlbum.Edit(a =>
                     {
                         a.Clear();
-                        a.AddRange(ungroupedFilteredArtistListCollection);
+                        a.AddRange(filteredArtistCollection);
                     });
                 });
 
@@ -117,7 +113,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Subscribe(_ =>
                 {
                     usingSelectedItems = true;
-                    unprocessedArtists.Edit(a =>
+                    artistsWaitForFlatMapAlbum.Edit(a =>
                     {
                         a.Clear();
                         a.AddRange(ArtistListSelectedItems.Items);
@@ -128,7 +124,7 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             var albumVmList = new SourceList<AlbumViewModel>();
             var connectedAlbumSource = new Dictionary<ArtistViewModel, IDisposable>();
-            unprocessedArtists.Connect().Subscribe(x =>
+            artistsWaitForFlatMapAlbum.Connect().Subscribe(x =>
             {
                 Action<ArtistViewModel> disconnectAlbumSource = a =>
                 {
@@ -136,14 +132,14 @@ namespace Magentaize.FluentPlayer.ViewModels
                     {
                         d.Dispose();
                         connectedAlbumSource.Remove(a);
-                        albumVmList.RemoveMany(a.AlbumViewModels.Items);
+                        albumVmList.RemoveMany(a.Albums.Items);
                     }
                 };
 
                 Action<IExtendedList<AlbumViewModel>, ArtistViewModel> connectAlbumSource = (a, i) =>
                 {
-                    a.Add(i.AlbumViewModels.Items);
-                    connectedAlbumSource.Add(i, i.AlbumViewModels.Connect().Subscribe(y =>
+                    a.Add(i.Albums.Items);
+                    connectedAlbumSource.Add(i, i.Albums.Connect().Subscribe(y =>
                     {
                         y.ForEach(albumChange =>
                         {
@@ -188,8 +184,9 @@ namespace Magentaize.FluentPlayer.ViewModels
             });
 
             albumVmList.Connect()
+                .ObserveOnDispatcher()
                 .Bind(out _albumCvsSource)
-                .Subscribe(x=> { Debug.WriteLine(_albumCvsSource); });
+                .Subscribe(x => { Debug.WriteLine(_albumCvsSource); }, ex => { Debugger.Break(); });
 
             // ---------------- Track ----------------
 
@@ -212,13 +209,13 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             ArtistListTapped = ReactiveCommand.Create<object>(_ =>
               {
-                  albumFilter.OnNext(vm => vm.Album.Artist == ArtistListSelectedItem.Artist);
-                  trackFilter.OnNext(vm => vm.Track.Artist == ArtistListSelectedItem.Artist);
+                  //albumFilter.OnNext(vm => vm.Album.Artist == ArtistListSelectedItem.Artist);
+                  //trackFilter.OnNext(vm => vm.Track.Artist == ArtistListSelectedItem.Artist);
               });
 
             AlbumGridViewTapped = ReactiveCommand.Create<object>(_ =>
             {
-                trackFilter.OnNext(vm => vm.Track.Album == AlbumGridViewSelectedItem.Album);
+                //trackFilter.OnNext(vm => vm.Track.Album == AlbumGridViewSelectedItem.Album);
             });
 
             //PlayTrack = ReactiveCommand.Create<object>(async _ =>

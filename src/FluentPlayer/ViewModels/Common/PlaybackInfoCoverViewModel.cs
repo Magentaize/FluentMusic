@@ -21,11 +21,11 @@ namespace Magentaize.FluentPlayer.ViewModels.Common
             pbs.CurrentTrack
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
-            pbs.CurrentTrack
-                .DistinctUntilChanged(x => x.Track.Album)
-                .Select(x => ViewModelAccessor.AlbumVmSource.First(y => y.Album == x.Track.Album))
-                .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.AlbumCoverFsPath.Value })
-                .ToPropertyEx(this, x => x.Thumbnail);
+            //pbs.CurrentTrack
+            //    .DistinctUntilChanged(x => x.Track.Album)
+            //    .Select(x => ViewModelAccessor.AlbumVmSource.First(y => y.Album == x.Track.Album))
+            //    .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.AlbumCoverFsPath.Value })
+            //    .ToPropertyEx(this, x => x.Thumbnail);
         }
     }
 }

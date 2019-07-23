@@ -31,7 +31,7 @@ namespace Magentaize.FluentPlayer.Collections
         {
             Key = group.GroupKey;
             group.List.Connect()
-                .Sort(SortExpressionComparer<ArtistViewModel>.Ascending(x => x.Artist.Name))
+                .Sort(SortExpressionComparer<ArtistViewModel>.Ascending(x => x.Name))
                 .ObserveOnDispatcher()
                 .Bind(Items)
                 .DisposeMany()
