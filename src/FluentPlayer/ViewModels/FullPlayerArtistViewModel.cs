@@ -60,15 +60,15 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Artist ----------------
 
-            var filteredArtists = 
                 ServiceFacade.IndexService.ArtistSource
                 .Connect()
                 .RemoveKey()
-                .Filter(Observable.Return<Func<ArtistViewModel, bool>>(_ => true).Concat(artistFilter))
-                .ToSourceList()
-                .Connect();
+                .Filter(artistFilter.StartWith(_ => true))
+                .Bind(out var filteredArtists)
+                .Subscribe();
 
             filteredArtists
+                .ToObservableChangeSet()
                 .GroupOn(x => x.Name.Substring(0, 1))
                 .Transform(x => new GroupArtistViewModel(x))
                 .Sort(SortExpressionComparer<Grouping<ArtistViewModel>>.Ascending(x => x.Key))
@@ -79,7 +79,8 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             IDisposable artistsWaitForFlatMapAlbumLastSubscription = Disposable.Empty;
             var useSelectedArtists = new Subject<bool>();
-            useSelectedArtists.Merge(Observable.Return(false))
+            useSelectedArtists
+                .StartWith(false)
                 .DistinctUntilChanged()
                 .Subscribe(use =>
                 {
@@ -97,6 +98,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                     {
                         artistsWaitForFlatMapAlbumLastSubscription =
                         filteredArtists
+                        .ToObservableChangeSet()
                         .Subscribe(x => artistsWaitForFlatMapAlbum.Edit(x));
                     }
                 });
@@ -248,8 +250,6 @@ namespace Magentaize.FluentPlayer.ViewModels
             //        xvm.IsPlaying = true;
             //        lastPlayedTrack = xvm;
             //    });
-
-
 
             Activator = new ViewModelActivator();
             this.WhenActivated(async (CompositeDisposable d) =>
