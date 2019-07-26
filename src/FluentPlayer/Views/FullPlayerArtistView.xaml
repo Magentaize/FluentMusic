@@ -25,7 +25,9 @@
     <controls:DockPanel Grid.Column="0">
 
       <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
-        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind ViewModel.RestoreArtistsCommand}" />
+        <Button x:Name="RestoreArtistButton" 
+                Style="{StaticResource BaseTextButtonStyle}" 
+                Content="Artists" />
       </StackPanel>
 
       <Border controls:DockPanel.Dock="Bottom">
@@ -94,7 +96,9 @@
 
     <controls:DockPanel Grid.Column="1">
       <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
-        <Button Style="{StaticResource BaseTextButtonStyle}" Content="Artists" Command="{x:Bind ViewModel.RestoreAlbumCommand}" />
+        <Button x:Name="RestoreAlbumButton" 
+                Style="{StaticResource BaseTextButtonStyle}" 
+                Content="Artists" />
       </StackPanel>
 
       <Border>

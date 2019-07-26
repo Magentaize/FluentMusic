@@ -30,7 +30,10 @@ namespace Magentaize.FluentPlayer.Views
                         a.AddRange(x.EventArgs.AddedItems.Cast<ArtistViewModel>());
                     });
                 });
-    
+
+            RestoreArtistButton.Events().Tapped
+                .Subscribe(ViewModel.RestoreArtistsTapped);
+
             ArtistList.Events().Tapped
                 .InvokeCommand(ViewModel.ArtistListTapped);
 
