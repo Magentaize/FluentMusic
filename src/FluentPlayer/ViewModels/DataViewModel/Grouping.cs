@@ -1,19 +1,18 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using System;
 using System.Diagnostics;
 using System.Reactive.Linq;
 
-namespace Magentaize.FluentPlayer.Collections
+namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
 {
-    public class Grouping<TElement> 
+    public abstract class Grouping<TElement>
     {
         public IObservableCollection<TElement> Items { get; } = new ObservableCollectionExtended<TElement>();
 
         protected Grouping() { }
 
-        public Grouping(IGroup<TElement, string> group)         
+        public Grouping(IGroup<TElement, string> group)
         {
         }
 
@@ -41,7 +40,7 @@ namespace Magentaize.FluentPlayer.Collections
 
     public class GroupTrackViewModel : Grouping<TrackViewModel>
     {
-       public GroupTrackViewModel(IGroup<TrackViewModel, string> group)
+        public GroupTrackViewModel(IGroup<TrackViewModel, string> group)
         {
             Key = group.GroupKey;
             group.List.Connect()

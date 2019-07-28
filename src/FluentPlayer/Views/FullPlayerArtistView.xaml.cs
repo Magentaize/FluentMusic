@@ -20,19 +20,31 @@ namespace Magentaize.FluentPlayer.Views
 
             InitializeComponent();
 
-            Observable.FromEventPattern<SelectionChangedEventHandler, SelectionChangedEventArgs>
-                (x => ArtistList.SelectionChanged += x, x => ArtistList.SelectionChanged -= x)
+            ArtistList.Events().SelectionChanged
                 .Subscribe(x =>
                 {
                     ViewModel.ArtistListSelectedItems.Edit(a =>
                     {
-                        a.RemoveMany(x.EventArgs.RemovedItems.Cast<ArtistViewModel>());
-                        a.AddRange(x.EventArgs.AddedItems.Cast<ArtistViewModel>());
+                        a.RemoveMany(x.RemovedItems.Cast<ArtistViewModel>());
+                        a.AddRange(x.AddedItems.Cast<ArtistViewModel>());
+                    });
+                });
+
+            AlbumGridView.Events().SelectionChanged
+                .Subscribe(x =>
+                {
+                    ViewModel.AlbumGridViewSelectedItems.Edit(a =>
+                    {
+                        a.RemoveMany(x.RemovedItems.Cast<AlbumViewModel>());
+                        a.AddRange(x.AddedItems.Cast<AlbumViewModel>());
                     });
                 });
 
             RestoreArtistButton.Events().Tapped
                 .Subscribe(ViewModel.RestoreArtistsTapped);
+
+            RestoreAlbumButton.Events().Tapped
+                .Subscribe(ViewModel.RestoreAlbumTapped);
 
             ArtistList.Events().Tapped
                 .InvokeCommand(ViewModel.ArtistListTapped);

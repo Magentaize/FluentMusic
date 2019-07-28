@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -141,19 +142,17 @@ namespace Magentaize.FluentPlayer.Core.Services
             var _musicLibrary_DefinitionChanged = Observable.FromEventPattern<TypedEventHandler<StorageLibrary, object>, StorageLibrary, object>(
                 h => _musicLibrary.DefinitionChanged += h, h => _musicLibrary.DefinitionChanged -= h);
 
-            //await ServiceFacade.Db.Tracks.Include(t => t.Album).Include(t => t.Artist)
-            //    .ToAsyncEnumerable()
-            //    .ForEachAsync(x => _trackSource.Add(x));
-
-            var artists = await ServiceFacade.Db.Artists.Include(a => a.Albums)
+            ServiceFacade.Db.Artists
+                .Include(a => a.Albums)
+                .ThenInclude(a => a.Tracks)
                 .ToAsyncEnumerable()
                 .Select(x => ArtistViewModel.Create(x))
-                .ToList();
-            _artistSource.AddOrUpdateForEach(artists);
-
-            //await ServiceFacade.Db.Albums.Include(a => a.Tracks).Include(a => a.Artist)
-            //    .ToAsyncEnumerable()
-            //    .ForEachAsync(x => _albumSource.AddOrUpdate(x));
+                .ToObservable()
+                .SubscribeOn(ThreadPoolScheduler.Instance)
+                .Subscribe(x =>
+                {
+                    _artistSource.AddOrUpdate(x);
+                });
 
             return this;
         }

@@ -27,15 +27,20 @@ namespace Magentaize.FluentPlayer
             Debugger.Break();
         }
 
+        protected override async void OnWindowCreated(WindowCreatedEventArgs args)
+        {
+            base.OnWindowCreated(args);
+
+            //await ServiceFacade.IndexService.BeginIndexAsync();
+        }
+
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             base.OnLaunched(e);
 
             await ServiceFacade.StartupAsync();
             await ViewModelAccessor.StartupAsync();
-
             await ServiceFacade.IndexService.BeginIndexAsync();
-
             if (e.Kind == ActivationKind.Launch)
             {
                 if (Window.Current.Content == null)

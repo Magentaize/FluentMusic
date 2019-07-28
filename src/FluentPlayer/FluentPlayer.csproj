@@ -74,7 +74,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Collections\Grouping.cs" />
+    <Compile Include="ViewModels\DataViewModel\Grouping.cs" />
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
     <Compile Include="Core\Defaults.cs" />
@@ -82,7 +82,6 @@
     <Compile Include="Core\Extensions\EnumerableExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Extensions\ObservableListExtension.cs" />
-    <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Extensions\SourceCacheExtension.cs" />
     <Compile Include="Core\Extensions\SourceListExtension.cs" />
     <Compile Include="Core\Extensions\StringExtension.cs" />
@@ -272,7 +271,9 @@
       <Version>1.0.3</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Collections\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FluentPlayer.Data\FluentPlayer.Data.csproj">
       <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>

@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 
 namespace DynamicData
 {
     public static class ExtendedListExtension
     {
+        [DebuggerHidden]
         public static void Edit<T>(this IExtendedList<T> source, Change<T> change)
         {
             switch (change.Reason)

@@ -8,8 +8,7 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
-  xmlns:collections="using:Magentaize.FluentPlayer.Collections"
-  mc:Ignorable="d"
+    mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
   
@@ -41,17 +40,18 @@
         <SemanticZoom>
 
           <SemanticZoom.ZoomedOutView>
-            <GridView ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View.CollectionGroups}"
+            <GridView ItemsSource="{x:Bind Path=ArtistCvs.View.CollectionGroups, Mode=OneWay}"
                       ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
               <GridView.ItemTemplate>
                 <DataTemplate x:DataType="ICollectionViewGroup">
                   <Border Height="60" Width="60">
-                    <TextBlock Text="{x:Bind ((collections:GroupArtistViewModel)Group).Key, Mode=OneWay}"
+                    <TextBlock Text="{x:Bind ((dataViewModel:GroupArtistViewModel)Group).Key, Mode=OneWay}"
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" />
                   </Border>
                 </DataTemplate>
               </GridView.ItemTemplate>
+              
               <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
                   <controls:WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
@@ -64,8 +64,8 @@
             <ListView 
             x:Name="ArtistList"
             IsSynchronizedWithCurrentItem="False"
-            ItemsSource="{x:Bind Mode=OneWay, Path=ArtistCvs.View}" 
-            SelectedItem="{x:Bind Mode=TwoWay, Path=ViewModel.ArtistListSelectedItem}"
+            ItemsSource="{x:Bind Path=ArtistCvs.View, Mode=OneWay}" 
+            SelectedItem="{x:Bind Path=ViewModel.ArtistListSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
             SelectionMode="Extended" 
             ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -77,15 +77,17 @@
                   </StackPanel>
                 </DataTemplate>
               </ListView.ItemTemplate>
+              
               <ListView.GroupStyle>
                 <GroupStyle>
                   <GroupStyle.HeaderTemplate>
-                    <DataTemplate x:DataType="collections:GroupArtistViewModel">
+                    <DataTemplate x:DataType="dataViewModel:GroupArtistViewModel">
                       <TextBlock Text="{x:Bind Key, Mode=OneWay}"/>
                     </DataTemplate>
                   </GroupStyle.HeaderTemplate>
                 </GroupStyle>
               </ListView.GroupStyle>
+              
             </ListView>
           </SemanticZoom.ZoomedInView>
         </SemanticZoom>
@@ -98,7 +100,7 @@
       <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
         <Button x:Name="RestoreAlbumButton" 
                 Style="{StaticResource BaseTextButtonStyle}" 
-                Content="Artists" />
+                Content="Albums" />
       </StackPanel>
 
       <Border>
@@ -109,14 +111,14 @@
                                 ItemsPath="Items"/>
         </Border.Resources>
 
-        <GridView
-        x:Name="AlbumGridView"
-        ItemsSource="{x:Bind AlbumCvs.View, Mode=OneWay}" 
-        ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
-        IsSynchronizedWithCurrentItem="False"
-        SelectionMode="Extended"
-        SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <GridView x:Name="AlbumGridView"
+                  ItemsSource="{x:Bind AlbumCvs.View, Mode=OneWay}" 
+                  ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
+                  IsSynchronizedWithCurrentItem="False"
+                  SelectionMode="Extended"
+                  SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <GridView.ItemTemplate>
             <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
               <StackPanel>
@@ -136,84 +138,101 @@
     </controls:DockPanel>
 
     <!-- Track List -->
-    <!--<Border Grid.Column="2">
-      <Border.Resources>
-        <CollectionViewSource x:Name="TrackCvs" IsSourceGrouped="True" Source="{x:Bind ViewModel.TrackCvsSource, Mode=OneWay}"/>
-      </Border.Resources>
 
-      <SemanticZoom>
-        <SemanticZoom.ZoomedInView>
-          <ListView 
-            x:Name="TrackList"
-            IsSynchronizedWithCurrentItem="False"
-            ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
-            SelectionMode="Extended"
-            SelectedItem="{x:Bind ViewModel.TrackListSelected, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-            ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            ScrollViewer.VerticalScrollBarVisibility="Auto">
-            <ListView.ItemTemplate>
-              <DataTemplate x:DataType="dataViewModel:TrackViewModel">
-                <controls:DockPanel Style="{StaticResource BaseListViewItemDockPanelStyle}" >
-                  <controls:DockPanel.ContextFlyout>
-                    <MenuFlyout>
-                      <MenuFlyoutItem Text="Play">
-                        <MenuFlyoutItem.Icon>
-                          <FontIcon Glyph="&#xE768;" />
-                        </MenuFlyoutItem.Icon>
-                      </MenuFlyoutItem>
-                      <MenuFlyoutItem Text="Delete">
-                        <MenuFlyoutItem.Icon>
-                          <FontIcon Glyph="&#xE74D;" />
-                        </MenuFlyoutItem.Icon>
-                      </MenuFlyoutItem>
-                    </MenuFlyout>
-                  </controls:DockPanel.ContextFlyout>
+    <controls:DockPanel Grid.Column="2">
 
-                  <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}" 
+      <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
+        <Button x:Name="RestoreTrackButton" 
+                Style="{StaticResource BaseTextButtonStyle}" 
+                Content="Tracks" />
+      </StackPanel>
+
+      <Border>
+        <Border.Resources>
+          <CollectionViewSource x:Name="TrackCvs" 
+                                IsSourceGrouped="True" 
+                                Source="{x:Bind ViewModel.TrackCvsSource, Mode=OneWay}"
+                                ItemsPath="Items"/>
+        </Border.Resources>
+
+        <SemanticZoom>
+          <SemanticZoom.ZoomedInView>
+            <ListView x:Name="TrackList"
+                      IsSynchronizedWithCurrentItem="False"
+                      ItemsSource="{x:Bind TrackCvs.View, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.TrackListSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      ItemContainerStyle="{StaticResource BaseListViewItemContainerStyle}"
+                      SelectionMode="Extended"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="dataViewModel:TrackViewModel">
+                  <controls:DockPanel Style="{StaticResource BaseListViewItemDockPanelStyle}" >
+                    <controls:DockPanel.ContextFlyout>
+                      <MenuFlyout>
+                        <MenuFlyoutItem Text="Play">
+                          <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE768;" />
+                          </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Text="Delete">
+                          <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE74D;" />
+                          </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                      </MenuFlyout>
+                    </controls:DockPanel.ContextFlyout>
+
+                    <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}" 
                             Glyph="&#xE93D;"
                             controls:DockPanel.Dock="Right"
                             Visibility="{x:Bind IsPlaying, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Foreground="{StaticResource SystemAccentColorDark1Brush}" />
-                  <TextBlock Foreground="{x:Bind IsPlaying, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
-                             Text="{x:Bind Track.TrackTitle, Mode=OneWay}"
+                    <TextBlock Foreground="{x:Bind IsPlaying, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
+                             Text="{x:Bind Title, Mode=OneWay}"
                              VerticalAlignment="Center" 
                              HorizontalAlignment="Left"
                              FontSize="14"/>
-                </controls:DockPanel>
-              </DataTemplate>
-            </ListView.ItemTemplate>
+                  </controls:DockPanel>
+                </DataTemplate>
+              </ListView.ItemTemplate>
 
-            <ListView.GroupStyle>
-              <GroupStyle>
-                <GroupStyle.HeaderTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Key}"/>
-                  </DataTemplate>
-                </GroupStyle.HeaderTemplate>
-              </GroupStyle>
-            </ListView.GroupStyle>
-          </ListView>
-        </SemanticZoom.ZoomedInView>
+              <ListView.GroupStyle>
+                <GroupStyle>
+                  <GroupStyle.HeaderTemplate>
+                    <DataTemplate x:DataType="dataViewModel:GroupTrackViewModel">
+                      <TextBlock Text="{x:Bind Key, Mode=OneWay}"/>
+                    </DataTemplate>
+                  </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+              </ListView.GroupStyle>
+              
+            </ListView>
+          </SemanticZoom.ZoomedInView>
 
-        <SemanticZoom.ZoomedOutView>
-          <GridView ItemsSource="{x:Bind TrackCvs.View.CollectionGroups, Mode=OneWay}"
-                  ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
-            <GridView.ItemTemplate>
-              <DataTemplate>
-                <Border Height="60" Width="60">
-                  <TextBlock Text="{Binding Group.Key}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-              </DataTemplate>
-            </GridView.ItemTemplate>
-            <GridView.ItemsPanel>
-              <ItemsPanelTemplate>
-                <controls:WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
-              </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-          </GridView>
-        </SemanticZoom.ZoomedOutView>
-      </SemanticZoom>
-    </Border>-->
+          <SemanticZoom.ZoomedOutView>
+            <GridView ItemsSource="{x:Bind TrackCvs.View.CollectionGroups, Mode=OneWay}"
+                      ItemContainerStyle="{StaticResource SemanticZoomOutGridViewItemRevealStyle}">
+              <GridView.ItemTemplate>
+                <DataTemplate x:DataType="ICollectionViewGroup">
+                  <Border Height="60" Width="60">
+                    <TextBlock Text="{x:Bind ((dataViewModel:GroupTrackViewModel)Group).Key, Mode=OneWay}" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                  </Border>
+                </DataTemplate>
+              </GridView.ItemTemplate>
+              
+              <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <controls:WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </GridView.ItemsPanel>
+            </GridView>
+          </SemanticZoom.ZoomedOutView>
+        </SemanticZoom>
+      </Border>
+    </controls:DockPanel>
+    
   </Grid>
 </UserControl>
