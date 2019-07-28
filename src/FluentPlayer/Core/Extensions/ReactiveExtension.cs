@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Windows.ApplicationModel.Core;
 
 namespace System.Reactive
@@ -10,6 +11,11 @@ namespace System.Reactive
         {
             public static readonly Action<T> Ignore = _ => { };
             public static readonly Func<T, T> I = _ => _;
+        }
+
+        public static IConnectableObservable<T> CacheReplay<T>(this IObservable<T> source, int buffer)
+        {
+            return source.Multicast(new ReplaySubject<T>(buffer));
         }
 
         public static IScheduler CoreDispatcherScheduler = new CoreDispatcherScheduler(CoreApplication.GetCurrentView().Dispatcher);

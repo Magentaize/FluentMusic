@@ -47,7 +47,7 @@ namespace Magentaize.FluentPlayer.Views
                 .Subscribe(ViewModel.RestoreAlbumTapped);
 
             ArtistList.Events().Tapped
-                .InvokeCommand(ViewModel.ArtistListTapped);
+                .Subscribe(ViewModel.ArtistListTapped);
 
             ArtistList.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayArtist);
@@ -56,7 +56,7 @@ namespace Magentaize.FluentPlayer.Views
             //    .InvokeCommand(ViewModel.PlayTrack);
 
             AlbumGridView.Events().Tapped
-                .InvokeCommand(ViewModel.AlbumGridViewTapped);
+                .Subscribe(ViewModel.AlbumGridViewTapped);
 
             AlbumGridView.Events().DoubleTapped
                 .InvokeCommand(ViewModel.PlayAlbum);

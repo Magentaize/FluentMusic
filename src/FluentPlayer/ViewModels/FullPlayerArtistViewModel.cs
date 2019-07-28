@@ -33,10 +33,9 @@ namespace Magentaize.FluentPlayer.ViewModels
         public AlbumViewModel AlbumGridViewSelectedItem { get; set; }
 
         public ISubject<object> RestoreArtistsTapped { get; } = new Subject<object>();
-
         public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
-        public ICommand ArtistListTapped { get; private set; }
-        public ICommand AlbumGridViewTapped { get; private set; }
+        public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
+        public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
         public ICommand PlayTrack { get; }
         public ICommand PlayArtist => PlayTrack;
         public ICommand PlayAlbum => PlayTrack;
@@ -46,39 +45,34 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
 
-        private IObservable<bool> CreateUseSelectedItemObservable<TEvent, TViewModel>(IObservable<TEvent> restoreSubject, Action restoreAction, IObservableList<TViewModel> sourceList)
+        private IObservable<bool> CreateUseSelectedItemObservable<TViewModel>(
+            IObservable<object> restoreSubject, 
+            Action restoreAction, 
+            IObservableList<TViewModel> selectedList,
+            ISubject<object> selectedTapped)
         {
             return 
                 Observable.Create<bool>(observer =>
                 {
-                    // When (catalog)list has selected items, if cancel selection
-                    // an item of (catalog)SelectedItems will be emitted,
-                    // so this variable is a workaround of that.
-                    var skipFirstChange = true;
-                    var flag = false;
+                    IDisposable dispose = null;
 
                     restoreSubject
-                        .Where(_=> flag)
                         .Subscribe(_ =>
                         {
-                            flag = false;
-                            skipFirstChange = false;
+                            dispose?.Dispose();
+                            dispose = null;
+
                             observer.OnNext(false);
                             restoreAction();
                         });
 
-                    sourceList
-                        .Connect()
-                        .Where(_ =>
+                    selectedTapped
+                        .Where(_ => dispose == null)
+                        .Subscribe(_ =>
                         {
-                            var old = skipFirstChange;
-                            skipFirstChange = true;
-                            return old;
-                        })
-                        .Subscribe(_ => 
-                        {
-                            flag = true;
-                            observer.OnNext(true);
+                            dispose = selectedList
+                                        .Connect()
+                                        .Subscribe(_ => observer.OnNext(true));
                         });
 
                     return Disposable.Empty;
@@ -198,8 +192,11 @@ namespace Magentaize.FluentPlayer.ViewModels
             var useSelectedArtists = CreateUseSelectedItemObservable(
                                         RestoreArtistsTapped,
                                         () => ArtistListSelectedItem = null,
-                                        ArtistListSelectedItems)
+                                        ArtistListSelectedItems,
+                                        ArtistListTapped)
+                                     .CacheReplay(1)
                                      ;
+            useSelectedArtists.Connect();
 
             // ---------------- Album ----------------
 
@@ -214,20 +211,21 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .Bind(AlbumCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 
+            var restoreSubjectAlbumEx = ArtistListTapped
+                                            .Where(_ => ArtistListSelectedItems.Count <= 1)
+                                            .Select(_ => default(object))
+                                            .Merge(RestoreAlbumTapped);
+
             var useSelectedAlbum = CreateUseSelectedItemObservable(
-                                        RestoreAlbumTapped,
+                                        restoreSubjectAlbumEx,
                                         () => AlbumGridViewSelectedItem = null,
-                                        AlbumGridViewSelectedItems);
+                                        AlbumGridViewSelectedItems,
+                                        AlbumGridViewTapped);
 
             // ---------------- Track ----------------
 
-            var useSelectedAlbumEx = useSelectedArtists
-                                        .Where(x => x)
-                                        .Select(x => !x)
-                                        .Merge(useSelectedAlbum);
-
             var trackVm = FlatMapViewModels(
-                useSelectedAlbumEx,
+                useSelectedAlbum,
                 AlbumCvsSource,
                 AlbumGridViewSelectedItems,
                 x => x.Tracks);
@@ -240,17 +238,6 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .ObserveOnDispatcher()
                 .Bind(TrackCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
-
-            ArtistListTapped = ReactiveCommand.Create<object>(_ =>
-              {
-                  //albumFilter.OnNext(vm => vm.Album.Artist == ArtistListSelectedItem.Artist);
-                  //trackFilter.OnNext(vm => vm.Track.Artist == ArtistListSelectedItem.Artist);
-              });
-
-            AlbumGridViewTapped = ReactiveCommand.Create<object>(_ =>
-            {
-                //trackFilter.OnNext(vm => vm.Track.Album == AlbumGridViewSelectedItem.Album);
-            });
 
             //PlayTrack = ReactiveCommand.Create<object>(async _ =>
             //{
