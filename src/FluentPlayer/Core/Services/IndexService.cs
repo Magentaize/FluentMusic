@@ -4,22 +4,17 @@ using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
 using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Toolkit.Extensions;
-using ReactiveUI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TagLib;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
@@ -148,7 +143,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                 .ToAsyncEnumerable()
                 .Select(x => ArtistViewModel.Create(x))
                 .ToObservable()
-                .SubscribeOn(ThreadPoolScheduler.Instance)
+                .SubscribeOnThreadPool()
                 .Subscribe(x =>
                 {
                     _artistSource.AddOrUpdate(x);

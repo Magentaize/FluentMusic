@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -18,15 +19,11 @@ namespace Magentaize.FluentPlayer.ViewModels
 {
     public sealed class FullPlayerArtistViewModel : ReactiveObject, ISupportsActivation
     {
-        private ReadOnlyObservableCollection<GroupArtistViewModel> _artistCvsSource;
-        public IEnumerable<GroupArtistViewModel> ArtistCvsSource => _artistCvsSource;
+        public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
 
-        private ReadOnlyObservableCollection<AlbumViewModel> _albumCvsSource;
-        public IEnumerable<AlbumViewModel> AlbumCvsSource => _albumCvsSource;
+        public ObservableCollectionExtended<AlbumViewModel> AlbumCvsSource { get; } = new ObservableCollectionExtended<AlbumViewModel>();
 
-        private ReadOnlyObservableCollection<GroupTrackViewModel> _trackCvsSource;
-
-        public IEnumerable<GroupTrackViewModel> TrackCvsSource => _trackCvsSource;
+        public ObservableCollectionExtended<GroupTrackViewModel> TrackCvsSource { get; } = new ObservableCollectionExtended<GroupTrackViewModel>();
 
         [Reactive]
         public TrackViewModel TrackListSelected { get; set; }
@@ -38,8 +35,8 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ISubject<object> RestoreArtistsTapped { get; } = new Subject<object>();
 
         public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
-        public ICommand ArtistListTapped { get; }
-        public ICommand AlbumGridViewTapped { get; }
+        public ICommand ArtistListTapped { get; private set; }
+        public ICommand AlbumGridViewTapped { get; private set; }
         public ICommand PlayTrack { get; }
         public ICommand PlayArtist => PlayTrack;
         public ICommand PlayAlbum => PlayTrack;
@@ -49,7 +46,7 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
 
-        private IObservable<bool> CreateUseSelectedItemObservable<TEvent, TViewModel>(ISubject<TEvent> restoreSubject, Action restoreAction, ISourceList<TViewModel> sourceList)
+        private IObservable<bool> CreateUseSelectedItemObservable<TEvent, TViewModel>(IObservable<TEvent> restoreSubject, Action restoreAction, IObservableList<TViewModel> sourceList)
         {
             return 
                 Observable.Create<bool>(observer =>
@@ -91,8 +88,8 @@ namespace Magentaize.FluentPlayer.ViewModels
 
         private ISourceList<TDest> FlatMapViewModels<TSource, TDest>(
             IObservable<bool> useSelectedItemObservable,
-            ReadOnlyObservableCollection<TSource> originalSource, 
-            ISourceList<TSource> selectedSource, 
+            ObservableCollection<TSource> originalSource, 
+            IObservableList<TSource> selectedSource, 
             Func<TSource, IObservableList<TDest>> selector)
         {
             var waitForFlatMapLastSubscription = Disposable.Empty;
@@ -170,7 +167,7 @@ namespace Magentaize.FluentPlayer.ViewModels
             return vmList;
         }
 
-        public FullPlayerArtistViewModel()
+        private void InitializeReactive()
         {
             var artistFilter = new Subject<Func<ArtistViewModel, bool>>();
             var albumFilter = new Subject<Func<AlbumViewModel, bool>>();
@@ -178,27 +175,31 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Artist ----------------
 
+            var filteredArtists = new ObservableCollectionExtended<ArtistViewModel>();
+
             ServiceFacade.IndexService.ArtistSource
                 .Connect()
-                //.SubscribeOn(ThreadPoolScheduler.Instance)
+                .SubscribeOnThreadPool()
                 .RemoveKey()
                 .Filter(artistFilter.StartWith(_ => true))
-                .Bind(out var filteredArtists)
+                .Bind(filteredArtists)
                 .Subscribe();
 
             filteredArtists
                 .ToObservableChangeSet()
+                .SubscribeOnThreadPool()
                 .GroupOn(x => x.Name.Substring(0, 1))
                 .Transform(x => new GroupArtistViewModel(x))
                 .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
-                .ObserveOnDispatcher()
-                .Bind(out _artistCvsSource)
+                .ObservableOnCoreDispatcher()
+                .Bind(ArtistCvsSource)
                 .Subscribe();
 
             var useSelectedArtists = CreateUseSelectedItemObservable(
                                         RestoreArtistsTapped,
                                         () => ArtistListSelectedItem = null,
-                                        ArtistListSelectedItems);
+                                        ArtistListSelectedItems)
+                                     ;
 
             // ---------------- Album ----------------
 
@@ -210,8 +211,8 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             albumVm.Connect()
                 .ObserveOnDispatcher()
-                .Bind(out _albumCvsSource)
-                .Subscribe(x=> { }, ex => { Debugger.Break(); });
+                .Bind(AlbumCvsSource)
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
 
             var useSelectedAlbum = CreateUseSelectedItemObservable(
                                         RestoreAlbumTapped,
@@ -220,20 +221,25 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Track ----------------
 
+            var useSelectedAlbumEx = useSelectedArtists
+                                        .Where(x => x)
+                                        .Select(x => !x)
+                                        .Merge(useSelectedAlbum);
+
             var trackVm = FlatMapViewModels(
-                useSelectedAlbum,
-                _albumCvsSource,
+                useSelectedAlbumEx,
+                AlbumCvsSource,
                 AlbumGridViewSelectedItems,
                 x => x.Tracks);
 
             trackVm.Connect()
-                //.SubscribeOn(ThreadPoolScheduler.Instance)
+                .SubscribeOnThreadPool()
                 .GroupOn(x => x.Title.Substring(0, 1))
                 .Transform(x => new GroupTrackViewModel(x))
                 .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
                 .ObserveOnDispatcher()
-                .Bind(out _trackCvsSource)
-                .Subscribe(x => { Console.WriteLine(_trackCvsSource); }, ex => { Debugger.Break(); });
+                .Bind(TrackCvsSource)
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
 
             ArtistListTapped = ReactiveCommand.Create<object>(_ =>
               {
@@ -262,10 +268,14 @@ namespace Magentaize.FluentPlayer.ViewModels
             //        xvm.IsPlaying = true;
             //        lastPlayedTrack = xvm;
             //    });
+        }
 
+        public FullPlayerArtistViewModel()
+        { 
             Activator = new ViewModelActivator();
-            this.WhenActivated(async (CompositeDisposable d) =>
+            this.WhenActivated((CompositeDisposable d) =>
             {
+                InitializeReactive();
             });
         }
         public ViewModelActivator Activator { get; }

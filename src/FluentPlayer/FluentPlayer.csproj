@@ -74,6 +74,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="ViewModels\DataViewModel\Grouping.cs" />
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />

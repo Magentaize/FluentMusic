@@ -2,6 +2,7 @@
 using DynamicData.Binding;
 using System;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Linq;
 
 namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
@@ -30,8 +31,9 @@ namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
         {
             Key = group.GroupKey;
             group.List.Connect()
+                .SubscribeOnThreadPool()
                 .Sort(SortExpressionComparer<ArtistViewModel>.Ascending(x => x.Name))
-                .ObserveOnDispatcher()
+                .ObservableOnCoreDispatcher()
                 .Bind(Items)
                 .DisposeMany()
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
@@ -44,8 +46,9 @@ namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
         {
             Key = group.GroupKey;
             group.List.Connect()
+                .SubscribeOnThreadPool()
                 .Sort(SortExpressionComparer<TrackViewModel>.Ascending(x => x.Title))
-                .ObserveOnDispatcher()
+                .ObservableOnCoreDispatcher()
                 .Bind(Items)
                 .DisposeMany()
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
