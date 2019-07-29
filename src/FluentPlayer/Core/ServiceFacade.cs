@@ -1,9 +1,7 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
-using Magentaize.FluentPlayer.Core.Services;
+﻿using Magentaize.FluentPlayer.Core.Services;
 using Magentaize.FluentPlayer.Data;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Magentaize.FluentPlayer.Core
 {
@@ -25,6 +23,5 @@ namespace Magentaize.FluentPlayer.Core
         public static IndexService IndexService;
         public static CacheService CacheService;
         public static PlaybackService PlaybackService;
-        public static IMapper Mapper;
     }
 }

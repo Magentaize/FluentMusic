@@ -50,7 +50,7 @@ namespace Magentaize.FluentPlayer.Views
                 .Subscribe(ViewModel.ArtistListTapped);
 
             ArtistList.Events().DoubleTapped
-                .InvokeCommand(ViewModel.PlayArtist);
+                .Subscribe(ViewModel.PlayArtistCommand);
             
             //TrackList.Events().DoubleTapped
             //    .InvokeCommand(ViewModel.PlayTrack);

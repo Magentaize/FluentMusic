@@ -25,8 +25,8 @@ namespace Magentaize.FluentPlayer.ViewModels.Common
                 .DistinctUntilChanged(x => x.Track)
                 .Select(x => new PlaybackInfoTextPropertyViewModel
                 {
-                    Title = x.Track.TrackTitle,
-                    Artist = x.Track.Artist.Name,
+                    Title = x.Track.Title,
+                    Artist = x.Track.Album.Artist.Name,
                     CurrentPosition = @"00:00",
                     NaturalPosition = $"{x.PlaybackItem.Source.Duration:mm\\:ss}",
                 })

@@ -14,6 +14,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows.Input;
+using Windows.UI.Xaml.Input;
+using Z.Linq;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -37,7 +39,7 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
         public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
         public ICommand PlayTrack { get; }
-        public ICommand PlayArtist => PlayTrack;
+        public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
         public ICommand PlayAlbum => PlayTrack;
         public ICommand ArtistListSelectionChanged { get; }
 
@@ -238,6 +240,18 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .ObserveOnDispatcher()
                 .Bind(TrackCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
+
+            // ---------------- Commands ----------------
+
+            PlayArtistCommand.Subscribe(async _ =>
+            {
+                var list = await ArtistListSelectedItems.Items
+                            .ToList()
+                            .SelectMany(x => x.Albums.Items.ToList())
+                            .SelectMany(x => x.Tracks.Items.ToList())
+                            .ToListAsync();
+                await ServiceFacade.PlaybackService.PlayAsync(list);
+            });
 
             //PlayTrack = ReactiveCommand.Create<object>(async _ =>
             //{

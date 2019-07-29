@@ -224,9 +224,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper">
-      <Version>8.1.1</Version>
-    </PackageReference>
     <PackageReference Include="DynamicData">
       <Version>6.12.9</Version>
     </PackageReference>

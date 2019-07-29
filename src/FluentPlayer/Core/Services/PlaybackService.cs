@@ -1,7 +1,6 @@
-﻿using Magentaize.FluentPlayer.Data;
+﻿using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         public class TrackMixed
         {
             public bool IsPlayingPreviousTrack { get; internal set; }
-            public Track Track { get; internal set; }
+            public TrackViewModel Track { get; internal set; }
             public MediaPlaybackItem PlaybackItem { get; internal set; }
         }
 
@@ -31,7 +30,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public MediaPlayer Player { get; private set; }
 
-        private IList<Track> _trackPlaybackList;
+        private IList<TrackViewModel> _trackPlaybackList;
         private MediaPlaybackItem _currentPlaybackItem;
 
         internal PlaybackService()
@@ -92,9 +91,9 @@ namespace Magentaize.FluentPlayer.Core.Services
             IsPlaying.OnNext(true);
         }
 
-        public async Task PlayAsync(IEnumerable<Track> tracks, Track selected)
+        public async Task PlayAsync(IEnumerable<TrackViewModel> tracks, TrackViewModel selected = null)
         {
-            _trackPlaybackList = new List<Track>(tracks);
+            _trackPlaybackList = new List<TrackViewModel>(tracks);
 
             if (selected == null) selected = _trackPlaybackList[0];
             var mpi = await CreateMediaPlaybackItemAsync(selected);
@@ -118,7 +117,7 @@ namespace Magentaize.FluentPlayer.Core.Services
             }
         }
 
-        private async Task<MediaPlaybackItem> CreateMediaPlaybackItemAsync(Track track)
+        private async Task<MediaPlaybackItem> CreateMediaPlaybackItemAsync(TrackViewModel track)
         {
             var file = await StorageFile.GetFileFromPathAsync(track.Path);
             var source = MediaSource.CreateFromStorageFile(file);
@@ -128,16 +127,25 @@ namespace Magentaize.FluentPlayer.Core.Services
             return mpi;
         }
 
-        private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, Track track)
+        private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, TrackViewModel track)
         {
             var prop = item.GetDisplayProperties();
 
-            var thumbFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, track.Album.AlbumCover));
+            var album = track.Album;
+            IStorageFile thumbFile;
+            if (string.IsNullOrEmpty(album.AlbumCover))
+            {
+                thumbFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(album.AlbumCoverFsPath));
+            }
+            else
+            {
+                thumbFile = await StorageFile.GetFileFromPathAsync(album.AlbumCoverFsPath);
+            }
             var rasf = RandomAccessStreamReference.CreateFromFile(thumbFile);
             prop.Thumbnail = rasf;
             prop.Type = MediaPlaybackType.Music;
-            prop.MusicProperties.Title = track.TrackTitle;
-            prop.MusicProperties.Artist = track.Artist.Name;
+            prop.MusicProperties.Title = track.Title;
+            prop.MusicProperties.Artist = track.Album.Artist.Name;
             prop.MusicProperties.AlbumTitle = track.Album.Title;
 
             item.ApplyDisplayProperties(prop);
