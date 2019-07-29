@@ -38,9 +38,9 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
         public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
         public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
-        public ICommand PlayTrack { get; private set; }
         public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
         public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
+        public ISubject<object> PlayTrackCommand { get; } = new Subject<object>();
         public ICommand ArtistListSelectionChanged { get; }
 
         public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
@@ -196,8 +196,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                                         () => ArtistListSelectedItem = null,
                                         ArtistListSelectedItems,
                                         ArtistListTapped)
-                                     .CacheReplay(1)
-                                     ;
+                                     .CacheReplay(1);
             useSelectedArtists.Connect();
 
             // ---------------- Album ----------------
@@ -234,6 +233,7 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             trackVm.Connect()
                 .SubscribeOnThreadPool()
+                .Bind(out var ungroupTrackCvsSource)
                 .GroupOn(x => x.Title.Substring(0, 1))
                 .Transform(x => new GroupTrackViewModel(x))
                 .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
@@ -262,6 +262,12 @@ namespace Magentaize.FluentPlayer.ViewModels
                 await ServiceFacade.PlaybackService.PlayAsync(list);
             });
 
+            PlayTrackCommand.Subscribe(async _ =>
+            {
+                var list = ungroupTrackCvsSource;
+                await ServiceFacade.PlaybackService.PlayAsync(list);
+            });
+                
             TrackViewModel lastPlayedTrack = null;
 
             //ServiceFacade.PlaybackService.CurrentTrack
