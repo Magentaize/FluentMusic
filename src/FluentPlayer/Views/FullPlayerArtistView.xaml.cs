@@ -59,7 +59,7 @@ namespace Magentaize.FluentPlayer.Views
                 .Subscribe(ViewModel.AlbumGridViewTapped);
 
             AlbumGridView.Events().DoubleTapped
-                .InvokeCommand(ViewModel.PlayAlbum);
+                .Subscribe(ViewModel.PlayAlbumCommand);
 
             this.WhenActivated(d => { });
         }

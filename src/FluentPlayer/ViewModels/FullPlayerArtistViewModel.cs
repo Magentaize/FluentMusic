@@ -38,9 +38,9 @@ namespace Magentaize.FluentPlayer.ViewModels
         public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
         public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
         public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
-        public ICommand PlayTrack { get; }
+        public ICommand PlayTrack { get; private set; }
         public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
-        public ICommand PlayAlbum => PlayTrack;
+        public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
         public ICommand ArtistListSelectionChanged { get; }
 
         public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
@@ -247,17 +247,20 @@ namespace Magentaize.FluentPlayer.ViewModels
             {
                 var list = await ArtistListSelectedItems.Items
                             .ToList()
-                            .SelectMany(x => x.Albums.Items.ToList())
-                            .SelectMany(x => x.Tracks.Items.ToList())
+                            .SelectMany(x => x.Albums.Items)
+                            .SelectMany(x => x.Tracks.Items)
                             .ToListAsync();
                 await ServiceFacade.PlaybackService.PlayAsync(list);
             });
 
-            //PlayTrack = ReactiveCommand.Create<object>(async _ =>
-            //{
-            //    var playlist = _filteredTrackVm.Select(x => x.Track);
-            //    await ServiceFacade.PlaybackService.PlayAsync(playlist, TrackListSelected?.Track);
-            //});
+            PlayAlbumCommand.Subscribe(async _ =>
+            {
+                var list = await AlbumGridViewSelectedItems.Items
+                            .ToList()
+                            .SelectMany(x => x.Tracks.Items)
+                            .ToListAsync();
+                await ServiceFacade.PlaybackService.PlayAsync(list);
+            });
 
             TrackViewModel lastPlayedTrack = null;
 
