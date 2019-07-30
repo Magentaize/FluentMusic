@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using Windows.Storage;
 
-namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
+namespace Magentaize.FluentPlayer.ViewModels.Common
 {
     public class AlbumViewModel : ReactiveObject
     {

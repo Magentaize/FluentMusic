@@ -75,7 +75,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
-    <Compile Include="ViewModels\DataViewModel\Grouping.cs" />
+    <Compile Include="Core\Services\NextTrackGenerator.cs" />
+    <Compile Include="ViewModels\Common\Grouping.cs" />
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
     <Compile Include="Core\Defaults.cs" />
@@ -103,13 +104,13 @@
     <Compile Include="ViewModels\Common\PlaybackInfoTextPropertyViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoTextViewModel.cs" />
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
-    <Compile Include="ViewModels\DataViewModel\AlbumViewModel.cs" />
-    <Compile Include="ViewModels\DataViewModel\ArtistViewModel.cs" />
+    <Compile Include="ViewModels\Common\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\Common\ArtistViewModel.cs" />
     <Compile Include="ViewModels\PlaybackSliderViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerArtistViewModel.cs" />
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
-    <Compile Include="ViewModels\DataViewModel\TrackViewModel.cs" />
+    <Compile Include="ViewModels\Common\TrackViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
       <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>

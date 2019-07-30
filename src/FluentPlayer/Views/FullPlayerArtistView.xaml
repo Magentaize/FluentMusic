@@ -4,10 +4,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:dataViewModel="using:Magentaize.FluentPlayer.ViewModels.DataViewModel"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:common="using:Magentaize.FluentPlayer.ViewModels.Common"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -45,7 +45,7 @@
               <GridView.ItemTemplate>
                 <DataTemplate x:DataType="ICollectionViewGroup">
                   <Border Height="60" Width="60">
-                    <TextBlock Text="{x:Bind ((dataViewModel:GroupArtistViewModel)Group).Key, Mode=OneWay}"
+                    <TextBlock Text="{x:Bind ((common:GroupArtistViewModel)Group).Key, Mode=OneWay}"
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" />
                   </Border>
@@ -71,7 +71,7 @@
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
               <ListView.ItemTemplate>
-                <DataTemplate x:DataType="dataViewModel:ArtistViewModel">
+                <DataTemplate x:DataType="common:ArtistViewModel">
                   <StackPanel Style="{StaticResource BaseListViewItemStackPanelStyle}">
                     <TextBlock Text="{x:Bind Name, Mode=OneWay}" VerticalAlignment="Center"/>
                   </StackPanel>
@@ -81,7 +81,7 @@
               <ListView.GroupStyle>
                 <GroupStyle>
                   <GroupStyle.HeaderTemplate>
-                    <DataTemplate x:DataType="dataViewModel:GroupArtistViewModel">
+                    <DataTemplate x:DataType="common:GroupArtistViewModel">
                       <TextBlock Text="{x:Bind Key, Mode=OneWay}"/>
                     </DataTemplate>
                   </GroupStyle.HeaderTemplate>
@@ -120,7 +120,7 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <GridView.ItemTemplate>
-            <DataTemplate x:DataType="dataViewModel:AlbumViewModel">
+            <DataTemplate x:DataType="common:AlbumViewModel">
               <StackPanel>
                 <Image Source="{x:Bind AlbumCoverFsPath, Mode=OneWay}" Width="120" />
                 <StackPanel 
@@ -166,7 +166,7 @@
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       ScrollViewer.VerticalScrollBarVisibility="Auto">
               <ListView.ItemTemplate>
-                <DataTemplate x:DataType="dataViewModel:TrackViewModel">
+                <DataTemplate x:DataType="common:TrackViewModel">
                   <controls:DockPanel Style="{StaticResource BaseListViewItemDockPanelStyle}" >
                     <controls:DockPanel.ContextFlyout>
                       <MenuFlyout>
@@ -200,7 +200,7 @@
               <ListView.GroupStyle>
                 <GroupStyle>
                   <GroupStyle.HeaderTemplate>
-                    <DataTemplate x:DataType="dataViewModel:GroupTrackViewModel">
+                    <DataTemplate x:DataType="common:GroupTrackViewModel">
                       <TextBlock Text="{x:Bind Key, Mode=OneWay}"/>
                     </DataTemplate>
                   </GroupStyle.HeaderTemplate>
@@ -216,7 +216,7 @@
               <GridView.ItemTemplate>
                 <DataTemplate x:DataType="ICollectionViewGroup">
                   <Border Height="60" Width="60">
-                    <TextBlock Text="{x:Bind ((dataViewModel:GroupTrackViewModel)Group).Key, Mode=OneWay}" 
+                    <TextBlock Text="{x:Bind ((common:GroupTrackViewModel)Group).Key, Mode=OneWay}" 
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                   </Border>

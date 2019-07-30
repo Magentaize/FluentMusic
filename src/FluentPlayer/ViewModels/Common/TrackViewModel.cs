@@ -2,7 +2,7 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
+namespace Magentaize.FluentPlayer.ViewModels.Common
 {
     public class TrackViewModel : ReactiveObject
     {

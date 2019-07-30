@@ -1,7 +1,7 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Magentaize.FluentPlayer.ViewModels.Common;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -208,7 +208,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 x => x.Albums);
 
             albumVm.Connect()
-                .ObserveOnDispatcher()
+                .ObservableOnCoreDispatcher()
                 .Bind(AlbumCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 
@@ -237,7 +237,7 @@ namespace Magentaize.FluentPlayer.ViewModels
                 .GroupOn(x => x.Title.Substring(0, 1))
                 .Transform(x => new GroupTrackViewModel(x))
                 .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
-                .ObserveOnDispatcher()
+                .ObservableOnCoreDispatcher()
                 .Bind(TrackCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 

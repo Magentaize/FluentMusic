@@ -2,7 +2,7 @@
 using Kasay.DependencyProperty;
 using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.ViewModels;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Magentaize.FluentPlayer.ViewModels.Common;
 using ReactiveUI;
 using System;
 using System.Linq;

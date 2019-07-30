@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 
-namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
+namespace Magentaize.FluentPlayer.ViewModels.Common
 {
     public abstract class Grouping<TElement>
     {

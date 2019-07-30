@@ -2,7 +2,7 @@
 using DynamicData.Annotations;
 using Magentaize.FluentPlayer.Core.Storage;
 using Magentaize.FluentPlayer.Data;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Magentaize.FluentPlayer.ViewModels.Common;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

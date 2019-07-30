@@ -1,11 +1,10 @@
 ﻿using DynamicData;
-using Magentaize.FluentPlayer.Core.Extensions;
 using Magentaize.FluentPlayer.Data;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Linq;
 
-namespace Magentaize.FluentPlayer.ViewModels.DataViewModel
+namespace Magentaize.FluentPlayer.ViewModels.Common
 {
     public sealed class ArtistViewModel : ReactiveObject
     {

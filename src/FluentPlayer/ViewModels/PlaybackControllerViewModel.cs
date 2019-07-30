@@ -1,6 +1,7 @@
 ﻿using Magentaize.FluentPlayer.Core;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
 
@@ -26,6 +27,7 @@ namespace Magentaize.FluentPlayer.ViewModels
         {
             ServiceFacade.PlaybackService.IsPlaying
                 .DistinctUntilChanged()
+                .ObservableOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.PauseIconVisible, false);
 
             this.WhenAnyValue(x => x.PauseIconVisible)

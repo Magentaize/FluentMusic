@@ -2,6 +2,7 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
 
@@ -22,14 +23,18 @@ namespace Magentaize.FluentPlayer.ViewModels
             var _progressSliderIsDragging = false;
 
             var pbs = ServiceFacade.PlaybackService;
-            pbs.CurrentTrack.Subscribe(x =>
-            {
-                SliderNaturalPosition = x.PlaybackItem.Source.Duration.Value.TotalSeconds;
-            });
-            pbs.PlaybackPosition.Subscribe(x =>
-            {
-                if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
-            });
+            pbs.NewTrackPlayed
+                .ObservableOnCoreDispatcher()
+                .Subscribe(x =>
+                {
+                    SliderNaturalPosition = x.PlaybackItem.Source.Duration.Value.TotalSeconds;
+                });
+            pbs.PlaybackPosition
+                .ObservableOnCoreDispatcher()
+                .Subscribe(x =>
+                {
+                    if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
+                });
 
             ProgressSliderOnManipulationStarting = ReactiveCommand.Create<object>(_ => _progressSliderIsDragging = true);
             ProgressSliderOnManipulationCompleted = ReactiveCommand.Create<object>(_ =>

@@ -18,7 +18,7 @@ namespace Magentaize.FluentPlayer.ViewModels.Common
         public PlaybackInfoCoverViewModel()
         {
             var pbs = ServiceFacade.PlaybackService;
-            pbs.CurrentTrack
+            pbs.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
             //pbs.CurrentTrack

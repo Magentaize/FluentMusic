@@ -1,6 +1,7 @@
 ﻿using Magentaize.FluentPlayer.Core;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System.Reactive;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -12,7 +13,9 @@ namespace Magentaize.FluentPlayer.ViewModels
         public FullPlayerPageViewModel()
         {
             var pbs = ServiceFacade.PlaybackService;
-            pbs.IsPlaying.ToPropertyEx(this, x => x.IsPlaying);
+            pbs.IsPlaying
+                .ObservableOnCoreDispatcher()
+                .ToPropertyEx(this, x => x.IsPlaying);
         }
     }
 }

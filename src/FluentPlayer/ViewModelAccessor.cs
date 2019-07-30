@@ -1,7 +1,7 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using Magentaize.FluentPlayer.Core;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
+using Magentaize.FluentPlayer.ViewModels.Common;
 using System;
 using System.Threading.Tasks;
 

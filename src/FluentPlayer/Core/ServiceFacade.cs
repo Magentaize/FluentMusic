@@ -14,7 +14,7 @@ namespace Magentaize.FluentPlayer.Core
 
             IndexService = await new IndexService().InitializeAsync();
             CacheService = await CacheService.CreateAsync();
-            PlaybackService = await PlaybackService.CreateAsync();
+            PlaybackService = await new PlaybackService().InitializeAsync();
 
         }
 

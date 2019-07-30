@@ -1,5 +1,4 @@
 ﻿using DynamicData.Binding;
-using Magentaize.FluentPlayer.ViewModels.DataViewModel;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 
