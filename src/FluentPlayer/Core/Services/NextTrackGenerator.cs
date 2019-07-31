@@ -10,7 +10,7 @@ namespace Magentaize.FluentPlayer.Core.Services
 {
     public class NextTrackGenerator
     {
-        public PlaylistMode PlaylistMode { get; private set; }
+        public RepeatMode PlaylistMode { get; private set; }
         public bool EnableShuffle { get; private set; }
         public TrackViewModel CurrentTrack { get; private set; }
         private IList<TrackViewModel> _playlist;
@@ -20,7 +20,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         public NextTrackGenerator()
         {
             var playback = ServiceFacade.PlaybackService;
-            playback.PlaylistMode
+            playback.RepeatMode
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
@@ -50,10 +50,10 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             switch (PlaylistMode)
             {
-                case PlaylistMode.RepeatOne:
+                case RepeatMode.RepeatOne:
                     //break;
-                case PlaylistMode.List:
-                case PlaylistMode.RepeatAll:
+                case RepeatMode.NotRepeat:
+                case RepeatMode.RepeatAll:
                     _playlistIndex.Decrease();
                     if (EnableShuffle)
                     {
@@ -74,10 +74,10 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             switch (PlaylistMode)
             {
-                case PlaylistMode.RepeatOne:
+                case RepeatMode.RepeatOne:
                     //break;
-                case PlaylistMode.List:
-                case PlaylistMode.RepeatAll:
+                case RepeatMode.NotRepeat:
+                case RepeatMode.RepeatAll:
                     if (EnableShuffle)
                     {
                         CurrentTrack = _shuffledPlaylist[_playlistIndex.Value];
@@ -98,11 +98,11 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             switch (PlaylistMode)
             {
-                case PlaylistMode.List:
+                case RepeatMode.NotRepeat:
                     return _playlistIndex.Value < _playlistIndex.Threshold;
-                case PlaylistMode.RepeatOne:
+                case RepeatMode.RepeatOne:
                     return true;
-                case PlaylistMode.RepeatAll:
+                case RepeatMode.RepeatAll:
                     return true;
                 default:throw new InvalidCastException();
             }
@@ -113,7 +113,7 @@ namespace Magentaize.FluentPlayer.Core.Services
             _playlist = new List<TrackViewModel>(list);
             _shuffledPlaylist = list.Shuffle();
             _playlistIndex.Reset();
-            _playlistIndex.Threshold = _playlist.Count;
+            _playlistIndex.Threshold = _playlist.Count - 1;
         }
 
         private struct ThresholdInt

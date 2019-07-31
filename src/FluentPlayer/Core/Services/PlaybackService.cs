@@ -28,13 +28,14 @@ namespace Magentaize.FluentPlayer.Core.Services
         public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>(); 
 
         public MediaPlayer Player { get; private set; }
-        public ReplaySubject<PlaylistMode> PlaylistMode { get; } = new ReplaySubject<PlaylistMode>();
+        public ReplaySubject<RepeatMode> RepeatMode { get; } = new ReplaySubject<RepeatMode>();
         public ReplaySubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>();
 
         public IList<TrackViewModel> _trackPlaybackList { get; private set; }
         private MediaPlaybackItem _currentPlaybackItem;
         private NextTrackGenerator _nextTrackGenerator;
         private ISubject<Unit> _requestPlayNext = new Subject<Unit>();
+        private ISubject<Unit> _requestPlayPrevious = new Subject<Unit>();
         private TrackViewModel _previousTrack;
 
         internal PlaybackService()
@@ -50,7 +51,7 @@ namespace Magentaize.FluentPlayer.Core.Services
             h => Player.MediaEnded += h, h => Player.MediaEnded -= h)
                             .Subscribe(async _ =>
                             {
-                                IsPlaying.OnNext(true);
+                                IsPlaying.OnNext(false);
 
                                 if (_nextTrackGenerator.HasNext())
                                 {
@@ -61,7 +62,15 @@ namespace Magentaize.FluentPlayer.Core.Services
             _requestPlayNext
                 .Subscribe(async _ =>
                 {
+                    Pause();
                     await PlayAsync(_nextTrackGenerator.Next());
+                });
+
+            _requestPlayPrevious
+                .Subscribe(async _ =>
+                {
+                    Pause();
+                    await PlayAsync(_nextTrackGenerator.Previous());
                 });
 
             Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(500))
@@ -98,6 +107,16 @@ namespace Magentaize.FluentPlayer.Core.Services
             Player.Play();
 
             IsPlaying.OnNext(true);
+        }
+
+        public void Previous()
+        {
+            _requestPlayPrevious.OnNext(Unit.Default);
+        }
+
+        public void Next()
+        {
+            _requestPlayNext.OnNext(Unit.Default);
         }
 
         public async Task PlayAsync(IList<TrackViewModel> tracks, TrackViewModel selected = null)
@@ -171,11 +190,9 @@ namespace Magentaize.FluentPlayer.Core.Services
         } 
     }
 
-    public enum PlaylistMode
+    public enum RepeatMode
     {
-        List,
-        //Shuffle,
-        //ShuffleAll,
+        NotRepeat,
         RepeatAll,
         RepeatOne,
     }

@@ -10,7 +10,22 @@
     d:DesignWidth="400">
 
   <StackPanel Orientation="Horizontal">
-    <Button x:Name="PreviousButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Previous, Mode=OneWay}">
+    <Button x:Name="RepeatModeButton"
+            Style="{StaticResource BaseTransparentButtonStyle}"
+            Command="{x:Bind ViewModel.SwitchRepeatMode}">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
+                  Glyph="&#xE8ED;"
+                  Foreground="{x:Bind ViewModel.EnableShuffle, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
+                  Visibility="{x:Bind ViewModel.RepeatAllVisible, Mode=OneWay}" />
+        <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
+                  Glyph="&#xE8EE;"
+                  Foreground="{StaticResource SystemAccentColorDark1Brush}"
+                  Visibility="{x:Bind ViewModel.RepeatOneVisible, Mode=OneWay}" />
+      </Grid>
+    </Button>
+    
+    <Button x:Name="PreviousButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Previous}">
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
                   Glyph="&#xE892;" />
@@ -18,23 +33,35 @@
     </Button>
 
     <Grid>
-      <Button x:Name="ResumeButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Resume, Mode=OneWay}">
+      <Button x:Name="ResumeButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Resume}">
         <FontIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource SegMvr2FontFamily}" 
                   Glyph="&#xE768;"
                   Visibility="{x:Bind ViewModel.ResumeIconVisible, Mode=OneWay}" />
       </Button>
 
-      <Button x:Name="PauseButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Pause, Mode=OneWay}">
+      <Button x:Name="PauseButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Pause}">
         <FontIcon HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource SegMvr2FontFamily}"
                   Glyph="&#xE769;"
                   Visibility="{x:Bind ViewModel.PauseIconVisible, Mode=OneWay}" />
       </Button>
     </Grid>
 
-    <Button x:Name="NextButton" Style="{StaticResource BaseTransparentButtonStyle}" Command="{x:Bind ViewModel.Next, Mode=OneWay}">
+    <Button x:Name="NextButton" 
+            Style="{StaticResource BaseTransparentButtonStyle}" 
+            Command="{x:Bind ViewModel.Next}">
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
                   Glyph="&#xE893;" />
+      </Grid>
+    </Button>
+
+    <Button x:Name="ShuffleButton"
+            Style="{StaticResource BaseTransparentButtonStyle}"
+            Command="{x:Bind ViewModel.SwitchShuffle}">
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
+                  Glyph="&#xE8B1;"
+                  Foreground="{x:Bind ViewModel.EnableShuffle, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"/>
       </Grid>
     </Button>
 
