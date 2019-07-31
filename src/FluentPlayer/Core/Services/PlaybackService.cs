@@ -64,23 +64,13 @@ namespace Magentaize.FluentPlayer.Core.Services
                     await PlayAsync(_nextTrackGenerator.Next());
                 });
 
-            var _positionUpdateTimer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
-            IDisposable _positionUpdateTimerSubscription = default;
-            IsPlaying
-                .DistinctUntilChanged()
-                .Subscribe(x =>
+            Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(500))
+                .SkipUntil(IsPlaying.DistinctUntilChanged().Where(x => x))
+                .TakeUntil(IsPlaying.DistinctUntilChanged().Where(x => !x))
+                .Repeat()
+                .Subscribe(_ =>
                 {
-                    if (x)
-                    {
-                        _positionUpdateTimerSubscription = _positionUpdateTimer.Subscribe(_ =>
-                        {
-                            PlaybackPosition.OnNext(Player.PlaybackSession);
-                        });
-                    }
-                    else
-                    {
-                        _positionUpdateTimerSubscription.Dispose();
-                    }
+                    PlaybackPosition.OnNext(Player.PlaybackSession);
                 });
 
             NewTrackPlayed
