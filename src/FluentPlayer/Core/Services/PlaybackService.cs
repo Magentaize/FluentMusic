@@ -2,19 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.System.Threading;
-using Windows.UI.Core;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -32,7 +28,8 @@ namespace Magentaize.FluentPlayer.Core.Services
         public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>(); 
 
         public MediaPlayer Player { get; private set; }
-        public ReplaySubject<PlaylistMode> PlaylistMode { get; private set; }
+        public ReplaySubject<PlaylistMode> PlaylistMode { get; } = new ReplaySubject<PlaylistMode>();
+        public ReplaySubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>();
 
         public IList<TrackViewModel> _trackPlaybackList { get; private set; }
         private MediaPlaybackItem _currentPlaybackItem;
@@ -47,16 +44,24 @@ namespace Magentaize.FluentPlayer.Core.Services
         public async Task<PlaybackService> InitializeAsync()
         {
             Player = new MediaPlayer();
-            _nextTrackGenerator = new NextTrackGenerator(this);
+            _nextTrackGenerator = new NextTrackGenerator();
+
+            Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
+            h => Player.MediaEnded += h, h => Player.MediaEnded -= h)
+                            .Subscribe(async _ =>
+                            {
+                                IsPlaying.OnNext(true);
+
+                                if (_nextTrackGenerator.HasNext())
+                                {
+                                    await PlayAsync(_nextTrackGenerator.Next());
+                                }
+                            });
+
             _requestPlayNext
-                .Merge(Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
-                h => Player.MediaEnded += h, h => Player.MediaEnded -= h).Select(_ => Unit.Default))
                 .Subscribe(async _ =>
                 {
-                    if (_nextTrackGenerator.HasNext())
-                    {
-                        await PlayAsync(_nextTrackGenerator.Next());
-                    }
+                    await PlayAsync(_nextTrackGenerator.Next());
                 });
 
             var _positionUpdateTimer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
@@ -109,9 +114,13 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
             _trackPlaybackList = tracks;
 
-            if (selected == null) selected = _trackPlaybackList[0];
+            if (selected == null)
+            {
+                _nextTrackGenerator.Reset(tracks);
+                _requestPlayNext.OnNext(Unit.Default);
+            } 
 
-            await PlayAsync(selected);
+            //await PlayAsync(selected);
         }
 
         private async Task PlayAsync(TrackViewModel track)
@@ -174,8 +183,9 @@ namespace Magentaize.FluentPlayer.Core.Services
 
     public enum PlaylistMode
     {
-        Normal,
-        Shuffle,
+        List,
+        //Shuffle,
+        //ShuffleAll,
         RepeatAll,
         RepeatOne,
     }

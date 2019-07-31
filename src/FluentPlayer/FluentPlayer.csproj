@@ -74,6 +74,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\Extensions\ChangeSetExtension.cs" />
+    <Compile Include="Core\Extensions\Internal\UnifiedChange.cs" />
+    <Compile Include="Core\Extensions\Internal\UnifiedChangeEnumerator.cs" />
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Services\NextTrackGenerator.cs" />
     <Compile Include="ViewModels\Common\Grouping.cs" />

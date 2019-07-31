@@ -243,31 +243,15 @@ namespace Magentaize.FluentPlayer.ViewModels
 
             // ---------------- Commands ----------------
 
-            PlayArtistCommand.Subscribe(async _ =>
-            {
-                var list = await ArtistListSelectedItems.Items
-                            .ToList()
-                            .SelectMany(x => x.Albums.Items)
-                            .SelectMany(x => x.Tracks.Items)
-                            .ToListAsync();
-                await ServiceFacade.PlaybackService.PlayAsync(list);
-            });
+            PlayArtistCommand
+                .Merge(PlayAlbumCommand)
+                .Merge(PlayTrackCommand)
+                .Subscribe(async _ =>
+                {
+                    var list = ungroupTrackCvsSource;
+                    await ServiceFacade.PlaybackService.PlayAsync(list);
+                });
 
-            PlayAlbumCommand.Subscribe(async _ =>
-            {
-                var list = await AlbumGridViewSelectedItems.Items
-                            .ToList()
-                            .SelectMany(x => x.Tracks.Items)
-                            .ToListAsync();
-                await ServiceFacade.PlaybackService.PlayAsync(list);
-            });
-
-            PlayTrackCommand.Subscribe(async _ =>
-            {
-                var list = ungroupTrackCvsSource;
-                await ServiceFacade.PlaybackService.PlayAsync(list);
-            });
-                
             TrackViewModel lastPlayedTrack = null;
 
             //ServiceFacade.PlaybackService.CurrentTrack

@@ -1,14 +1,30 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace System.Linq
 {
     public static class EnumerableExtension
     {
+        private static readonly Random _rng = new Random();
+
+        public static IList<T> Shuffle<T>(this IEnumerable<T> source)
+        {
+            var ret = new List<T>(source);
+            var n = ret.Count;
+            while (n > 1)
+            {
+                n--;
+                var k = _rng.Next(n + 1);
+                var value = ret[k];
+                ret[k] = ret[n];
+                ret[n] = value;
+            }
+
+            return ret;
+        }
+
         [DebuggerHidden]
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
