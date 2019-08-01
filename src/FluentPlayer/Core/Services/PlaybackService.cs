@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media;
@@ -28,7 +29,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>(); 
 
         public MediaPlayer Player { get; private set; }
-        public ReplaySubject<RepeatMode> RepeatMode { get; } = new ReplaySubject<RepeatMode>();
+        public ReplaySubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>();
         public ReplaySubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>();
 
         public IList<TrackViewModel> _trackPlaybackList { get; private set; }
@@ -44,6 +45,12 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public async Task<PlaybackService> InitializeAsync()
         {
+            // Initialize Setting
+            var st = ServiceFacade.Setting;
+            st.InitializeSettingBinary(RepeatMode, nameof(RepeatMode), MediaRepeatMode.None);
+            st.InitializeSetting(EnableShuffle, nameof(EnableShuffle), false);
+            
+
             Player = new MediaPlayer();
             _nextTrackGenerator = new NextTrackGenerator();
 
@@ -52,6 +59,12 @@ namespace Magentaize.FluentPlayer.Core.Services
                             .Subscribe(async _ =>
                             {
                                 IsPlaying.OnNext(false);
+
+                                if(_nextTrackGenerator.RepeatMode == MediaRepeatMode.Track)
+                                {
+                                    await PlayAsync(_nextTrackGenerator.CurrentTrack);
+                                    return;
+                                }
 
                                 if (_nextTrackGenerator.HasNext())
                                 {
@@ -189,11 +202,10 @@ namespace Magentaize.FluentPlayer.Core.Services
             item.ApplyDisplayProperties(prop);
         } 
     }
-
-    public enum RepeatMode
+    public enum MediaRepeatMode
     {
-        NotRepeat,
-        RepeatAll,
-        RepeatOne,
+        None = 0,
+        Track = 1,
+        List = 2,
     }
 }

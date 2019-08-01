@@ -15,13 +15,13 @@
             Command="{x:Bind ViewModel.SwitchRepeatMode}">
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
-                  Glyph="&#xE8ED;"
-                  Foreground="{x:Bind ViewModel.EnableShuffle, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
-                  Visibility="{x:Bind ViewModel.RepeatAllVisible, Mode=OneWay}" />
-        <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
                   Glyph="&#xE8EE;"
+                  Foreground="{x:Bind ViewModel.EnableRepeatList, Converter={StaticResource BoolToPlayingForegroundBrush}, Mode=OneWay}"
+                  Visibility="{x:Bind ViewModel.RepeatListVisible, Mode=OneWay}" />
+        <FontIcon FontFamily="{StaticResource SegMvr2FontFamily}"
+                  Glyph="&#xE8ED;"
                   Foreground="{StaticResource SystemAccentColorDark1Brush}"
-                  Visibility="{x:Bind ViewModel.RepeatOneVisible, Mode=OneWay}" />
+                  Visibility="{x:Bind ViewModel.RepeatTrackVisible, Mode=OneWay}" />
       </Grid>
     </Button>
     

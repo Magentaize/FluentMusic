@@ -1,4 +1,6 @@
-﻿namespace Magentaize.FluentPlayer.ViewModels.Common
+﻿using System;
+
+namespace Magentaize.FluentPlayer.ViewModels.Common
 {
     public class PlaybackInfoCoverThumbnailViewModel
     {

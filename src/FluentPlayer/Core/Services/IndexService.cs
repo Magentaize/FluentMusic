@@ -27,13 +27,13 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public IObservable<IChangeSet<Track>> TrackSource => _trackSource.Connect();
 
-        private readonly ISourceCache<ArtistViewModel, long> _artistSource;
+        private readonly ISourceCache<ArtistViewModel, long> _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
 
         public IObservableCache<ArtistViewModel, long> ArtistSource => _artistSource.AsObservableCache();
 
-        private readonly ISourceCache<AlbumViewModel, long> _albumSource;
+        private readonly ISourceCache<AlbumViewModel, long> _albumSource = new SourceCache<AlbumViewModel, long>(x => x.Id);
 
-        public IObservable<IChangeSet<AlbumViewModel, long>> AlbumSource { get; private set; }
+        public IObservable<IChangeSet<AlbumViewModel, long>> AlbumSource => _albumSource.Connect();
 
         private readonly ObservableCollection<StorageFolder> _musicFolders = new ObservableCollection<StorageFolder>();
 
@@ -52,10 +52,6 @@ namespace Magentaize.FluentPlayer.Core.Services
         private IObservable<EventPattern<IStorageQueryResultBase, object>> _libForlderContentChangedStream;
         internal IndexService()
         {
-            _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
-
-            _albumSource = new SourceCache<AlbumViewModel, long>(x => x.Id);
-            AlbumSource = _albumSource.Connect();
         }
 
         private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolder> changedFolders)> GetChangedLibraryFolders()

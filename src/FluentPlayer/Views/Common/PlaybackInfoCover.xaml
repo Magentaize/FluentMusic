@@ -10,7 +10,7 @@
   mc:Ignorable="d">
 
     <Border>
-      <controls:SlideTile Height="200" Width="200"
+      <controls:SlideTile Height="120" Width="120"
                           Duration="0:0:0.5"
                           Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
                           Direction="{x:Bind ViewModel.Direction, Mode=OneWay}"

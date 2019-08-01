@@ -79,6 +79,7 @@
     <Compile Include="Core\Extensions\Internal\UnifiedChangeEnumerator.cs" />
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Services\NextTrackGenerator.cs" />
+    <Compile Include="Core\Services\Setting.cs" />
     <Compile Include="ViewModels\Common\Grouping.cs" />
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
@@ -268,6 +269,9 @@
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>4.2.0-preview.566</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>4.6.0-preview7.19362.9</Version>
     </PackageReference>
     <PackageReference Include="Z.Linq.Async">
       <Version>1.0.3</Version>

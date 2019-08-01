@@ -6,6 +6,7 @@ using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using Windows.Media;
 
 namespace Magentaize.FluentPlayer.ViewModels
 {
@@ -21,13 +22,13 @@ namespace Magentaize.FluentPlayer.ViewModels
         public bool EnableShuffle { get; set; }
 
         [Reactive]
-        public bool EnableRepeatAll { get; set; }
+        public bool EnableRepeatList { get; set; }
         [Reactive]
-        public bool RepeatAllVisible { get; set; }
+        public bool RepeatListVisible { get; set; }
         [Reactive]
-        public bool RepeatOneVisible { get; set; }
+        public bool RepeatTrackVisible { get; set; }
 
-        private RepeatMode _repeatMode;
+        private MediaRepeatMode _repeatMode;
 
         public ICommand Resume { get; }
 
@@ -52,19 +53,19 @@ namespace Magentaize.FluentPlayer.ViewModels
                     _repeatMode = x;
                     switch (x)
                     {
-                        case RepeatMode.NotRepeat:
-                            EnableRepeatAll = false;
-                            RepeatAllVisible = true;
-                            RepeatOneVisible = false;
+                        case MediaRepeatMode.None:
+                            EnableRepeatList = false;
+                            RepeatListVisible = true;
+                            RepeatTrackVisible = false;
                             break;
-                        case RepeatMode.RepeatAll:
-                            RepeatAllVisible = true;
-                            EnableRepeatAll = true;
-                            RepeatOneVisible = false;
+                        case MediaRepeatMode.List:
+                            RepeatListVisible = true;
+                            EnableRepeatList = true;
+                            RepeatTrackVisible = false;
                             break;
-                        case RepeatMode.RepeatOne:
-                            RepeatAllVisible = false;
-                            RepeatOneVisible = true;
+                        case MediaRepeatMode.Track:
+                            RepeatListVisible = false;
+                            RepeatTrackVisible = true;
                             break;
                         default: throw new InvalidOperationException();
                     }
@@ -107,14 +108,14 @@ namespace Magentaize.FluentPlayer.ViewModels
             {
                 switch (_repeatMode)
                 {
-                    case RepeatMode.NotRepeat:
-                        pb.RepeatMode.OnNext(RepeatMode.RepeatAll);
+                    case MediaRepeatMode.None:
+                        pb.RepeatMode.OnNext(MediaRepeatMode.List);
                         break;
-                    case RepeatMode.RepeatAll:
-                        pb.RepeatMode.OnNext(RepeatMode.RepeatOne);
+                    case MediaRepeatMode.List:
+                        pb.RepeatMode.OnNext(MediaRepeatMode.Track);
                         break;
-                    case RepeatMode.RepeatOne:
-                        pb.RepeatMode.OnNext(RepeatMode.NotRepeat);
+                    case MediaRepeatMode.Track:
+                        pb.RepeatMode.OnNext(MediaRepeatMode.None);
                         break;
                     default: throw new InvalidOperationException(nameof(_repeatMode));
                 }

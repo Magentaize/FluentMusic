@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using Windows.Media;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
     public class NextTrackGenerator
     {
-        public RepeatMode PlaylistMode { get; private set; }
+        public MediaRepeatMode RepeatMode { get; private set; }
         public bool EnableShuffle { get; private set; }
         public TrackViewModel CurrentTrack { get; private set; }
         private IList<TrackViewModel> _playlist;
@@ -24,7 +25,7 @@ namespace Magentaize.FluentPlayer.Core.Services
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
-                    PlaylistMode = x;
+                    RepeatMode = x;
                 });
 
             playback.EnableShuffle
@@ -48,12 +49,12 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public TrackViewModel Previous()
         {
-            switch (PlaylistMode)
+            switch (RepeatMode)
             {
-                case RepeatMode.RepeatOne:
-                    //break;
-                case RepeatMode.NotRepeat:
-                case RepeatMode.RepeatAll:
+                case MediaRepeatMode.Track:
+                //break;
+                case MediaRepeatMode.None:
+                case MediaRepeatMode.List:
                     _playlistIndex.Decrease();
                     if (EnableShuffle)
                     {
@@ -72,12 +73,12 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public TrackViewModel Next()
         {
-            switch (PlaylistMode)
+            switch (RepeatMode)
             {
-                case RepeatMode.RepeatOne:
-                    //break;
-                case RepeatMode.NotRepeat:
-                case RepeatMode.RepeatAll:
+                case MediaRepeatMode.Track:
+                //break;
+                case MediaRepeatMode.None:
+                case MediaRepeatMode.List:
                     if (EnableShuffle)
                     {
                         CurrentTrack = _shuffledPlaylist[_playlistIndex.Value];
@@ -96,13 +97,13 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         public bool HasNext()
         {
-            switch (PlaylistMode)
+            switch (RepeatMode)
             {
-                case RepeatMode.NotRepeat:
+                case MediaRepeatMode.None:
                     return _playlistIndex.Value < _playlistIndex.Threshold;
-                case RepeatMode.RepeatOne:
+                case MediaRepeatMode.Track:
                     return true;
-                case RepeatMode.RepeatAll:
+                case MediaRepeatMode.List:
                     return true;
                 default:throw new InvalidCastException();
             }
