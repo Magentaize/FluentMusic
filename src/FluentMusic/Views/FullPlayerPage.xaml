@@ -1,0 +1,78 @@
+﻿<Page
+    x:Class="FluentMusic.Views.FullPlayerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converter="using:FluentMusic.ViewModels.Converter"
+    xmlns:local="using:FluentMusic.Views"
+    xmlns:cc="using:FluentMusic.Controls"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:common="using:FluentMusic.Views.Common"
+  mc:Ignorable="d">
+
+  <Page.Resources>
+    <converter:PositionSliderToolTipConverter x:Key="PositionSliderToolTipConverter" />
+  </Page.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0">
+      <Pivot Grid.Row="0">
+        <Pivot.Resources>
+          <Style TargetType="PivotHeaderItem" BasedOn="{StaticResource RevealPivotHeaderItemStyle}"/>
+        </Pivot.Resources>
+        <PivotItem x:Uid="Artists">
+          <PivotItem.Header>
+            <TextBlock Text="Artists"/>
+          </PivotItem.Header>
+          <local:FullPlayerArtistView/>
+        </PivotItem>
+
+        <PivotItem x:Uid="Albums">
+          <PivotItem.Header>
+            <TextBlock Text="Albums" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
+
+        </PivotItem>
+
+        <PivotItem x:Uid="Genres">
+          <PivotItem.Header>
+            <TextBlock Text="Genres" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
+
+        </PivotItem>
+
+        <PivotItem x:Uid="Settings">
+          <PivotItem.Header>
+            <TextBlock Text="Settings" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          </PivotItem.Header>
+
+          <local:SettingsPage/>
+        </PivotItem>
+      </Pivot>
+    </Border>
+
+    <StackPanel Orientation="Vertical" Grid.Row="1">
+      <local:PlaybackSlider/>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+          <common:PlaybackInfoCover />
+          <common:PlaybackInfoText />
+        </StackPanel>
+
+        <local:PlaybackControllerView Grid.Column="1" />
+      </Grid>
+    </StackPanel>
+  </Grid>
+</Page>

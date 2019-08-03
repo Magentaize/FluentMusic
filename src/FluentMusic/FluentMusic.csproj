@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{6A9A031E-D9B6-475D-9B7E-4A867B7FE39E}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FluentMusic</RootNamespace>
+    <AssemblyName>FluentMusic</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.18362.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
+    <PackageCertificateKeyFile>FluentPlayer_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>none</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\Extensions\ChangeSetExtension.cs" />
+    <Compile Include="Core\Extensions\Internal\UnifiedChange.cs" />
+    <Compile Include="Core\Extensions\Internal\UnifiedChangeEnumerator.cs" />
+    <Compile Include="Core\Extensions\ReactiveExtension.cs" />
+    <Compile Include="Core\Services\NextTrackGenerator.cs" />
+    <Compile Include="Core\Services\Setting.cs" />
+    <Compile Include="ViewModels\Common\Grouping.cs" />
+    <Compile Include="Controls\DragNotifySlider.cs" />
+    <Compile Include="Controls\SlideTile.cs" />
+    <Compile Include="Core\Defaults.cs" />
+    <Compile Include="Core\Extensions\ExtendedListExtension.cs" />
+    <Compile Include="Core\Extensions\EnumerableExtension.cs" />
+    <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Extensions\ObservableListExtension.cs" />
+    <Compile Include="Core\Extensions\SourceCacheExtension.cs" />
+    <Compile Include="Core\Extensions\SourceListExtension.cs" />
+    <Compile Include="Core\Extensions\StringExtension.cs" />
+    <Compile Include="Core\Helpers\AsyncHelper.cs" />
+    <Compile Include="Core\IO\ApplicationPaths.cs" />
+    <Compile Include="Core\ServiceFacade.cs" />
+    <Compile Include="Core\Services\CacheService.cs" />
+    <Compile Include="Core\Services\IndexService.cs" />
+    <Compile Include="Core\Services\PlaybackService.cs" />
+    <Compile Include="Core\Storage\StorageFolderQuery.cs" />
+    <Compile Include="Core\TagLib\UwpFileAbstraction.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Static.cs" />
+    <Compile Include="ViewModelAccessor.cs" />
+    <Compile Include="ViewModels\Common\AlbumSorterViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoCoverThumbnailViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoCoverViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoTextPropertyViewModel.cs" />
+    <Compile Include="ViewModels\Common\PlaybackInfoTextViewModel.cs" />
+    <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
+    <Compile Include="ViewModels\Common\AlbumViewModel.cs" />
+    <Compile Include="ViewModels\Common\ArtistViewModel.cs" />
+    <Compile Include="ViewModels\PlaybackSliderViewModel.cs" />
+    <Compile Include="ViewModels\FullPlayerArtistViewModel.cs" />
+    <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
+    <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
+    <Compile Include="ViewModels\Common\TrackViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPageViewModel.cs" />
+    <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
+      <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Common\PlaybackInfoText.xaml.cs">
+      <DependentUpon>PlaybackInfoText.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FullPlayerArtistView.xaml.cs">
+      <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FullPlayerPage.xaml.cs">
+      <DependentUpon>FullPlayerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaybackControllerView.xaml.cs">
+      <DependentUpon>PlaybackControllerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlaybackSlider.xaml.cs">
+      <DependentUpon>PlaybackSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Shell.xaml.cs">
+      <DependentUpon>Shell.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WelcomePage.xaml.cs">
+      <DependentUpon>WelcomePage.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <Content Include="Assets\Fonts\SegMVR2.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FodyWeavers.xml" />
+    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Themes\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Dark.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Light.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\TextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\PlaybackInfoCover.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Common\PlaybackInfoText.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FullPlayerArtistView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FullPlayerPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaybackControllerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlaybackSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Shell.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\WelcomePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DynamicData">
+      <Version>6.12.9</Version>
+    </PackageReference>
+    <PackageReference Include="Kasay.DependencyProperty.UWP.Fody">
+      <Version>1.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
+      <Version>3.0.0-preview6.19304.10</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <Version>3.0.0-preview6.19304.10</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.2.8</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
+      <Version>5.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <Version>5.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.UI.Xaml">
+      <Version>2.1.190606001</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI">
+      <Version>9.19.5</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI.Events">
+      <Version>9.19.5</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI.Fody">
+      <Version>9.19.5</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive">
+      <Version>4.2.0-preview.566</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>4.6.0-preview7.19362.9</Version>
+    </PackageReference>
+    <PackageReference Include="Z.Linq.Async">
+      <Version>1.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Collections\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentMusic.Data\FluentMusic.Data.csproj">
+      <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>
+      <Name>FluentPlayer.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj">
+      <Project>{59f49e09-2092-46c3-9f9b-1234feccbb06}</Project>
+      <Name>TaglibSharp.NetStandard</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
