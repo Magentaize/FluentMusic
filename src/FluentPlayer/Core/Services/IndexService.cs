@@ -16,8 +16,10 @@ using System.Threading.Tasks;
 using TagLib;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
+using Z.Linq;
 
 namespace Magentaize.FluentPlayer.Core.Services
 {
@@ -54,7 +56,7 @@ namespace Magentaize.FluentPlayer.Core.Services
         {
         }
 
-        private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolder> changedFolders)> GetChangedLibraryFolders()
+        private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolderMixin> changedFolders)> GetChangedLibraryFolders()
         {
             var dbFolders = await ServiceFacade.Db.Folders.ToListAsync();
             var removedFolders = dbFolders.Except(_musicFolders, a => a.Path, b => b.Path).ToList();
@@ -64,34 +66,43 @@ namespace Magentaize.FluentPlayer.Core.Services
                 _musicFolders.Select(async x =>
                 {
                     var prop = await x.GetBasicPropertiesAsync();
-                    return new { Obj = x, Prop = prop };
+                    return new StorageFolderMixin { Folder = x, Properties = prop };
                 }));
 
             var indexNeededFolders = musicFoldersMixin.Where(x =>
             {
-                var f = dbFolders.FirstOrDefault(y => y.Path == x.Obj.Path);
+                var f = dbFolders.FirstOrDefault(y => y.Path == x.Folder.Path);
                 if (f == default(Folder)) return true;
-                if (f.ModifiedDate != x.Prop.DateModified) return true;
+                if (f.ModifiedDate != x.Properties.DateModified) return true;
                 return false;
-            }).Select(x => x.Obj);
+            });
 
             return (removedFolders, indexNeededFolders);
         }
 
-        private async Task IndexChangedFolders(IEnumerable<StorageFolder> folders)
+        private async Task IndexChangedFolders(IEnumerable<StorageFolderMixin> folders)
         {
             var libFolderSfq =
                folders
+               .Select(x => x.Folder)
                .Select(x => new StorageFolderQuery(x, StorageFolderQuery.AudioExtensions))
                .ToList();
 
             await IndexChangedFolders(libFolderSfq);
 
-            _libForlderContentChangedStream = Observable.Never<EventPattern<IStorageQueryResultBase, object>>();
-            libFolderSfq.ForEach(x => _libForlderContentChangedStream = _libForlderContentChangedStream.Merge(x.ContentsChangedStream));
-            var d = _libForlderContentChangedStream
+            libFolderSfq
+                .ToObservable()
+                .Select(x => x.ContentsChangedStream)
+                .Merge()
                 .Throttle(TimeSpan.FromSeconds(3))
                 .Subscribe(async _ => await IndexChangedFolders(libFolderSfq));
+
+            folders.ForEach(x =>
+            {
+                ServiceFacade.Db.Folders.Add(new Folder { Path = x.Folder.Path, ModifiedDate = x.Properties.DateModified });
+            });
+
+            await ServiceFacade.Db.SaveChangesAsync();
         }
 
         private async Task IndexChangedFolders(IEnumerable<StorageFolderQuery> folderSfq)
@@ -114,7 +125,26 @@ namespace Magentaize.FluentPlayer.Core.Services
 
         private async Task IndexRemovedFolders(IEnumerable<Folder> folders)
         {
-
+            var fs = folders.Select(x=>x.Path).ToList();
+            var db = ServiceFacade.Db;
+            var tracks = await db.Tracks.ToListAsync();
+            var t = await tracks
+                .Where(x =>
+                {
+                    foreach (var f in fs)
+                    {
+                        if (x.Path.StartsWith(f)) return true;
+                    }
+                    return false;
+                })
+                .ToListAsync();
+            db.Tracks.RemoveRange(t);
+            var albums = await db.Albums.Where(x => x.Tracks.Count == 0).ToListAsync();
+            db.Albums.RemoveRange(albums);
+            foreach (var a in albums) await ServiceFacade.CacheService.RemoveCacheAsync(a);
+            var artists = await db.Artists.Where(x => x.Albums.Count == 0).ToListAsync();
+            db.Artists.RemoveRange(artists);
+            await db.SaveChangesAsync();
         }
 
         public async Task BeginIndexAsync()
@@ -324,6 +354,12 @@ namespace Magentaize.FluentPlayer.Core.Services
             {
                 _musicFolders.Add(f);
             }
+        }
+
+        private class StorageFolderMixin
+        {
+            public StorageFolder Folder { get; set; }
+            public BasicProperties Properties { get; set; }
         }
     }
 }

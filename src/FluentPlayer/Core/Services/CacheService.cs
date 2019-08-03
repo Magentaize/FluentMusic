@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Magentaize.FluentPlayer.ViewModels.Common;
+using System;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -58,6 +59,12 @@ namespace Magentaize.FluentPlayer.Core.Services
             }
 
             return Path.Combine(AlbumCacheFolderName, fileName);
+        }
+
+        public async Task RemoveCacheAsync(AlbumViewModel vm)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(vm.AlbumCoverFsPath);
+            await file.DeleteAsync();
         }
     }
 }
