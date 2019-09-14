@@ -72,6 +72,8 @@
         </StackPanel>
 
         <local:PlaybackControllerView Grid.Column="1" />
+
+        <common:VolumeSlider Grid.Column="2" />
       </Grid>
     </StackPanel>
   </Grid>

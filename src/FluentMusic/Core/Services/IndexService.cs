@@ -141,7 +141,7 @@ namespace FluentMusic.Core.Services
             db.Tracks.RemoveRange(t);
             var albums = await db.Albums.Where(x => x.Tracks.Count == 0).ToListAsync();
             db.Albums.RemoveRange(albums);
-            foreach (var a in albums) await ServiceFacade.CacheService.RemoveCacheAsync(a);
+            foreach (var a in albums) await ServiceFacade.CacheService.RemoveCacheAsync(a.AlbumCover);
             var artists = await db.Artists.Where(x => x.Albums.Count == 0).ToListAsync();
             db.Artists.RemoveRange(artists);
             await db.SaveChangesAsync();

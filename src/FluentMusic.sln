@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentMusic.Data.Migration.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaglibSharp.NetStandard", "taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj", "{59F49E09-2092-46C3-9F9B-1234FECCBB06}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioVisualizer", "AudioVisualizer\AudioVisualizer.vcxproj", "{762AB76C-06A4-4046-9858-73457F184055}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,22 @@ Global
 		{59F49E09-2092-46C3-9F9B-1234FECCBB06}.Release|x64.Build.0 = Release|Any CPU
 		{59F49E09-2092-46C3-9F9B-1234FECCBB06}.Release|x86.ActiveCfg = Release|Any CPU
 		{59F49E09-2092-46C3-9F9B-1234FECCBB06}.Release|x86.Build.0 = Release|Any CPU
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|ARM.ActiveCfg = Debug|ARM
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|ARM.Build.0 = Debug|ARM
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|x64.ActiveCfg = Debug|x64
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|x64.Build.0 = Debug|x64
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|x86.ActiveCfg = Debug|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Debug|x86.Build.0 = Debug|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|Any CPU.ActiveCfg = Release|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|ARM.ActiveCfg = Release|ARM
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|ARM.Build.0 = Release|ARM
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|ARM64.ActiveCfg = Release|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|x64.ActiveCfg = Release|x64
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|x64.Build.0 = Release|x64
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|x86.ActiveCfg = Release|Win32
+		{762AB76C-06A4-4046-9858-73457F184055}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

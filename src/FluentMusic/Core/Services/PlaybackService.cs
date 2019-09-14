@@ -1,6 +1,7 @@
 ﻿using FluentMusic.ViewModels.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -26,7 +27,9 @@ namespace FluentMusic.Core.Services
 
         public ISubject<bool> IsPlaying { get; } = new Subject<bool>();
         public ISubject<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
-        public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>(); 
+        public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>();
+
+        public ISubject<int> VolumeChanged => new ReplaySubject<int>();
 
         public MediaPlayer Player { get; private set; }
         public ReplaySubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>();
@@ -50,9 +53,15 @@ namespace FluentMusic.Core.Services
             st.InitializeSettingBinary(RepeatMode, nameof(RepeatMode), MediaRepeatMode.None);
             st.InitializeSetting(EnableShuffle, nameof(EnableShuffle), false);
             
-
             Player = new MediaPlayer();
             _nextTrackGenerator = new NextTrackGenerator();
+
+            Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
+                h => Player.VolumeChanged += h, h => Player.VolumeChanged -= h)
+                .Subscribe(x =>
+                {
+                    VolumeChanged.OnNext(Convert.ToInt32(Player.Volume));
+                });
 
             Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
             h => Player.MediaEnded += h, h => Player.MediaEnded -= h)
@@ -96,7 +105,7 @@ namespace FluentMusic.Core.Services
                 });
 
             NewTrackPlayed
-                .Do(async x=> await WriteSmtcThumbnailAsync(x.PlaybackItem, x.Track))
+                .Do(x => WriteSmtcThumbnail(x.PlaybackItem, x.Track))
                 .ObservableOnCoreDispatcher()
                 .Subscribe(x =>
                 {
@@ -106,6 +115,11 @@ namespace FluentMusic.Core.Services
                 });
 
             return await Task.FromResult(this);
+        }
+
+        public void ChangeVolume(int volume)
+        {
+            Player.Volume = volume;
         }
 
         public void Pause()
@@ -178,29 +192,28 @@ namespace FluentMusic.Core.Services
             return mpi;
         }
 
-        private async Task WriteSmtcThumbnailAsync(MediaPlaybackItem item, TrackViewModel track)
+        private void WriteSmtcThumbnail(MediaPlaybackItem item, TrackViewModel track)
         {
-            var prop = item.GetDisplayProperties();
-
             var album = track.Album;
-            IStorageFile thumbFile;
-            if (string.IsNullOrEmpty(album.AlbumCover))
-            {
-                thumbFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(album.AlbumCoverFsPath));
-            }
-            else
-            {
-                thumbFile = await StorageFile.GetFileFromPathAsync(album.AlbumCoverFsPath);
-            }
-            var rasf = RandomAccessStreamReference.CreateFromFile(thumbFile);
-            prop.Thumbnail = rasf;
-            prop.Type = MediaPlaybackType.Music;
-            prop.MusicProperties.Title = track.Title;
-            prop.MusicProperties.Artist = track.Album.Artist.Name;
-            prop.MusicProperties.AlbumTitle = track.Album.Title;
 
-            item.ApplyDisplayProperties(prop);
-        } 
+            Observable
+            .FromAsync(_ => StorageFile.GetFileFromPathAsync(album.AlbumCoverFsPath).AsTask())
+            .Catch((Exception ex) => Observable.FromAsync(_ => StorageFile.GetFileFromApplicationUriAsync(new Uri(album.AlbumCoverFsPath)).AsTask()))
+            .FirstAsync()
+            .Subscribe(x =>
+            {
+                var prop = item.GetDisplayProperties();
+                var rasf = RandomAccessStreamReference.CreateFromFile(x);
+                prop.Thumbnail = rasf;
+                prop.Type = MediaPlaybackType.Music;
+                prop.MusicProperties.Title = track.Title;
+                prop.MusicProperties.Artist = track.Album.Artist.Name;
+                prop.MusicProperties.AlbumTitle = track.Album.Title;
+
+                item.ApplyDisplayProperties(prop);
+            },
+            ex => { Debugger.Break(); });
+        }
     }
     public enum MediaRepeatMode
     {

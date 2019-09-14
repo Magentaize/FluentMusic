@@ -29,7 +29,8 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>7.3</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -43,6 +44,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -54,6 +56,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -66,6 +69,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -121,6 +125,9 @@
     </Compile>
     <Compile Include="Views\Common\PlaybackInfoText.xaml.cs">
       <DependentUpon>PlaybackInfoText.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Common\VolumeSlider.xaml.cs">
+      <DependentUpon>VolumeSlider.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FullPlayerArtistView.xaml.cs">
       <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
@@ -198,6 +205,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Common\VolumeSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\FullPlayerArtistView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -229,7 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamicData">
-      <Version>6.12.9</Version>
+      <Version>6.12.13</Version>
     </PackageReference>
     <PackageReference Include="Kasay.DependencyProperty.UWP.Fody">
       <Version>1.0.4</Version>

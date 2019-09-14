@@ -74,7 +74,7 @@ namespace FluentMusic.ViewModels
                         {
                             dispose = selectedList
                                         .Connect()
-                                        .Subscribe(_ => observer.OnNext(true));
+                                        .Subscribe(__ => observer.OnNext(true));
                         });
 
                     return Disposable.Empty;
