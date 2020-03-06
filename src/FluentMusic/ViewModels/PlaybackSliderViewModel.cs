@@ -22,7 +22,7 @@ namespace FluentMusic.ViewModels
         {
             var _progressSliderIsDragging = false;
 
-            var pbs = ServiceFacade.PlaybackService;
+            var pbs = Service.PlaybackService;
             pbs.NewTrackPlayed
                 .ObservableOnCoreDispatcher()
                 .Subscribe(x =>

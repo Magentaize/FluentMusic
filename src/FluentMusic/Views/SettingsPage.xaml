@@ -7,14 +7,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storage="using:Windows.Storage"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mc:Ignorable="d"
+  xmlns:common="using:FluentMusic.ViewModels.Common"
+  mc:Ignorable="d"
     x:Name="PART_SettingsPage">
 
   <Grid>
     <Pivot>
       <PivotItem>
         <PivotItem.Header>
-          <TextBlock Text="Behavior" Foreground="{ThemeResource TextRevealAccentForeground}"/>
+          <TextBlock Text="Behavior" Foreground="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"/>
         </PivotItem.Header>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -36,11 +37,11 @@
                       ItemsSource="{x:Bind ViewModel.MusicFolders}"
                       ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
               <ListView.ItemTemplate>
-                <DataTemplate x:DataType="storage:StorageFolder">
+                <DataTemplate x:DataType="common:FolderViewModel">
                   <controls:DockPanel LastChildFill="True">
                     <Button controls:DockPanel.Dock="Right" 
                             Style="{StaticResource TextButtonWithAccentColor}"
-                            Command="{Binding Path=ViewModel.RemoveMusicFolderCommand, ElementName=PART_SettingsPage}"
+                            Command="{x:Bind RemoveMusicFolderCommand}"
                             CommandParameter="{x:Bind}">
                       <SymbolIcon Symbol="Cancel" />
                     </Button>

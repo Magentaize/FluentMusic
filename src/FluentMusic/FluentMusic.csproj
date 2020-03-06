@@ -81,9 +81,11 @@
     <Compile Include="Core\Extensions\ChangeSetExtension.cs" />
     <Compile Include="Core\Extensions\Internal\UnifiedChange.cs" />
     <Compile Include="Core\Extensions\Internal\UnifiedChangeEnumerator.cs" />
+    <Compile Include="Core\Extensions\ModelExtension.cs" />
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Services\NextTrackGenerator.cs" />
     <Compile Include="Core\Services\Setting.cs" />
+    <Compile Include="ViewModels\Common\FolderViewModel.cs" />
     <Compile Include="ViewModels\Common\Grouping.cs" />
     <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
@@ -97,14 +99,13 @@
     <Compile Include="Core\Extensions\StringExtension.cs" />
     <Compile Include="Core\Helpers\AsyncHelper.cs" />
     <Compile Include="Core\IO\ApplicationPaths.cs" />
-    <Compile Include="Core\ServiceFacade.cs" />
+    <Compile Include="Core\Service.cs" />
     <Compile Include="Core\Services\CacheService.cs" />
     <Compile Include="Core\Services\IndexService.cs" />
     <Compile Include="Core\Services\PlaybackService.cs" />
     <Compile Include="Core\Storage\StorageFolderQuery.cs" />
-    <Compile Include="Core\TagLib\UwpFileAbstraction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Static.cs" />
+    <Compile Include="Statics.cs" />
     <Compile Include="ViewModelAccessor.cs" />
     <Compile Include="ViewModels\Common\AlbumSorterViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverThumbnailViewModel.cs" />
@@ -240,48 +241,48 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DynamicData">
-      <Version>6.12.13</Version>
+      <Version>6.14.8</Version>
     </PackageReference>
     <PackageReference Include="Kasay.DependencyProperty.UWP.Fody">
       <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
-      <Version>3.0.0-preview6.19304.10</Version>
+      <Version>3.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
-      <Version>3.0.0-preview6.19304.10</Version>
+      <Version>3.1.2</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.8</Version>
+      <Version>6.2.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI">
-      <Version>5.1.1</Version>
+      <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
-      <Version>5.1.1</Version>
+      <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.1.190606001</Version>
+      <Version>2.3.200213001</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed">
       <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI">
-      <Version>9.19.5</Version>
+      <Version>11.2.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events">
-      <Version>9.19.5</Version>
+      <Version>11.2.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Fody">
-      <Version>9.19.5</Version>
+      <Version>11.2.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
-      <Version>4.2.0-preview.566</Version>
+      <Version>4.3.2</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>4.6.0-preview7.19362.9</Version>
+      <Version>4.7.1</Version>
     </PackageReference>
     <PackageReference Include="Z.Linq.Async">
       <Version>1.0.3</Version>

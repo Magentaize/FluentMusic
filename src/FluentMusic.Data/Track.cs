@@ -12,8 +12,6 @@ namespace FluentMusic.Data
 
         public Folder Folder { get; set; }
 
-        public Artist Artist { get; set; }
-
         public string Genres { get; set; }
 
         public Album Album { get; set; }
@@ -32,7 +30,7 @@ namespace FluentMusic.Data
 
         public long? SampleRate { get; set; }
 
-        public string TrackTitle { get; set; }
+        public string Title { get; set; }
 
         public long? TrackNumber { get; set; }
 

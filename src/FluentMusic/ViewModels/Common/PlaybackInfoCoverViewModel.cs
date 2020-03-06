@@ -18,7 +18,7 @@ namespace FluentMusic.ViewModels.Common
 
         public PlaybackInfoCoverViewModel()
         {
-            var pbs = ServiceFacade.PlaybackService;
+            var pbs = Service.PlaybackService;
             pbs.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
                 .ObservableOnCoreDispatcher()

@@ -20,7 +20,7 @@ namespace FluentMusic.Core.Services
 
         public NextTrackGenerator()
         {
-            var playback = ServiceFacade.PlaybackService;
+            var playback = Service.PlaybackService;
             playback.RepeatMode
                 .DistinctUntilChanged()
                 .Subscribe(x =>
@@ -38,13 +38,13 @@ namespace FluentMusic.Core.Services
             playback.NewTrackPlayed
                 .Subscribe(x => CurrentTrack = x.Track);
 
-            ServiceFacade.IndexService.TrackSource
-                .SelectMany(x => x.Unified())
-                .Where(x => x.Reason == ListChangeReason.Remove)
-                .Subscribe(x =>
-                {
-                    //TODO: remove vm
-                });
+            //Service.IndexService.TrackSource
+            //    .SelectMany(x => x.Unified())
+            //    .Where(x => x.Reason == ListChangeReason.Remove)
+            //    .Subscribe(x =>
+            //    {
+            //        //TODO: remove vm
+            //    });
         }
 
         public TrackViewModel Previous()

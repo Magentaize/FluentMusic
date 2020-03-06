@@ -1,31 +1,30 @@
 ﻿using FluentMusic.Core.Services;
 using FluentMusic.Data;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.Storage;
+using System;
 
 namespace FluentMusic.Core
 {
-    public static class ServiceFacade
+    public static class Service
     {
         public static async Task StartupAsync()
         {
-            Db = new FluentMusicDbContext();
-            Db.Database.Migrate();
+            //await ApplicationData.Current.LocalFolder.CreateFileAsync("FluentMusic.db", CreationCollisionOption.OpenIfExists);
+            var dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "FluentMusic.db");
+            await Db.InitializeAsync(dbpath);
 
-            Setting = new Setting();
             await Setting.InitializeAsync();
             IndexService = await new IndexService().InitializeAsync();
-            CacheService = await CacheService.CreateAsync();
+            await CacheService.InitializeAsync();
             PlaybackService = new PlaybackService();
             await PlaybackService.InitializeAsync();
 
         }
 
-        internal static FluentMusicDbContext Db;
-
-        internal static Setting Setting;
         public static IndexService IndexService;
-        public static CacheService CacheService;
         public static PlaybackService PlaybackService;
     }
 }

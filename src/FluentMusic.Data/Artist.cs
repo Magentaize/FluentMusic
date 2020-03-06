@@ -11,7 +11,5 @@ namespace FluentMusic.Data
         public string Name { get; set; }
 
         public IList<Album> Albums { get; set; } = new List<Album>();
-
-        public IList<Track> Tracks { get; set; } = new List<Track>();
     }
 }

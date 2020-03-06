@@ -43,7 +43,7 @@ namespace FluentMusic.ViewModels
 
         public PlaybackControllerViewModel()
         {
-            var pb = ServiceFacade.PlaybackService;
+            var pb = Service.PlaybackService;
 
             pb.RepeatMode
                 .DistinctUntilChanged()
@@ -85,9 +85,9 @@ namespace FluentMusic.ViewModels
                  .Select(x => !x)
                  .ToPropertyEx(this, x => x.ResumeIconVisible, true);
 
-            Resume = ReactiveCommand.Create(ServiceFacade.PlaybackService.Resume);
+            Resume = ReactiveCommand.Create(Service.PlaybackService.Resume);
 
-            Pause = ReactiveCommand.Create(ServiceFacade.PlaybackService.Pause);
+            Pause = ReactiveCommand.Create(Service.PlaybackService.Pause);
 
             Previous = ReactiveCommand.Create(() =>
             {

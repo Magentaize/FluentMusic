@@ -13,9 +13,9 @@ namespace FluentMusic.ViewModels.Common
         [Reactive]
         public string Name { get; set; }
 
-        public IObservableList<AlbumViewModel> Albums => _albums.AsObservableList();
+        public IObservableCache<AlbumViewModel, long> Albums => _albums.AsObservableCache();
 
-        private ISourceList<AlbumViewModel> _albums;
+        private ISourceCache<AlbumViewModel, long> _albums = new SourceCache<AlbumViewModel, long>(x => x.Id);
 
         private ArtistViewModel(Artist artist)
         {
@@ -26,7 +26,7 @@ namespace FluentMusic.ViewModels.Common
         public ArtistViewModel AddAlbum(AlbumViewModel album)
         {
             album.Artist = this;
-            _albums.Add(album);
+            _albums.AddOrUpdate(album);
 
             return this;
         }
@@ -42,7 +42,7 @@ namespace FluentMusic.ViewModels.Common
 
                     return v;
                 });
-            vm._albums = SourceList.CreateFromEnumerable(albums);
+            vm._albums.Edit(x => x.AddOrUpdate(albums));
 
             return vm;
         }

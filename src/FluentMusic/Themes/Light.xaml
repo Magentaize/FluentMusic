@@ -8,9 +8,15 @@
                          Opacity="0.5" />
 
   <RevealBorderBrush x:Key="TextRevealAccentForeground" 
-                     FallbackColor="{ThemeResource SystemAccentColorDark1}"
-                     Color="{ThemeResource SystemAccentColorDark1}" 
+                     FallbackColor="{ThemeResource SystemAccentColor}"
+                     Color="{ThemeResource SystemAccentColor}" 
                      TargetTheme="Light"/>
+
+  <RevealBorderBrush x:Key="SystemControlBackgroundAccentRevealBorderBrush" 
+                     FallbackColor="{ThemeResource SystemAccentColor}"
+                     Color="{ThemeResource SystemAccentColor}" 
+                     TargetTheme="Light"/>
+
 
   <RevealBackgroundBrush x:Key="GridViewItemRevalBackround"
                          Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.3" TargetTheme="Light"/>

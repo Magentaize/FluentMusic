@@ -19,11 +19,17 @@ namespace FluentMusic.ViewModels.Common
         [Reactive]
         public bool IsPlaying { get; set; }
 
+        public long FolderId { get; set; }
+
+        public string FileName { get; set; }
+
         private TrackViewModel(Track track)
         {
             Id = track.Id;
             Path = track.Path;
-            Title = track.TrackTitle;
+            Title = track.Title;
+            FolderId = track.Folder.Id;
+            FileName = track.FileName;
         }
 
         public static TrackViewModel Create(Track track)

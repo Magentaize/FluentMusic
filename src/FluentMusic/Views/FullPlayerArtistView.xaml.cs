@@ -20,48 +20,48 @@ namespace FluentMusic.Views
 
             InitializeComponent();
 
-            ArtistList.Events().SelectionChanged
-                .Subscribe(x =>
-                {
-                    ViewModel.ArtistListSelectedItems.Edit(a =>
-                    {
-                        a.RemoveMany(x.RemovedItems.Cast<ArtistViewModel>());
-                        a.AddRange(x.AddedItems.Cast<ArtistViewModel>());
-                    });
-                });
+            //ArtistList.Events().SelectionChanged
+            //    .Subscribe(x =>
+            //    {
+            //        ViewModel.ArtistListSelectedItems.Edit(a =>
+            //        {
+            //            a.RemoveMany(x.RemovedItems.Cast<ArtistViewModel>());
+            //            a.AddRange(x.AddedItems.Cast<ArtistViewModel>());
+            //        });
+            //    });
 
-            AlbumGridView.Events().SelectionChanged
-                .Subscribe(x =>
-                {
-                    ViewModel.AlbumGridViewSelectedItems.Edit(a =>
-                    {
-                        a.RemoveMany(x.RemovedItems.Cast<AlbumViewModel>());
-                        a.AddRange(x.AddedItems.Cast<AlbumViewModel>());
-                    });
-                });
+            //AlbumGridView.Events().SelectionChanged
+            //    .Subscribe(x =>
+            //    {
+            //        ViewModel.AlbumGridViewSelectedItems.Edit(a =>
+            //        {
+            //            a.RemoveMany(x.RemovedItems.Cast<AlbumViewModel>());
+            //            a.AddRange(x.AddedItems.Cast<AlbumViewModel>());
+            //        });
+            //    });
 
-            RestoreArtistButton.Events().Tapped
-                .Subscribe(ViewModel.RestoreArtistsTapped);
+            //RestoreArtistButton.Events().Tapped
+            //    .Subscribe(ViewModel.RestoreArtistsTapped);
 
-            RestoreAlbumButton.Events().Tapped
-                .Subscribe(ViewModel.RestoreAlbumTapped);
+            //RestoreAlbumButton.Events().Tapped
+            //    .Subscribe(ViewModel.RestoreAlbumTapped);
 
-            ArtistList.Events().Tapped
-                .Subscribe(ViewModel.ArtistListTapped);
+            //ArtistList.Events().Tapped
+            //    .Subscribe(ViewModel.ArtistListTapped);
 
-            ArtistList.Events().DoubleTapped
-                .Subscribe(ViewModel.PlayArtistCommand);
+            //ArtistList.Events().DoubleTapped
+            //    .Subscribe(ViewModel.PlayArtistCommand);
 
-            AlbumGridView.Events().Tapped
-                .Subscribe(ViewModel.AlbumGridViewTapped);
+            //AlbumGridView.Events().Tapped
+            //    .Subscribe(ViewModel.AlbumGridViewTapped);
 
-            AlbumGridView.Events().DoubleTapped
-                .Subscribe(ViewModel.PlayAlbumCommand);
+            //AlbumGridView.Events().DoubleTapped
+            //    .Subscribe(ViewModel.PlayAlbumCommand);
 
-            TrackList.Events().DoubleTapped
-                .Subscribe(ViewModel.PlayTrackCommand);
+            //TrackList.Events().DoubleTapped
+            //    .Subscribe(ViewModel.PlayTrackCommand);
 
-            this.WhenActivated(d => { });
+            //this.WhenActivated(d => { });
         }
 
         [Bind]

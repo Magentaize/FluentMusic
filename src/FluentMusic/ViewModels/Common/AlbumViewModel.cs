@@ -25,19 +25,19 @@ namespace FluentMusic.ViewModels.Common
         [Reactive]
         public string AlbumCover { get; set; }
 
-        public IObservableList<TrackViewModel> Tracks => _tracks.AsObservableList();
+        public IObservableCache<TrackViewModel, long> Tracks => _tracks.AsObservableCache();
 
         [Reactive]
         public string AlbumCoverFsPath { get; set; }
 
-        private ISourceList<TrackViewModel> _tracks;
+        private ISourceCache<TrackViewModel, long> _tracks = new SourceCache<TrackViewModel, long>(x => x.Id);
 
         private AlbumViewModel(Album album)
         {
             Id = album.Id;
             ArtworkPath = album.ArtworkPath;
             Title = album.Title;
-            AlbumCover = album.AlbumCover;
+            AlbumCover = album.Cover;
 
             if (string.IsNullOrEmpty(AlbumCover))
             {
@@ -52,7 +52,7 @@ namespace FluentMusic.ViewModels.Common
         public AlbumViewModel AddTrack(TrackViewModel track)
         {
             track.Album = this;
-            _tracks.Add(track);
+            _tracks.AddOrUpdate(track);
 
             return this;
         }
@@ -68,7 +68,7 @@ namespace FluentMusic.ViewModels.Common
 
                     return v;
                 });
-            vm._tracks = SourceList.CreateFromEnumerable(tracks);
+            vm._tracks.Edit(x => x.AddOrUpdate(tracks));
 
             return vm;
         }

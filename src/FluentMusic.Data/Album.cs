@@ -12,7 +12,7 @@ namespace FluentMusic.Data
 
         public string Title { get; set; }
 
-        public string AlbumCover { get; set; }
+        public string Cover { get; set; }
 
         public IList<Track> Tracks { get; set; } = new List<Track>();
 

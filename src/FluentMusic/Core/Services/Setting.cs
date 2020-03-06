@@ -8,14 +8,14 @@ namespace FluentMusic.Core.Services
 {
     public class Setting
     {
-        private ApplicationDataContainer _container;
+        private static ApplicationDataContainer _container;
 
-        public bool AddOrUpdateBinary(string key, object value)
+        public static bool AddOrUpdateBinary(string key, object value)
         {
             return AddOrUpdate(key, JsonSerializer.Serialize(value));
         }
 
-        public bool AddOrUpdate(string key, object value)
+        public static bool AddOrUpdate(string key, object value)
         {
             bool valueChanged = false;
 
@@ -36,7 +36,7 @@ namespace FluentMusic.Core.Services
             return valueChanged;
         }
 
-        public T GetOrDefaultBinary<T>(string key, T defaultValue)
+        public static T GetOrDefaultBinary<T>(string key, T defaultValue)
         {
             string val;
             if (_container.Values.TryGetValue(key, out var value))
@@ -49,10 +49,10 @@ namespace FluentMusic.Core.Services
                 val = JsonSerializer.Serialize(defaultValue);
                 AddOrUpdateBinary(key, val);
                 return defaultValue;
-            }         
+            }
         }
 
-        public T GetOrDefault<T>(string key, T defaultValue)
+        public static T GetOrDefault<T>(string key, T defaultValue)
         {
             if (_container.Values.TryGetValue(key, out var value))
             {
@@ -65,13 +65,13 @@ namespace FluentMusic.Core.Services
             }
         }
 
-        public void InitializeSettingBinary<T>(ISubject<T> subject, string key, T defaultValue)
+        public static void InitializeSettingBinary<T>(ISubject<T> subject, string key, T defaultValue)
         {
             subject.OnNext(GetOrDefaultBinary<T>(key, defaultValue));
             subject.Subscribe((T x) => AddOrUpdateBinary(key, x));
         }
 
-        public void InitializeSetting<T>(ISubject<T> subject, string key, T defaultValue)
+        public static void InitializeSetting<T>(ISubject<T> subject, string key, T defaultValue)
         {
             subject.OnNext(GetOrDefault<T>(key, defaultValue));
             subject.Subscribe((T x) => AddOrUpdate(key, x));
@@ -79,10 +79,23 @@ namespace FluentMusic.Core.Services
 
         internal Setting() { }
 
-        public async Task InitializeAsync()
+        public static async Task InitializeAsync()
         {
             _container = ApplicationData.Current.LocalSettings;
             await Task.CompletedTask;
+        }
+
+        public static string FirstRun = nameof(FirstRun);
+
+        public static class Collection
+        {
+            public static string AutoRefresh = nameof(AutoRefresh);
+            public static string Indexing = nameof(Indexing);
+        }
+
+        public static class Behavior
+        {
+            public static string AutoScroll = nameof(AutoScroll);
         }
     }
 }

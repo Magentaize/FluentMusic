@@ -23,7 +23,7 @@ namespace FluentMusic.Views.Common
         {
             InitializeComponent();
 
-            ServiceFacade.PlaybackService.VolumeChanged.Subscribe(x =>
+            Service.PlaybackService.VolumeChanged.Subscribe(x =>
             {
                 CurrentVolume = x;
             });
@@ -31,7 +31,7 @@ namespace FluentMusic.Views.Common
             this.WhenAnyValue(x => x.CurrentVolume)
                 .Subscribe(x =>
                 {
-                    ServiceFacade.PlaybackService.ChangeVolume(x);
+                    Service.PlaybackService.ChangeVolume(x);
                 });
 
             Observable.FromEventPattern<RangeBaseValueChangedEventHandler, RangeBaseValueChangedEventArgs>(

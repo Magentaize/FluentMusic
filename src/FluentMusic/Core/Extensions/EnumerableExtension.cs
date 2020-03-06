@@ -31,6 +31,11 @@ namespace System.Linq
             foreach (var x in source) action(x);
         }
 
+        public static async Task ForEachAsync<T>(this IEnumerable<T> source, Func<T,Task> action)
+        {
+            foreach (var x in source) await action(x);
+        }
+
         public static async Task<IEnumerable<TResult>> SelectManyAsync<TSource, TResult>(
             this IEnumerable<TSource> source,
             Func<TSource, Task<IEnumerable<TResult>>> selector)

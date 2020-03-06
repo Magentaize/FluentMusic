@@ -1,12 +1,10 @@
 ﻿using DynamicData;
-using DynamicData.Annotations;
-using FluentMusic.Core.Storage;
+using FluentMusic.Core.Extensions;
 using FluentMusic.Data;
 using FluentMusic.ViewModels.Common;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -25,21 +23,13 @@ namespace FluentMusic.Core.Services
 {
     public class IndexService
     {
-        private readonly ISourceList<Track> _trackSource = new SourceList<Track>();
+        public static IObservableCache<ArtistViewModel, long> ArtistSource => _artistSource.AsObservableCache();
+        public static IObservableCache<TrackViewModel, long> TrackSource { get; private set; }
+        public static IObservableCache<AlbumViewModel, long> AlbumSource { get; private set; }
+        public static IObservableCache<FolderViewModel, long> MusicFolders => _musicFolders.AsObservableCache();
 
-        public IObservable<IChangeSet<Track>> TrackSource => _trackSource.Connect();
-
-        private readonly ISourceCache<ArtistViewModel, long> _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
-
-        public IObservableCache<ArtistViewModel, long> ArtistSource => _artistSource.AsObservableCache();
-
-        private readonly ISourceCache<AlbumViewModel, long> _albumSource = new SourceCache<AlbumViewModel, long>(x => x.Id);
-
-        public IObservable<IChangeSet<AlbumViewModel, long>> AlbumSource => _albumSource.Connect();
-
-        private readonly ObservableCollection<StorageFolder> _musicFolders = new ObservableCollection<StorageFolder>();
-
-        public ReadOnlyObservableCollection<StorageFolder> MusicFolders { get; private set; }
+        private readonly static ISourceCache<ArtistViewModel, long> _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
+        private readonly static ISourceCache<FolderViewModel, long> _musicFolders = new SourceCache<FolderViewModel, long>(x => x.Id);
 
         public event EventHandler IndexBegin;
         public event EventHandler IndexProgressChanged;
@@ -58,164 +48,207 @@ namespace FluentMusic.Core.Services
 
         private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolderMixin> changedFolders)> GetChangedLibraryFolders()
         {
-            var dbFolders = await ServiceFacade.Db.Folders.ToListAsync();
-            var removedFolders = dbFolders.Except(_musicFolders, a => a.Path, b => b.Path).ToList();
+            var r = new List<Folder>();
+            var c = new List<StorageFolderMixin>();
+            var db = new Db();
+            var dbFolders = await db.Set<Folder>().AsQueryable().ToListAsync();
+            await db.DisposeAsync();
 
-            dbFolders.RemoveAll(x => removedFolders.Contains(x));
-            var musicFoldersMixin = await Task.WhenAll(
-                _musicFolders.Select(async x =>
-                {
-                    var prop = await x.GetBasicPropertiesAsync();
-                    return new StorageFolderMixin { Folder = x, Properties = prop };
-                }));
-
-            var indexNeededFolders = musicFoldersMixin.Where(x =>
+            foreach(var f in dbFolders)
             {
-                var f = dbFolders.FirstOrDefault(y => y.Path == x.Folder.Path);
-                if (f == default(Folder)) return true;
-                if (f.ModifiedDate != x.Properties.DateModified) return true;
-                return false;
-            });
+                try
+                {
+                    var sf = await f.GetStorageFolderAsync();
+                    var prop = await sf.GetBasicPropertiesAsync();
+                    if(f.NeedIndex || prop.DateModified != f.DateModified)
+                    {
+                        c.Add(new StorageFolderMixin { Folder = f, StorageFolder = sf, Properties = prop });
+                    }
+                }
+                catch(FileNotFoundException)
+                {
+                    r.Add(f);
+                }
+            }
 
-            return (removedFolders, indexNeededFolders);
+            return (r, c);
+        }
+
+        private static async Task<IList<StorageFile>> GetFilesAsync(StorageFolder folder)
+        {
+            // TODO: determine is ondrive on demand
+            var files = new List<StorageFile>();
+            files.AddRange(await new FileTracker(folder).SearchFolder());
+            return files;
         }
 
         private async Task IndexChangedFolders(IEnumerable<StorageFolderMixin> folders)
         {
-            var libFolderSfq =
-               folders
-               .Select(x => x.Folder)
-               .Select(x => new StorageFolderQuery(x, StorageFolderQuery.AudioExtensions))
-               .ToList();
+            folders = await Task.WhenAll(folders.Select(async x => { x.Files = await GetFilesAsync(x.StorageFolder); return x; }));
+            var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Folder.Id, x => x.FolderId, (mix, dbFiles) => (mix, dbFiles.ToList()));
 
-            await IndexChangedFolders(libFolderSfq);
-
-            libFolderSfq
-                .ToObservable()
-                .Select(x => x.ContentsChangedStream)
-                .Merge()
-                .Throttle(TimeSpan.FromSeconds(3))
-                .Subscribe(async _ => await IndexChangedFolders(libFolderSfq));
-
-            folders.ForEach(x =>
+            await group.ForEachAsync(async g =>
             {
-                ServiceFacade.Db.Folders.Add(new Folder { Path = x.Folder.Path, ModifiedDate = x.Properties.DateModified });
-            });
+                var dbFiles = g.Item2;
+                var diskFiles = g.mix.Files;
 
-            await ServiceFacade.Db.SaveChangesAsync();
+                await diskFiles.ForEachAsync(async f =>
+                {
+                    var trackVm = await dbFiles.FirstOrDefaultAsync(x => x.FileName == f.Name && x.Path == f.Path);
+
+                    if (trackVm == null)
+                    {
+                        var db = new Db();
+                        var tf = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(f));
+                        var tag = tf.Tag;
+
+                        var track = await CreateTrackAsync(f, tf);
+                        await db.Tracks.AddAsync(track);
+
+                        // create artist entity
+                        var artistName = string.IsNullOrEmpty(tag.FirstPerformer) ? "Unknown" : tag.FirstPerformer;
+                        var artist = await db.Artists
+                            .Include(x => x.Albums)
+                            .FirstOrDefaultAsync(a => a.Name == artistName);
+
+                        var createArtist = artist == default;
+
+                        if (createArtist)
+                        {
+                            artist = new Artist()
+                            {
+                                Name = artistName,
+                            };
+
+                            await db.Artists.AddAsync(artist);
+                        }
+
+                        // create album entity
+                        var albumTitle = string.IsNullOrEmpty(tag.Album) ? "Unknown" : tag.Album;
+                        var album = artist.Albums.FirstOrDefault(x => x.Title == albumTitle);
+
+                        var createAlbum = album == default;
+
+                        if (createAlbum)
+                        {
+                            album = new Album()
+                            {
+                                Title = albumTitle,
+                            };
+
+                            await db.Albums.AddAsync(album);
+                        }
+
+                        if (string.IsNullOrEmpty(album.Cover))
+                        {
+                            var picData = await FindAlbumCoverAsync(tag, f.Path);
+
+                            if (picData != default(IBuffer))
+                            {
+                                var cover = await CacheService.CacheAsync(picData);
+                                album.Cover = cover;
+                            }
+                        }
+
+                        track.Folder = g.mix.Folder;
+                        album.Tracks.Add(track);
+                        if (createAlbum)
+                        {
+                            album.Artist = artist;
+                            artist.Albums.Add(album);
+                        }
+
+                        await db.SaveChangesAsync();
+
+                        trackVm = TrackViewModel.Create(track);
+                        var artistVm = createArtist ? ArtistViewModel.Create(artist) : _artistSource.Lookup(artist.Id).Value;
+                        var albumVm = createAlbum? AlbumViewModel.Create(album) : artistVm.Albums.Items.First(x => x.Id == album.Id);
+                        trackVm.Album = albumVm;
+                        albumVm.AddTrack(trackVm);
+                        if (createAlbum)
+                        {
+                            albumVm.Artist = artistVm;
+                            artistVm.AddAlbum(albumVm);
+                        }
+                        if (createArtist)
+                        {
+                            _artistSource.AddOrUpdate(artistVm);
+                        }
+                    }
+                    else
+                    {
+                        dbFiles.Remove(dbFiles.First(x => x.Id == trackVm.Id));
+                    }
+                });
+
+                await dbFiles.ForEachAsync(async f =>
+                {
+                    await RemoveTrackAsync(f.Id);
+                });
+            });          
         }
 
-        private async Task IndexChangedFolders(IEnumerable<StorageFolderQuery> folderSfq)
+        private async Task RemoveTrackAsync(long id)
         {
-            var libFiles = (await folderSfq.SelectManyAsync<StorageFolderQuery, StorageFile>(async f =>
-                await f.ExecuteQueryAsync())).ToList();
-            var dbTracks = await ServiceFacade.Db.Tracks.ToListAsync();
-            var commonPath = libFiles.Intersect(dbTracks, a => a.Path, b => b.Path).ToHashSet();
 
-            var newFiles = libFiles.Except(commonPath, f => f.Path).ToArray();
-            var deletedTracks = dbTracks.Except(commonPath, t => t.Path);
-
-            foreach (var file in newFiles)
-            {
-                await IndexFileAsync(file);
-            }
-
-            await RemoveIndexedFileAsync(deletedTracks);
         }
 
         private async Task IndexRemovedFolders(IEnumerable<Folder> folders)
         {
-            var fs = folders.Select(x=>x.Path).ToList();
-            var db = ServiceFacade.Db;
-            var tracks = await db.Tracks.ToListAsync();
-            var t = await tracks
-                .Where(x =>
-                {
-                    foreach (var f in fs)
-                    {
-                        if (x.Path.StartsWith(f)) return true;
-                    }
-                    return false;
-                })
-                .ToListAsync();
-            db.Tracks.RemoveRange(t);
-            var albums = await db.Albums.Where(x => x.Tracks.Count == 0).ToListAsync();
-            db.Albums.RemoveRange(albums);
-            foreach (var a in albums) await ServiceFacade.CacheService.RemoveCacheAsync(a.AlbumCover);
-            var artists = await db.Artists.Where(x => x.Albums.Count == 0).ToListAsync();
-            db.Artists.RemoveRange(artists);
-            await db.SaveChangesAsync();
+            var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Id, x => x.FolderId, (x, y) => (folder:x, tracks:y));
+
+            await group.ForEachAsync(async g =>
+            {
+                await g.tracks.ForEachAsync(async x => await RemoveTrackAsync(x.Id));
+                Db.Instance.Folders.Remove(g.folder);
+
+                await Db.Instance.SaveChangesAsync();
+            });
         }
 
         public async Task BeginIndexAsync()
         {
-            var (r, i) = await GetChangedLibraryFolders();
+            var (r, c) = await GetChangedLibraryFolders();
+            await IndexChangedFolders(c);
             await IndexRemovedFolders(r);
-            await IndexChangedFolders(i);
         }
 
         internal async Task<IndexService> InitializeAsync()
         {
-            MusicFolders = new ReadOnlyObservableCollection<StorageFolder>(_musicFolders);
-            _musicLibrary = await StorageLibrary.GetLibraryAsync(KnownLibraryId.Music);
-            _musicFolders.AddRange(_musicLibrary.Folders);
+            var db = new Db();
 
-            var _musicLibrary_DefinitionChanged = Observable.FromEventPattern<TypedEventHandler<StorageLibrary, object>, StorageLibrary, object>(
-                h => _musicLibrary.DefinitionChanged += h, h => _musicLibrary.DefinitionChanged -= h);
-
-            ServiceFacade.Db.Artists
-                .Include(a => a.Albums)
-                .ThenInclude(a => a.Tracks)
-                .ToAsyncEnumerable()
-                .Select(x => ArtistViewModel.Create(x))
+            db.Set<Folder>()
+                .ToList()
                 .ToObservable()
                 .SubscribeOnThreadPool()
+                .Select(x => FolderViewModel.Create(x))
+                .Subscribe(x => _musicFolders.AddOrUpdate(x));
+
+            db.Artists
+                .Include(a => a.Albums)
+                .ThenInclude(a => a.Tracks)
+                .ToList()
+                .ToObservable()
+                .SubscribeOnThreadPool()
+                .Select(x => ArtistViewModel.Create(x))
                 .Subscribe(x =>
                 {
                     _artistSource.AddOrUpdate(x);
                 });
 
+            AlbumSource = ArtistSource.Connect()
+                .SubscribeOnThreadPool()
+                .MergeMany(x => x.Albums.Connect())
+                .AsObservableCache();
+
+            TrackSource = AlbumSource.Connect()
+                .SubscribeOnThreadPool()
+                .MergeMany(x => x.Tracks.Connect())
+                .AsObservableCache();
+
+            await db.DisposeAsync();
+
             return this;
-        }
-
-        //remove deleted tracks in database
-        private async Task RemoveIndexedFileAsync(IEnumerable<Track> tracks)
-        {
-            var group = tracks.GroupBy(t => t.Artist).GroupBy(at => at.Key.Albums);
-
-            ServiceFacade.Db.Tracks.RemoveRange(tracks);
-            await ServiceFacade.Db.SaveChangesAsync();
-
-            foreach(var artist in group)
-            {
-
-            }
-        }
-
-        // search for existed artist
-        private async Task<Artist> FindOrCreateArtist(Tag tag)
-        {
-            var artistName = string.IsNullOrEmpty(tag.FirstPerformer) ? "Unknown" : tag.FirstPerformer;
-            var artist = await ServiceFacade.Db.Artists
-                .Include(x => x.Albums)
-                .FirstOrDefaultAsync(a => a.Name == artistName);
-
-            if (artist == default(Artist))
-            {
-                artist = new Artist()
-                {
-                    Name = artistName,
-                };
-
-                await ServiceFacade.Db.Artists.AddAsync(artist);
-                await ServiceFacade.Db.SaveChangesAsync();
-
-                _artistSource.AddOrUpdate(ArtistViewModel.Create(artist));
-            }
-
-            await ServiceFacade.Db.SaveChangesAsync();
-
-            return artist;
         }
 
         private async Task<IBuffer> FindAlbumCoverAsync(Tag tag, string path)
@@ -248,51 +281,8 @@ namespace FluentMusic.Core.Services
             return picData;
         }
 
-        // search for existed album
-        private async Task<Album> FindOrCreateAlbum(Tag tag, string path, [NotNull] Artist artist)
-        {
-            var albumTitle = string.IsNullOrEmpty(tag.Album) ? "Unknown" : tag.Album;
-            var album = artist.Albums.FirstOrDefault(x => x.Title == albumTitle);
-            AlbumViewModel vm = default;
 
-            if (album == default)
-            {
-                album = new Album()
-                {
-                    Title = albumTitle,
-                };
-
-                artist.Albums.Add(album);
-                album.Artist = artist;
-
-                await ServiceFacade.Db.SaveChangesAsync();
-
-                vm = AlbumViewModel.Create(album);
-                _artistSource.Lookup(artist.Id).Value.AddAlbum(vm);
-            }
-
-            if (string.IsNullOrEmpty(album.AlbumCover))
-            {
-                var picData = await FindAlbumCoverAsync(tag, path);
-
-                if (picData != default(IBuffer))
-                {
-                    var cover = await ServiceFacade.CacheService.CacheAsync(picData);
-                    album.AlbumCover = cover;
-                    if (vm == default(AlbumViewModel))
-                    {
-                        vm = _artistSource.Lookup(artist.Id).Value.Albums.Items.First(x => x.Title == albumTitle);
-                    }
-                    vm.AlbumCover = cover;
-                }
-            }
-
-            await ServiceFacade.Db.SaveChangesAsync();
-
-            return album;
-        }
-
-        private async Task<Track> CreateTrackAsync(IStorageFile file, TagLib.File tFile, Artist artist, Album album)
+        private async Task<Track> CreateTrackAsync(IStorageFile file, TagLib.File tFile)
         {
             var tag = tFile.Tag;
             var prop = tFile.Properties;
@@ -301,65 +291,144 @@ namespace FluentMusic.Core.Services
             var track = new Track()
             {
                 Path = file.Path,
-                FileName = Path.GetFileNameWithoutExtension(file.Path),
+                FileName = file.Name,
                 IndexingSuccess = 0,
                 DateAdded = DateTime.Now.Ticks,
-                TrackTitle = tag.Title,
+                Title = tag.Title,
                 Year = tag.Year,
                 Duration = prop.Duration,
-                Artist = artist,
                 Genres = tag.FirstGenre ?? "Unknown",
                 FileSize = fbp.Size
             };
 
-            await ServiceFacade.Db.Tracks.AddAsync(track);
-            await ServiceFacade.Db.SaveChangesAsync();
-
-            var vm = TrackViewModel.Create(track);
-            _artistSource.Lookup(artist.Id).Value.Albums.Items.First(x => x.Id == album.Id).AddTrack(vm);
-
             return track;
         }
 
-        private async Task IndexFileAsync(IStorageFile file)
+        public static async Task RequestRemoveFolderAsync(FolderViewModel vm)
         {
-            var path = file.Path;
-            var tFile = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(file));
-       
-            var tag = tFile.Tag;
 
-            var artist = await FindOrCreateArtist(tag);
-            var album = await FindOrCreateAlbum(tag, path, artist);
-            var track = await CreateTrackAsync(file, tFile, artist, album);
-
-            artist.Tracks.Add(track);
-            album.Tracks.Add(track);
-
-            await ServiceFacade.Db.SaveChangesAsync();
-        }
-
-        public async Task RequestRemoveFolderAsync(StorageFolder folder)
-        {
-            var result = await _musicLibrary.RequestRemoveFolderAsync(folder);
-            if (result)
-            {
-                _musicFolders.Remove(folder);
-            }
         }
 
         public async Task RequestAddFolderAsync()
         {
-            var f = await _musicLibrary.RequestAddFolderAsync();
-            if (f != null)
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker
             {
-                _musicFolders.Add(f);
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
+            };
+            folderPicker.FileTypeFilter.Add("*");
+
+            var folder = await folderPicker.PickSingleFolderAsync();
+            if (folder == null)
+                return;
+            else
+            {
+                // If this new folder is a subfolder, it shouldn't be added to db.
+                var parentFolderIsContained = await _musicFolders.Items.AnyAsync(x => folder.Path.StartsWith(x.Path));
+                if (parentFolderIsContained)
+                {
+                    //TODO:Message
+                    return;
+                }
+
+                var props = await folder.GetBasicPropertiesAsync();
+                var f = new Folder()
+                {
+                    DateModified = props.DateModified,
+                    Path = folder.Path,
+                    NeedIndex = true,
+                    Token = Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(folder)
+                };
+                var db = new Db();
+                db.Add(f);
+                await db.SaveChangesAsync();
+
+                _musicFolders.AddOrUpdate(FolderViewModel.Create(f));
+
+                Setting.AddOrUpdate(Setting.Collection.Indexing, true);
             }
         }
 
         private class StorageFolderMixin
         {
-            public StorageFolder Folder { get; set; }
+            public Folder Folder { get; set; }
+            public StorageFolder StorageFolder { get; set; }
             public BasicProperties Properties { get; set; }
+
+            public IList<StorageFile> Files { get; set; }
+        }
+    }
+
+    public class FileTracker
+    {
+        public static event TypedEventHandler<IStorageQueryResultBase, object> FilesChanged;
+
+        public FileTracker(StorageFolder f)
+        {
+            Folder = f;
+            var options = new QueryOptions
+            {
+                FolderDepth = FolderDepth.Deep,
+                IndexerOption = IndexerOption.DoNotUseIndexer,
+                ApplicationSearchFilter = ComposeFilters(),
+            };
+            options.FileTypeFilter.AddRange(Statics.AudioFileTypes);
+
+            Query = Folder.CreateFileQueryWithOptions(options);
+            Query.ContentsChanged += Query_ContentsChanged;
+        }
+
+        private void Query_ContentsChanged(IStorageQueryResultBase sender, object args)
+        {
+            FilesChanged?.Invoke(sender, EventArgs.Empty);
+        }
+
+        public StorageFolder Folder { get; }
+        public StorageFileQueryResult Query { get; }
+
+        private string ComposeFilters()
+        {
+            string q = string.Empty;
+            //if (Settings.Current.FileSizeFilterEnabled)
+            //{
+            //    q += $" System.Size:>{Settings.Current.GetSystemSize()} ";
+            //}
+            return q;
+        }
+
+        public async Task<IReadOnlyList<StorageFile>> SearchFolder()
+        {
+            Query.ContentsChanged -= Query_ContentsChanged;
+            var files = await Query.GetFilesAsync();
+            Query.ContentsChanged += Query_ContentsChanged;
+            return files;
+        }
+    }
+
+        public sealed class UwpFileAbstraction : TagLib.File.IFileAbstraction
+    {
+        private readonly IStorageFile _file;
+
+        private UwpFileAbstraction() { }
+
+        public static async Task<TagLib.File.IFileAbstraction> CreateAsync(IStorageFile file)
+        {
+            var fAbs = new UwpFileAbstraction();
+            fAbs.Name = file.Path;
+            var ras = await file.OpenAsync(FileAccessMode.Read);
+            fAbs.ReadStream = ras.AsStream();
+
+            return fAbs;
+        }
+
+        public string Name { get; private set; }
+
+        public Stream ReadStream { get; private set; }
+
+        public Stream WriteStream { get; }
+
+        public void CloseStream(Stream stream)
+        {
+            stream.Close();
         }
     }
 }

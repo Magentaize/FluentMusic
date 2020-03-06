@@ -14,22 +14,17 @@ namespace FluentMusic.Core.Services
         private const string AlbumCacheFolderName = "AlbumCache";
         private const uint MaxPixel = 500;
 
-        private IStorageFolder _albumCacheFolder;
+        private static IStorageFolder _albumCacheFolder;
 
         private CacheService() { }
 
-        internal static async Task<CacheService> CreateAsync()
+        internal static async Task InitializeAsync()
         {
-            var ins = new CacheService
-            {
-                _albumCacheFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(AlbumCacheFolderName,
-                    CreationCollisionOption.OpenIfExists)
-            };
-
-            return ins;
+            _albumCacheFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(AlbumCacheFolderName,
+                CreationCollisionOption.OpenIfExists);
         }
 
-        public async Task<string> CacheAsync(IBuffer data)
+        public static async Task<string> CacheAsync(IBuffer data)
         {
             var fileName = $"{Guid.NewGuid():N}.jpg";
 

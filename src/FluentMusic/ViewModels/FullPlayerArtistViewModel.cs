@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using FluentMusic.Core;
+using FluentMusic.Core.Services;
 using FluentMusic.ViewModels.Common;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -19,7 +20,7 @@ using Z.Linq;
 
 namespace FluentMusic.ViewModels
 {
-    public sealed class FullPlayerArtistViewModel : ReactiveObject, ISupportsActivation
+    public sealed class FullPlayerArtistViewModel : ReactiveObject, IActivatableViewModel
     {
         public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
 
@@ -34,134 +35,134 @@ namespace FluentMusic.ViewModels
         [Reactive]
         public AlbumViewModel AlbumGridViewSelectedItem { get; set; }
 
-        public ISubject<object> RestoreArtistsTapped { get; } = new Subject<object>();
-        public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
-        public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
-        public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
-        public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
-        public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
-        public ISubject<object> PlayTrackCommand { get; } = new Subject<object>();
-        public ICommand ArtistListSelectionChanged { get; }
+        //public ISubject<object> RestoreArtistsTapped { get; } = new Subject<object>();
+        //public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
+        //public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
+        //public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
+        //public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
+        //public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
+        //public ISubject<object> PlayTrackCommand { get; } = new Subject<object>();
+        //public ICommand ArtistListSelectionChanged { get; }
 
-        public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
+        //public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
 
-        public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
+        //public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
 
-        private IObservable<bool> CreateUseSelectedItemObservable<TViewModel>(
-            IObservable<object> restoreSubject, 
-            Action restoreAction, 
-            IObservableList<TViewModel> selectedList,
-            ISubject<object> selectedTapped)
-        {
-            return 
-                Observable.Create<bool>(observer =>
-                {
-                    IDisposable dispose = null;
+        //private IObservable<bool> CreateUseSelectedItemObservable<TViewModel>(
+        //    IObservable<object> restoreSubject, 
+        //    Action restoreAction, 
+        //    IObservableList<TViewModel> selectedList,
+        //    ISubject<object> selectedTapped)
+        //{
+        //    return 
+        //        Observable.Create<bool>(observer =>
+        //        {
+        //            IDisposable dispose = null;
 
-                    restoreSubject
-                        .Subscribe(_ =>
-                        {
-                            dispose?.Dispose();
-                            dispose = null;
+        //            restoreSubject
+        //                .Subscribe(_ =>
+        //                {
+        //                    dispose?.Dispose();
+        //                    dispose = null;
 
-                            observer.OnNext(false);
-                            restoreAction();
-                        });
+        //                    observer.OnNext(false);
+        //                    restoreAction();
+        //                });
 
-                    selectedTapped
-                        .Where(_ => dispose == null)
-                        .Subscribe(_ =>
-                        {
-                            dispose = selectedList
-                                        .Connect()
-                                        .Subscribe(__ => observer.OnNext(true));
-                        });
+        //            selectedTapped
+        //                .Where(_ => dispose == null)
+        //                .Subscribe(_ =>
+        //                {
+        //                    dispose = selectedList
+        //                                .Connect()
+        //                                .Subscribe(__ => observer.OnNext(true));
+        //                });
 
-                    return Disposable.Empty;
-                })
-                .StartWith(false);
-        }
+        //            return Disposable.Empty;
+        //        })
+        //        .StartWith(false);
+        //}
 
-        private ISourceList<TDest> FlatMapViewModels<TSource, TDest>(
-            IObservable<bool> useSelectedItemObservable,
-            ObservableCollection<TSource> originalSource, 
-            IObservableList<TSource> selectedSource, 
-            Func<TSource, IObservableList<TDest>> selector)
-        {
-            var waitForFlatMapLastSubscription = Disposable.Empty;
-            var waitForFlatMap = new SourceList<TSource>();
+        //private ISourceList<TDest> FlatMapViewModels<TSource, TDest>(
+        //    IObservable<bool> useSelectedItemObservable,
+        //    ObservableCollection<TSource> originalSource, 
+        //    IObservableList<TSource> selectedSource, 
+        //    Func<TSource, IObservableList<TDest>> selector)
+        //{
+        //    var waitForFlatMapLastSubscription = Disposable.Empty;
+        //    var waitForFlatMap = new SourceList<TSource>();
 
-            useSelectedItemObservable
-                .DistinctUntilChanged()
-                .Subscribe(use =>
-                {
-                    waitForFlatMapLastSubscription.Dispose();
-                    waitForFlatMap.Clear();
+        //    useSelectedItemObservable
+        //        .DistinctUntilChanged()
+        //        .Subscribe(use =>
+        //        {
+        //            waitForFlatMapLastSubscription.Dispose();
+        //            waitForFlatMap.Clear();
 
-                    if (use)
-                    {
-                        waitForFlatMapLastSubscription =
-                        selectedSource
-                        .Connect()
-                        .Subscribe(x => waitForFlatMap.Edit(x));
-                    }
-                    else
-                    {
-                        waitForFlatMapLastSubscription =
-                        originalSource
-                        .ToObservableChangeSet()
-                        .Subscribe(x => waitForFlatMap.Edit(x));
-                    }
-                });
+        //            if (use)
+        //            {
+        //                waitForFlatMapLastSubscription =
+        //                selectedSource
+        //                .Connect()
+        //                .Subscribe(x => waitForFlatMap.Edit(x));
+        //            }
+        //            else
+        //            {
+        //                waitForFlatMapLastSubscription =
+        //                originalSource
+        //                .ToObservableChangeSet()
+        //                .Subscribe(x => waitForFlatMap.Edit(x));
+        //            }
+        //        });
 
-            var vmList = new SourceList<TDest>();
-            var connectedAlbumSource = new Dictionary<TSource, IDisposable>();
-            Action<TSource> connectAlbumSource = i =>
-            {
-                connectedAlbumSource.Add(i, selector(i).Connect().Subscribe(y =>
-                {
-                    vmList.Edit(y);
-                }));
-            };
-            Action<TSource> disconnectAlbumSource = a =>
-            {
-                if (connectedAlbumSource.TryGetValue(a, out var d))
-                {
-                    d.Dispose();
-                    connectedAlbumSource.Remove(a);
-                    vmList.RemoveMany(selector(a).Items);
-                }
-            };
-            waitForFlatMap
-                .Connect()
-                .Subscribe(x =>
-                {
-                    x.ForEach(change =>
-                    {
-                        switch (change.Reason)
-                        {
-                            case ListChangeReason.Add:
-                                connectAlbumSource(change.Item.Current);
-                                break;
-                            case ListChangeReason.AddRange:
-                                change.Range.ForEach(i =>
-                                {
-                                    connectAlbumSource(i);
-                                });
-                                break;
-                            case ListChangeReason.Remove:
-                                disconnectAlbumSource(change.Item.Current);
-                                break;
-                            case ListChangeReason.Clear:
-                            case ListChangeReason.RemoveRange:
-                                change.Range.ForEach(disconnectAlbumSource);
-                                break;
-                        }
-                    });
-                });
-            vmList.Connect().Subscribe(x => { });
-            return vmList;
-        }
+        //    var vmList = new SourceList<TDest>();
+        //    var connectedAlbumSource = new Dictionary<TSource, IDisposable>();
+        //    Action<TSource> connectAlbumSource = i =>
+        //    {
+        //        connectedAlbumSource.Add(i, selector(i).Connect().Subscribe(y =>
+        //        {
+        //            vmList.Edit(y);
+        //        }));
+        //    };
+        //    Action<TSource> disconnectAlbumSource = a =>
+        //    {
+        //        if (connectedAlbumSource.TryGetValue(a, out var d))
+        //        {
+        //            d.Dispose();
+        //            connectedAlbumSource.Remove(a);
+        //            vmList.RemoveMany(selector(a).Items);
+        //        }
+        //    };
+        //    waitForFlatMap
+        //        .Connect()
+        //        .Subscribe(x =>
+        //        {
+        //            x.ForEach(change =>
+        //            {
+        //                switch (change.Reason)
+        //                {
+        //                    case ListChangeReason.Add:
+        //                        connectAlbumSource(change.Item.Current);
+        //                        break;
+        //                    case ListChangeReason.AddRange:
+        //                        change.Range.ForEach(i =>
+        //                        {
+        //                            connectAlbumSource(i);
+        //                        });
+        //                        break;
+        //                    case ListChangeReason.Remove:
+        //                        disconnectAlbumSource(change.Item.Current);
+        //                        break;
+        //                    case ListChangeReason.Clear:
+        //                    case ListChangeReason.RemoveRange:
+        //                        change.Range.ForEach(disconnectAlbumSource);
+        //                        break;
+        //                }
+        //            });
+        //        });
+        //    vmList.Connect().Subscribe(x => { });
+        //    return vmList;
+        //}
 
         private void InitializeReactive()
         {
@@ -170,70 +171,76 @@ namespace FluentMusic.ViewModels
             var trackFilter = new Subject<Func<TrackViewModel, bool>>();
 
             // ---------------- Artist ----------------
-
-            var filteredArtists = new ObservableCollectionExtended<ArtistViewModel>();
-
-            ServiceFacade.IndexService.ArtistSource
-                .Connect()
+            IndexService.ArtistSource.Connect()
                 .SubscribeOnThreadPool()
                 .RemoveKey()
-                .Filter(artistFilter.StartWith(_ => true))
-                .Bind(filteredArtists)
-                .Subscribe();
-
-            filteredArtists
-                .ToObservableChangeSet()
-                .SubscribeOnThreadPool()
                 .GroupOn(x => x.Name.Substring(0, 1))
                 .Transform(x => new GroupArtistViewModel(x))
                 .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
-                .ObservableOnCoreDispatcher()
+                .ObserveOnDispatcher()
                 .Bind(ArtistCvsSource)
-                .Subscribe();
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
 
-            var useSelectedArtists = CreateUseSelectedItemObservable(
-                                        RestoreArtistsTapped,
-                                        () => ArtistListSelectedItem = null,
-                                        ArtistListSelectedItems,
-                                        ArtistListTapped)
-                                     .CacheReplay(1);
-            useSelectedArtists.Connect();
+            //var filteredArtists = new ObservableCollectionExtended<ArtistViewModel>();
 
-            // ---------------- Album ----------------
+            //IndexService.ArtistSource
+            //    .Connect()
+            //    .SubscribeOnThreadPool()
+            //    .RemoveKey()
+            //    .Filter(artistFilter.StartWith(_ => true))
+            //    .Bind(filteredArtists)
+            //    .Subscribe();
 
-            var albumVm = FlatMapViewModels(
-                useSelectedArtists,
-                filteredArtists,
-                ArtistListSelectedItems,
-                x => x.Albums);
+            //filteredArtists
+            //    .ToObservableChangeSet()
+            //    .SubscribeOnThreadPool()
+            //    .GroupOn(x => x.Name.Substring(0, 1))
+            //    .Transform(x => new GroupArtistViewModel(x))
+            //    .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
+            //    .ObservableOnCoreDispatcher()
+            //    .Bind(ArtistCvsSource)
+            //    .Subscribe();
 
-            albumVm.Connect()
-                .ObservableOnCoreDispatcher()
+            //var useSelectedArtists = CreateUseSelectedItemObservable(
+            //                            RestoreArtistsTapped,
+            //                            () => ArtistListSelectedItem = null,
+            //                            ArtistListSelectedItems,
+            //                            ArtistListTapped)
+            //                         .CacheReplay(1);
+            //useSelectedArtists.Connect();
+
+            //// ---------------- Album ----------------
+            IndexService.AlbumSource.Connect()
+                .ObserveOnDispatcher()
                 .Bind(AlbumCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 
-            var restoreSubjectAlbumEx = ArtistListTapped
-                                            .Where(_ => ArtistListSelectedItems.Count <= 1)
-                                            .Select(_ => default(object))
-                                            .Merge(RestoreAlbumTapped);
+            //var albumVm = FlatMapViewModels(
+            //    useSelectedArtists,
+            //    filteredArtists,
+            //    ArtistListSelectedItems,
+            //    x => x.Albums);
 
-            var useSelectedAlbum = CreateUseSelectedItemObservable(
-                                        restoreSubjectAlbumEx,
-                                        () => AlbumGridViewSelectedItem = null,
-                                        AlbumGridViewSelectedItems,
-                                        AlbumGridViewTapped);
+            //albumVm.Connect()
+            //    .ObservableOnCoreDispatcher()
+            //    .Bind(AlbumCvsSource)
+            //    .Subscribe(x => { }, ex => { Debugger.Break(); });
 
-            // ---------------- Track ----------------
+            //var restoreSubjectAlbumEx = ArtistListTapped
+            //                                .Where(_ => ArtistListSelectedItems.Count <= 1)
+            //                                .Select(_ => default(object))
+            //                                .Merge(RestoreAlbumTapped);
 
-            var trackVm = FlatMapViewModels(
-                useSelectedAlbum,
-                AlbumCvsSource,
-                AlbumGridViewSelectedItems,
-                x => x.Tracks);
+            //var useSelectedAlbum = CreateUseSelectedItemObservable(
+            //                            restoreSubjectAlbumEx,
+            //                            () => AlbumGridViewSelectedItem = null,
+            //                            AlbumGridViewSelectedItems,
+            //                            AlbumGridViewTapped);
 
-            trackVm.Connect()
+            //// ---------------- Track ----------------
+            IndexService.TrackSource.Connect()
                 .SubscribeOnThreadPool()
-                .Bind(out var ungroupTrackCvsSource)
+                .RemoveKey()
                 .GroupOn(x => x.Title.Substring(0, 1))
                 .Transform(x => new GroupTrackViewModel(x))
                 .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
@@ -241,18 +248,34 @@ namespace FluentMusic.ViewModels
                 .Bind(TrackCvsSource)
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 
-            // ---------------- Commands ----------------
+            //var trackVm = FlatMapViewModels(
+            //    useSelectedAlbum,
+            //    AlbumCvsSource,
+            //    AlbumGridViewSelectedItems,
+            //    x => x.Tracks);
 
-            PlayArtistCommand
-                .Merge(PlayAlbumCommand)
-                .Merge(PlayTrackCommand)
-                .Subscribe(async _ =>
-                {
-                    var list = ungroupTrackCvsSource;
-                    await ServiceFacade.PlaybackService.PlayAsync(list);
-                });
+            //trackVm.Connect()
+            //    .SubscribeOnThreadPool()
+            //    .Bind(out var ungroupTrackCvsSource)
+            //    .GroupOn(x => x.Title.Substring(0, 1))
+            //    .Transform(x => new GroupTrackViewModel(x))
+            //    .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
+            //    .ObservableOnCoreDispatcher()
+            //    .Bind(TrackCvsSource)
+            //    .Subscribe(x => { }, ex => { Debugger.Break(); });
 
-            TrackViewModel lastPlayedTrack = null;
+            //// ---------------- Commands ----------------
+
+            //PlayArtistCommand
+            //    .Merge(PlayAlbumCommand)
+            //    .Merge(PlayTrackCommand)
+            //    .Subscribe(async _ =>
+            //    {
+            //        var list = ungroupTrackCvsSource;
+            //        await Service.PlaybackService.PlayAsync(list);
+            //    });
+
+            //TrackViewModel lastPlayedTrack = null;
 
             //ServiceFacade.PlaybackService.CurrentTrack
             //    .Subscribe(x =>

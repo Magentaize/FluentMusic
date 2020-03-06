@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace FluentMusic.Data
 {
-    public class FluentMusicDbContext : DbContext
+    public class Db : DbContext
     {
         public DbSet<Folder> Folders { get; set; }
-
-        public DbSet<FolderTrack> FolderTracks { get; set; }
 
         public DbSet<Album> Albums { get; set; }
 
@@ -14,14 +13,26 @@ namespace FluentMusic.Data
 
         public DbSet<Track> Tracks { get; set; }
 
-        public DbSet<IndexingTrack> IndexingTracks { get; set; }
-
-        public DbSet<RemovingTrack> RemovingTracks { get; set; }
-
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            builder.UseSqlite("Data Source=FluentMusic.db");
+            builder.UseSqlite($"Data Source={_dbpath}");
         }
+
+        private static string _dbpath;
+
+        public static async Task InitializeAsync(string dbpath)
+        {
+            _dbpath = dbpath;
+
+            var db = new Db();
+            await db.Database.MigrateAsync();
+            await db.SaveChangesAsync();
+        }
+
+        private object _lock = new object();
+
+        private static Db _instance;
+        public static Db Instance => new Db();
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

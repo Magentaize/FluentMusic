@@ -5,8 +5,8 @@
   xmlns:cc="using:FluentMusic.Controls">
 
   <ResourceDictionary.ThemeDictionaries>
-    <ResourceDictionary Source="./Light.xaml" x:Key="Light"/>
-    <ResourceDictionary Source="./Dark.xaml" x:Key="Dark"/>
+    <ResourceDictionary Source="Light.xaml" x:Key="Light"/>
+    <ResourceDictionary Source="Dark.xaml" x:Key="Dark"/>
   </ResourceDictionary.ThemeDictionaries>
 
   <ResourceDictionary.MergedDictionaries>
@@ -15,5 +15,4 @@
   </ResourceDictionary.MergedDictionaries>
 
   <FontFamily x:Key="SegMvr2FontFamily">ms-appx:///Assets/Fonts/SegMVR2.ttf#Segoe MVR MDL2 Assets</FontFamily>
-
 </ResourceDictionary>
