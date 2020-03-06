@@ -1,0 +1,48 @@
+﻿<Page
+    x:Class="FluentMusic.Views.SettingsFolderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FluentMusic.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:common="using:FluentMusic.ViewModels.Common"
+  xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  mc:Ignorable="d">
+
+  <Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="Music Collection"/>
+          <Button Command="{x:Bind ViewModel.AddMusicFolderCommand}"
+                      Style="{StaticResource ButtonAccentColorReveal}"
+                      VerticalAlignment="Bottom"
+                      Margin="8,0,0,0">
+            <StackPanel Orientation="Horizontal">
+              <FontIcon Glyph="&#xE109;" FontSize="12"/>
+              <TextBlock Text="Add Folder" FontSize="12"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <ListView x:Name="MusicFolderListView"
+                      ItemsSource="{x:Bind ViewModel.MusicFolders}"
+                      ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
+          <ListView.ItemTemplate>
+            <DataTemplate x:DataType="common:FolderViewModel">
+              <controls:DockPanel LastChildFill="True">
+                <Button controls:DockPanel.Dock="Right" 
+                            Style="{StaticResource ButtonAccentColorReveal}"
+                            Command="{x:Bind RemoveMusicFolderCommand}"
+                            CommandParameter="{x:Bind}">
+                  <SymbolIcon Symbol="Cancel" />
+                </Button>
+                <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center"/>
+              </controls:DockPanel>
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
+      </StackPanel>
+    </ScrollViewer>
+  </Border>
+</Page>

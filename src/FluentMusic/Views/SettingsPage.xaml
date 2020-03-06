@@ -12,47 +12,26 @@
     x:Name="PART_SettingsPage">
 
   <Grid>
-    <Pivot>
-      <PivotItem>
-        <PivotItem.Header>
-          <TextBlock Text="Behavior" Foreground="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"/>
-        </PivotItem.Header>
+    <Border>
+      <NavigationView x:Name="NavigationView"
+                      PaneDisplayMode="Top"
+                      IsBackEnabled="False"
+                      IsBackButtonVisible="Collapsed"
+                      IsSettingsVisible="False"
+                      MenuItemsSource="{x:Bind ViewModel.Navigations, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.NavigationViewSelectedItem, Mode=TwoWay}">
+        <NavigationView.Resources>
+          <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+        </NavigationView.Resources>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-          <StackPanel>
-            <StackPanel Orientation="Horizontal">
-              <TextBlock Text="Music Collection"/>
-              <Button Command="{x:Bind ViewModel.AddMusicFolderCommand}"
-                      Style="{StaticResource TextButtonWithAccentColor}"
-                      VerticalAlignment="Bottom"
-                      Margin="8,0,0,0">
-                <StackPanel Orientation="Horizontal">
-                  <FontIcon Glyph="&#xE109;" FontSize="12"/>
-                  <TextBlock Text="Add Folder" FontSize="12"/>
-                </StackPanel>
-              </Button>
-            </StackPanel>
-            
-            <ListView x:Name="MusicFolderListView"
-                      ItemsSource="{x:Bind ViewModel.MusicFolders}"
-                      ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
-              <ListView.ItemTemplate>
-                <DataTemplate x:DataType="common:FolderViewModel">
-                  <controls:DockPanel LastChildFill="True">
-                    <Button controls:DockPanel.Dock="Right" 
-                            Style="{StaticResource TextButtonWithAccentColor}"
-                            Command="{x:Bind RemoveMusicFolderCommand}"
-                            CommandParameter="{x:Bind}">
-                      <SymbolIcon Symbol="Cancel" />
-                    </Button>
-                    <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center"/>
-                  </controls:DockPanel>
-                </DataTemplate>
-              </ListView.ItemTemplate>
-            </ListView>
-          </StackPanel>
-        </ScrollViewer>
-      </PivotItem>
-    </Pivot>
+        <NavigationView.MenuItemTemplate>
+          <DataTemplate x:DataType="common:NavigationViewItemViewModel">
+            <NavigationViewItem Content="{x:Bind Name}"/>
+          </DataTemplate>
+        </NavigationView.MenuItemTemplate>
+
+        <Frame x:Name="NavigationContentFrame"/>
+      </NavigationView>
+    </Border>
   </Grid>
 </Page>

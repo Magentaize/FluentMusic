@@ -1003,7 +1003,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="TextButtonWithAccentColor" TargetType="Button">
+  <Style x:Key="ButtonAccentColorReveal" TargetType="Button">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BackgroundSizing" Value="OuterBorderEdge"/>
     <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}"/>
@@ -1028,7 +1028,7 @@
                 <VisualState x:Name="Normal">
                   <Storyboard>
                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TextRevealAccentForeground}"/>
+                      <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SystemControlBackgroundAccentRevealBorderBrush}"/>
                     </ObjectAnimationUsingKeyFrames>
                     <PointerUpThemeAnimation Storyboard.TargetName="ContentPresenter"/>
                   </Storyboard>
@@ -1037,7 +1037,7 @@
                 <VisualState x:Name="PointerOver">
                   <Storyboard>
                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TextRevealAccentForeground}"/>
+                      <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SystemControlBackgroundAccentRevealBorderBrush}"/>
                     </ObjectAnimationUsingKeyFrames>
                     <PointerUpThemeAnimation Storyboard.TargetName="ContentPresenter"/>
                   </Storyboard>
@@ -1046,7 +1046,7 @@
                 <VisualState x:Name="Pressed">
                   <Storyboard>
                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextRevealAccentForeground}"/>
+                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"/>
                     </ObjectAnimationUsingKeyFrames>
                     <PointerDownThemeAnimation Storyboard.TargetName="ContentPresenter"/>
                   </Storyboard>

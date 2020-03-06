@@ -108,6 +108,7 @@
     <Compile Include="Statics.cs" />
     <Compile Include="ViewModelAccessor.cs" />
     <Compile Include="ViewModels\Common\AlbumSorterViewModel.cs" />
+    <Compile Include="ViewModels\Common\NavigationViewItemViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverThumbnailViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoTextPropertyViewModel.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="ViewModels\FullPlayerPageViewModel.cs" />
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
     <Compile Include="ViewModels\Common\TrackViewModel.cs" />
+    <Compile Include="ViewModels\SettingsFolderPageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
       <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
@@ -130,8 +132,8 @@
     <Compile Include="Views\Common\VolumeSlider.xaml.cs">
       <DependentUpon>VolumeSlider.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\FullPlayerArtistView.xaml.cs">
-      <DependentUpon>FullPlayerArtistView.xaml</DependentUpon>
+    <Compile Include="Views\FullPlayerArtistPage.xaml.cs">
+      <DependentUpon>FullPlayerArtistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FullPlayerPage.xaml.cs">
       <DependentUpon>FullPlayerPage.xaml</DependentUpon>
@@ -141,6 +143,9 @@
     </Compile>
     <Compile Include="Views\PlaybackSlider.xaml.cs">
       <DependentUpon>PlaybackSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsFolderPage.xaml.cs">
+      <DependentUpon>SettingsFolderPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -210,7 +215,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\FullPlayerArtistView.xaml">
+    <Page Include="Views\FullPlayerArtistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -223,6 +228,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PlaybackSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsFolderPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -270,13 +279,13 @@
       <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI">
-      <Version>11.2.1</Version>
+      <Version>11.2.3</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events">
-      <Version>11.2.1</Version>
+      <Version>11.2.3</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Fody">
-      <Version>11.2.1</Version>
+      <Version>11.2.3</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>4.3.2</Version>

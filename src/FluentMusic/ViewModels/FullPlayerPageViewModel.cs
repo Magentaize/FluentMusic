@@ -1,4 +1,5 @@
 ﻿using FluentMusic.Core;
+using FluentMusic.ViewModels.Common;
 using FluentMusic.Views;
 using Microsoft.UI.Xaml.Controls;
 using ReactiveUI;
@@ -12,7 +13,7 @@ namespace FluentMusic.ViewModels
 {
     public class FullPlayerPageViewModel : ReactiveObject
     {
-        public ObservableCollection<FullPlayerPageNavigationViewModel> Navigations { get; }
+        public ObservableCollection<NavigationViewItemViewModel> Navigations { get; }
         [Reactive]
         public object NavigationViewSelectedItem { get; set; }
 
@@ -21,12 +22,12 @@ namespace FluentMusic.ViewModels
 
         public FullPlayerPageViewModel()
         {
-            Navigations = new ObservableCollection<FullPlayerPageNavigationViewModel>()
+            Navigations = new ObservableCollection<NavigationViewItemViewModel>()
             {
-                new FullPlayerPageNavigationViewModel { Name = "Artist", PageType = typeof(SettingsPage) },
-                new FullPlayerPageNavigationViewModel { Name = "Album", PageType = typeof(WelcomePage) },
-                new FullPlayerPageNavigationViewModel { Name = "Genre", PageType = typeof(WelcomePage) },
-                new FullPlayerPageNavigationViewModel { Name = "Setting", PageType = typeof(SettingsPage) },
+                new NavigationViewItemViewModel { Name = "Artist", PageType = typeof(FullPlayerArtistPage) },
+                new NavigationViewItemViewModel { Name = "Album", PageType = typeof(WelcomePage) },
+                new NavigationViewItemViewModel { Name = "Genre", PageType = typeof(WelcomePage) },
+                new NavigationViewItemViewModel { Name = "Setting", PageType = typeof(SettingsPage) },
             };
             NavigationViewSelectedItem = Navigations[0];
 
@@ -35,12 +36,5 @@ namespace FluentMusic.ViewModels
                 .ObservableOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsPlaying);
         }
-    }
-
-    public sealed class FullPlayerPageNavigationViewModel : ReactiveObject
-    {
-        public string Name { get; set; }
-
-        public Type PageType { get; set; }
     }
 }

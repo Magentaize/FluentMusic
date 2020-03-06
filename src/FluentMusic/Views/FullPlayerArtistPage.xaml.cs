@@ -12,9 +12,9 @@ using Windows.UI.Xaml.Controls;
 
 namespace FluentMusic.Views
 {
-    public sealed partial class FullPlayerArtistView : UserControl, IViewFor<FullPlayerArtistViewModel>
+    public sealed partial class FullPlayerArtistPage : Page, IViewFor<FullPlayerArtistViewModel>
     {
-        public FullPlayerArtistView()
+        public FullPlayerArtistPage()
         {
             ViewModel = new FullPlayerArtistViewModel();
 

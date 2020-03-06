@@ -1,4 +1,5 @@
 ﻿using FluentMusic.ViewModels;
+using FluentMusic.ViewModels.Common;
 using Kasay.DependencyProperty;
 using ReactiveUI;
 using System;
@@ -27,9 +28,9 @@ namespace FluentMusic.Views
 
             NavigationView.Events().ItemInvoked
                 .Select(x => x.args)
-                .Where(x => x.InvokedItemContainer.DataContext is FullPlayerPageNavigationViewModel)
-                .Select(x => (tr: x.RecommendedNavigationTransitionInfo, ((FullPlayerPageNavigationViewModel)x.InvokedItemContainer.DataContext).PageType))
-                .StartWith((new EntranceNavigationTransitionInfo(), typeof(FullPlayerArtistView)))
+                .Where(x => x.InvokedItemContainer.DataContext is NavigationViewItemViewModel)
+                .Select(x => (tr: x.RecommendedNavigationTransitionInfo, ((NavigationViewItemViewModel)x.InvokedItemContainer.DataContext).PageType))
+                .StartWith((new EntranceNavigationTransitionInfo(), typeof(FullPlayerArtistPage)))
                 .ObserveOnDispatcher()
                 .Subscribe(x =>
                 {

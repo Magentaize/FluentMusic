@@ -170,16 +170,7 @@ namespace FluentMusic.ViewModels
             var albumFilter = new Subject<Func<AlbumViewModel, bool>>();
             var trackFilter = new Subject<Func<TrackViewModel, bool>>();
 
-            // ---------------- Artist ----------------
-            IndexService.ArtistSource.Connect()
-                .SubscribeOnThreadPool()
-                .RemoveKey()
-                .GroupOn(x => x.Name.Substring(0, 1))
-                .Transform(x => new GroupArtistViewModel(x))
-                .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
-                .ObserveOnDispatcher()
-                .Bind(ArtistCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
+
 
             //var filteredArtists = new ObservableCollectionExtended<ArtistViewModel>();
 
@@ -210,10 +201,6 @@ namespace FluentMusic.ViewModels
             //useSelectedArtists.Connect();
 
             //// ---------------- Album ----------------
-            IndexService.AlbumSource.Connect()
-                .ObserveOnDispatcher()
-                .Bind(AlbumCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
 
             //var albumVm = FlatMapViewModels(
             //    useSelectedArtists,
@@ -238,15 +225,6 @@ namespace FluentMusic.ViewModels
             //                            AlbumGridViewTapped);
 
             //// ---------------- Track ----------------
-            IndexService.TrackSource.Connect()
-                .SubscribeOnThreadPool()
-                .RemoveKey()
-                .GroupOn(x => x.Title.Substring(0, 1))
-                .Transform(x => new GroupTrackViewModel(x))
-                .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
-                .ObservableOnCoreDispatcher()
-                .Bind(TrackCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
 
             //var trackVm = FlatMapViewModels(
             //    useSelectedAlbum,
@@ -288,12 +266,40 @@ namespace FluentMusic.ViewModels
         }
 
         public FullPlayerArtistViewModel()
-        { 
-            Activator = new ViewModelActivator();
-            this.WhenActivated((CompositeDisposable d) =>
-            {
-                InitializeReactive();
-            });
+        {
+            // ---------------- Artist ----------------
+            IndexService.ArtistSource.Connect()
+                .SubscribeOnThreadPool()
+                .RemoveKey()
+                .GroupOn(x => x.Name.Substring(0, 1))
+                .Transform(x => new GroupArtistViewModel(x))
+                .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
+                .ObserveOnDispatcher()
+                .Bind(ArtistCvsSource)
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
+
+            // ---------------- Album ----------------
+            IndexService.AlbumSource.Connect()
+                .ObserveOnDispatcher()
+                .Bind(AlbumCvsSource)
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
+
+            // ---------------- Track ----------------
+            IndexService.TrackSource.Connect()
+                .SubscribeOnThreadPool()
+                .RemoveKey()
+                .GroupOn(x => x.Title.Substring(0, 1))
+                .Transform(x => new GroupTrackViewModel(x))
+                .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
+                .ObservableOnCoreDispatcher()
+                .Bind(TrackCvsSource)
+                .Subscribe(x => { }, ex => { Debugger.Break(); });
+
+            //Activator = new ViewModelActivator();
+            //this.WhenActivated((CompositeDisposable d) =>
+            //{
+            //    InitializeReactive();
+            //});
         }
         public ViewModelActivator Activator { get; }
     }
