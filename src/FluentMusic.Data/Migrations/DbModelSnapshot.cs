@@ -25,10 +25,7 @@ namespace FluentMusic.Data.Migrations
                     b.Property<long?>("ArtistId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ArtworkPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Cover")
+                    b.Property<string>("CoverCacheToken")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
@@ -104,6 +101,9 @@ namespace FluentMusic.Data.Migrations
 
                     b.Property<long>("DateLastSynced")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("DateModified")
+                        .HasColumnType("TEXT");
 
                     b.Property<long?>("DiscCount")
                         .HasColumnType("INTEGER");

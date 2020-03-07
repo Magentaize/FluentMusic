@@ -23,8 +23,9 @@ namespace FluentMusic.ViewModels.Common
 
         public string FileName { get; set; }
 
-        private TrackViewModel(Track track)
+        private TrackViewModel(AlbumViewModel album, Track track)
         {
+            Album = album;
             Id = track.Id;
             Path = track.Path;
             Title = track.Title;
@@ -32,9 +33,9 @@ namespace FluentMusic.ViewModels.Common
             FileName = track.FileName;
         }
 
-        public static TrackViewModel Create(Track track)
+        public static TrackViewModel Create(AlbumViewModel album, Track track)
         {
-            var vm = new TrackViewModel(track);
+            var vm = new TrackViewModel(album, track);
             return vm;
         }
     }

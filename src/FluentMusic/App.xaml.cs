@@ -9,6 +9,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using FluentMusic.Core;
 using FluentMusic.Core.Services;
+using System.Threading.Tasks;
 
 namespace FluentMusic
 {
@@ -41,7 +42,7 @@ namespace FluentMusic
 
             await Service.StartupAsync();
             await ViewModelAccessor.StartupAsync();
-            await Service.IndexService.BeginIndexAsync();
+
             if (e.Kind == ActivationKind.Launch)
             {
                 if (Window.Current.Content == null)
@@ -55,6 +56,8 @@ namespace FluentMusic
                 }
 
                 Window.Current.Activate();
+
+                await IndexService.RunAsync();
             }
             else
             {
@@ -64,10 +67,10 @@ namespace FluentMusic
 
         private void NavigateStartupPage()
         {
-            var contains = Statics.LocalSettings.ContainsKey(Setting.FirstRun);
+            //var contains = Statics.LocalSettings.ContainsKey(Setting.FirstRun);
 
             // TODO: disable welcome page while developing
-            if (!contains)
+            if (true)
             {
                 _rootFrame.Navigate(typeof(Shell));
                 _rootFrame = _rootFrame.Content.Cast<Page>().FindName("ShellFrame").Cast<Frame>();
@@ -75,14 +78,9 @@ namespace FluentMusic
             }
             else
             {
-                SeedSettings();
+                //SeedSettings();
                 _rootFrame.Navigate(typeof(WelcomePage));
             }
-        }
-
-        private void SeedSettings()
-        {
-            Statics.LocalSettings[Setting.Behavior.AutoScroll] = true;
         }
 
         private void CreateRootFrame()

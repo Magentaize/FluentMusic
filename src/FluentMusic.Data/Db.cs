@@ -28,10 +28,6 @@ namespace FluentMusic.Data
             await db.Database.MigrateAsync();
             await db.SaveChangesAsync();
         }
-
-        private object _lock = new object();
-
-        private static Db _instance;
         public static Db Instance => new Db();
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)

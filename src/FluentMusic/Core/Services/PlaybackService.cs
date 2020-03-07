@@ -196,8 +196,8 @@ namespace FluentMusic.Core.Services
             var album = track.Album;
 
             Observable
-            .FromAsync(_ => StorageFile.GetFileFromPathAsync(album.AlbumCoverFsPath).AsTask())
-            .Catch((Exception ex) => Observable.FromAsync(_ => StorageFile.GetFileFromApplicationUriAsync(new Uri(album.AlbumCoverFsPath)).AsTask()))
+            .FromAsync(_ => StorageFile.GetFileFromPathAsync(album.CoverPath).AsTask())
+            .Catch((Exception ex) => Observable.FromAsync(_ => StorageFile.GetFileFromApplicationUriAsync(new Uri(album.CoverPath)).AsTask()))
             .FirstAsync()
             .Subscribe(x =>
             {

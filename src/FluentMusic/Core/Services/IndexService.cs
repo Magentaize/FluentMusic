@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -40,13 +41,24 @@ namespace FluentMusic.Core.Services
         public int QueueIndexingCount { get; private set; }
         public int QueueIndexedCount { get; private set; }
 
-        private StorageLibrary _musicLibrary;
-        private IObservable<EventPattern<IStorageQueryResultBase, object>> _libForlderContentChangedStream;
-        internal IndexService()
+        private IndexService()
         {
         }
 
-        private async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolderMixin> changedFolders)> GetChangedLibraryFolders()
+        public static async Task RunAsync()
+        {
+            await IndexAutomatically();
+        }
+
+        public static async Task IndexAutomatically()
+        {
+            if (!Setting.Get<bool>(Setting.Collection.AutoRefresh))
+                return;
+
+            await BeginIndexAsync();
+        }
+
+        private static async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolderMixin> changedFolders)> GetChangedLibraryFolders()
         {
             var r = new List<Folder>();
             var c = new List<StorageFolderMixin>();
@@ -54,18 +66,18 @@ namespace FluentMusic.Core.Services
             var dbFolders = await db.Set<Folder>().AsQueryable().ToListAsync();
             await db.DisposeAsync();
 
-            foreach(var f in dbFolders)
+            foreach (var f in dbFolders)
             {
                 try
                 {
                     var sf = await f.GetStorageFolderAsync();
                     var prop = await sf.GetBasicPropertiesAsync();
-                    if(f.NeedIndex || prop.DateModified != f.DateModified)
+                    if (f.NeedIndex || prop.DateModified != f.DateModified)
                     {
                         c.Add(new StorageFolderMixin { Folder = f, StorageFolder = sf, Properties = prop });
                     }
                 }
-                catch(FileNotFoundException)
+                catch (FileNotFoundException)
                 {
                     r.Add(f);
                 }
@@ -82,7 +94,7 @@ namespace FluentMusic.Core.Services
             return files;
         }
 
-        private async Task IndexChangedFolders(IEnumerable<StorageFolderMixin> folders)
+        private static async Task IndexChangedFolders(IEnumerable<StorageFolderMixin> folders)
         {
             folders = await Task.WhenAll(folders.Select(async x => { x.Files = await GetFilesAsync(x.StorageFolder); return x; }));
             var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Folder.Id, x => x.FolderId, (mix, dbFiles) => (mix, dbFiles.ToList()));
@@ -94,9 +106,9 @@ namespace FluentMusic.Core.Services
 
                 await diskFiles.ForEachAsync(async f =>
                 {
-                    var trackVm = await dbFiles.FirstOrDefaultAsync(x => x.FileName == f.Name && x.Path == f.Path);
+                    var trackRx = await dbFiles.FirstOrDefaultAsync(x => x.FileName == f.Name && x.Path == f.Path);
 
-                    if (trackVm == null)
+                    if (trackRx == null)
                     {
                         var db = new Db();
                         var tf = TagLib.File.Create(await UwpFileAbstraction.CreateAsync(f));
@@ -139,17 +151,18 @@ namespace FluentMusic.Core.Services
                             await db.Albums.AddAsync(album);
                         }
 
-                        if (string.IsNullOrEmpty(album.Cover))
+                        if (string.IsNullOrEmpty(album.CoverCacheToken))
                         {
                             var picData = await FindAlbumCoverAsync(tag, f.Path);
 
                             if (picData != default(IBuffer))
                             {
                                 var cover = await CacheService.CacheAsync(picData);
-                                album.Cover = cover;
+                                album.CoverCacheToken = cover;
                             }
                         }
 
+                        track.Album = album;
                         track.Folder = g.mix.Folder;
                         album.Tracks.Add(track);
                         if (createAlbum)
@@ -160,24 +173,30 @@ namespace FluentMusic.Core.Services
 
                         await db.SaveChangesAsync();
 
-                        trackVm = TrackViewModel.Create(track);
-                        var artistVm = createArtist ? ArtistViewModel.Create(artist) : _artistSource.Lookup(artist.Id).Value;
-                        var albumVm = createAlbum? AlbumViewModel.Create(album) : artistVm.Albums.Items.First(x => x.Id == album.Id);
-                        trackVm.Album = albumVm;
-                        albumVm.AddTrack(trackVm);
-                        if (createAlbum)
-                        {
-                            albumVm.Artist = artistVm;
-                            artistVm.AddAlbum(albumVm);
-                        }
                         if (createArtist)
                         {
+                            var artistVm = ArtistViewModel.Create(artist);
                             _artistSource.AddOrUpdate(artistVm);
+                        }
+                        else
+                        {
+                            var artistVm = _artistSource.Lookup(artist.Id).Value;
+                            if (createAlbum)
+                            {
+                                var albumVm = AlbumViewModel.Create(artistVm, album);
+                                artistVm.Albums.AddOrUpdate(albumVm);
+                            }
+                            else
+                            {
+                                var albumVm = artistVm.Albums.Items.Single(x => x.Id == album.Id);
+                                var trackVm = TrackViewModel.Create(albumVm, track);
+                                albumVm.Tracks.AddOrUpdate(trackVm);
+                            }
                         }
                     }
                     else
                     {
-                        dbFiles.Remove(dbFiles.First(x => x.Id == trackVm.Id));
+                        dbFiles.Remove(dbFiles.First(x => x.Id == trackRx.Id));
                     }
                 });
 
@@ -185,17 +204,85 @@ namespace FluentMusic.Core.Services
                 {
                     await RemoveTrackAsync(f.Id);
                 });
-            });          
+            });
         }
 
-        private async Task RemoveTrackAsync(long id)
+        private static async Task RemoveTrackAsync(long id)
         {
+            Track track = default;
+            Album album = default;
+            Artist artist = default;
+            var albumDeleted = false;
+            var artistDeleted = false;
+            var trackDeleted = false;
 
+            async Task RemoveTrackDbAsync()
+            {
+                using (var db = Db.Instance)
+                {
+                    track = await db.Tracks.SingleAsync(x => x.Id == id);
+
+                    using (var tr = await db.Database.BeginTransactionAsync())
+                    {
+                        try
+                        {
+                            album = track.Album;
+                            db.Tracks.Remove(track);
+                            await db.SaveChangesAsync();
+
+                            albumDeleted = album.Tracks.Count == 0;
+                            if (albumDeleted)
+                            {
+                                artist = album.Artist;
+                                db.Albums.Remove(album);
+                                await db.SaveChangesAsync();
+
+                                artistDeleted = artist.Albums.Count == 0;
+                                if (artistDeleted)
+                                {
+                                    db.Artists.Remove(artist);
+                                    await db.SaveChangesAsync();
+                                }
+                            }
+
+                            await tr.CommitAsync();
+                            trackDeleted = true;
+                        }
+                        catch (Exception)
+                        {
+                            await tr.RollbackAsync();
+                            trackDeleted = false;
+                        }
+                    }
+                }
+            }
+
+            async Task RemoveTrackVmAsync()
+            {
+                var artistVm = await ArtistSource.Items.SingleAsync(x => x.Id == artist.Id);
+                var albumVm = await artistVm.Albums.Items.SingleAsync(x => x.Id == album.Id);
+                //var trackVm = await albumVm.Tracks.Items.SingleAsync(x => x.Id == track.Id);
+                albumVm.Tracks.RemoveKey(track.Id);
+                if (albumDeleted)
+                {
+                    artistVm.Albums.RemoveKey(album.Id);
+                    await CacheService.DeleteCacheAsync(album.CoverCacheToken);
+
+                    if (artistDeleted)
+                    {
+                        _artistSource.RemoveKey(artist.Id);
+                    }
+                }
+            }
+
+            await RemoveTrackDbAsync();
+            if (trackDeleted)
+                await RemoveTrackVmAsync();
         }
 
-        private async Task IndexRemovedFolders(IEnumerable<Folder> folders)
+        private static async Task IndexRemovedFolders(IEnumerable<Folder> folders)
         {
-            var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Id, x => x.FolderId, (x, y) => (folder:x, tracks:y));
+            var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Id, x => x.FolderId, (x, y) => (folder: x, tracks: y));
 
             await group.ForEachAsync(async g =>
             {
@@ -206,52 +293,37 @@ namespace FluentMusic.Core.Services
             });
         }
 
-        public async Task BeginIndexAsync()
+        public static async Task BeginIndexAsync()
         {
             var (r, c) = await GetChangedLibraryFolders();
             await IndexChangedFolders(c);
             await IndexRemovedFolders(r);
         }
 
-        internal async Task<IndexService> InitializeAsync()
+        internal static async Task InitializeAsync()
         {
-            var db = new Db();
-
-            db.Set<Folder>()
-                .ToList()
-                .ToObservable()
+            Observable.Using(() => Db.Instance, db => db.Set<Folder>().ToObservable())
                 .SubscribeOnThreadPool()
-                .Select(x => FolderViewModel.Create(x))
-                .Subscribe(x => _musicFolders.AddOrUpdate(x));
+                .Select(FolderViewModel.Create)
+                .Subscribe(_musicFolders.AddOrUpdate);
 
-            db.Artists
-                .Include(a => a.Albums)
-                .ThenInclude(a => a.Tracks)
-                .ToList()
-                .ToObservable()
+            Observable.Using(() => Db.Instance, db => db.Set<Artist>().ToObservable())
                 .SubscribeOnThreadPool()
-                .Select(x => ArtistViewModel.Create(x))
-                .Subscribe(x =>
-                {
-                    _artistSource.AddOrUpdate(x);
-                });
+                .Select(ArtistViewModel.Create)
+                .Subscribe(_artistSource.AddOrUpdate);
 
             AlbumSource = ArtistSource.Connect()
-                .SubscribeOnThreadPool()
-                .MergeMany(x => x.Albums.Connect())
-                .AsObservableCache();
+            .SubscribeOnThreadPool()
+            .MergeMany(x => x.Albums.Connect())
+            .AsObservableCache();
 
             TrackSource = AlbumSource.Connect()
                 .SubscribeOnThreadPool()
                 .MergeMany(x => x.Tracks.Connect())
                 .AsObservableCache();
-
-            await db.DisposeAsync();
-
-            return this;
         }
 
-        private async Task<IBuffer> FindAlbumCoverAsync(Tag tag, string path)
+        private static async Task<IBuffer> FindAlbumCoverAsync(Tag tag, string path)
         {
             var picData = default(IBuffer);
             var folder = Path.GetDirectoryName(path);
@@ -281,8 +353,7 @@ namespace FluentMusic.Core.Services
             return picData;
         }
 
-
-        private async Task<Track> CreateTrackAsync(IStorageFile file, TagLib.File tFile)
+        private static async Task<Track> CreateTrackAsync(IStorageFile file, TagLib.File tFile)
         {
             var tag = tFile.Tag;
             var prop = tFile.Properties;
@@ -294,6 +365,7 @@ namespace FluentMusic.Core.Services
                 FileName = file.Name,
                 IndexingSuccess = 0,
                 DateAdded = DateTime.Now.Ticks,
+                DateModified = fbp.DateModified,
                 Title = tag.Title,
                 Year = tag.Year,
                 Duration = prop.Duration,
@@ -304,12 +376,9 @@ namespace FluentMusic.Core.Services
             return track;
         }
 
-        public static async Task RequestRemoveFolderAsync(FolderViewModel vm)
-        {
+        public static async Task RequestRemoveFolderAsync(FolderViewModel vm) { }
 
-        }
-
-        public async Task RequestAddFolderAsync()
+        public static async Task RequestAddFolderAsync()
         {
             var folderPicker = new Windows.Storage.Pickers.FolderPicker
             {
@@ -323,8 +392,16 @@ namespace FluentMusic.Core.Services
             else
             {
                 // If this new folder is a subfolder, it shouldn't be added to db.
-                var parentFolderIsContained = await _musicFolders.Items.AnyAsync(x => folder.Path.StartsWith(x.Path));
-                if (parentFolderIsContained)
+                var isSubFolder = await _musicFolders.Items.AnyAsync(x => folder.Path.StartsWith(x.Path));
+                if (isSubFolder)
+                {
+                    //TODO:Message
+                    return;
+                }
+
+                // If this new folder is a parent folder, it shouldn't be added to db.
+                var isParentFolder = await _musicFolders.Items.AnyAsync(x => x.Path.StartsWith(folder.Path));
+                if (isParentFolder)
                 {
                     //TODO:Message
                     return;
@@ -338,9 +415,12 @@ namespace FluentMusic.Core.Services
                     NeedIndex = true,
                     Token = Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(folder)
                 };
-                var db = new Db();
-                db.Add(f);
-                await db.SaveChangesAsync();
+
+                using (var db = Db.Instance)
+                {
+                    await db.AddAsync(f);
+                    await db.SaveChangesAsync();
+                }
 
                 _musicFolders.AddOrUpdate(FolderViewModel.Create(f));
 
@@ -348,15 +428,15 @@ namespace FluentMusic.Core.Services
             }
         }
 
-        private class StorageFolderMixin
-        {
-            public Folder Folder { get; set; }
-            public StorageFolder StorageFolder { get; set; }
-            public BasicProperties Properties { get; set; }
+    private class StorageFolderMixin
+    {
+        public Folder Folder { get; set; }
+        public StorageFolder StorageFolder { get; set; }
+        public BasicProperties Properties { get; set; }
 
-            public IList<StorageFile> Files { get; set; }
-        }
+        public IList<StorageFile> Files { get; set; }
     }
+}
 
     public class FileTracker
     {

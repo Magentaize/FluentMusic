@@ -14,26 +14,37 @@ namespace FluentMusic.Core.Services
         private const string AlbumCacheFolderName = "AlbumCache";
         private const uint MaxPixel = 500;
 
-        private static IStorageFolder _albumCacheFolder;
+        private static IStorageFolder albumCacheFolder;
 
         private CacheService() { }
 
         internal static async Task InitializeAsync()
         {
-            _albumCacheFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(AlbumCacheFolderName,
+            albumCacheFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(AlbumCacheFolderName,
                 CreationCollisionOption.OpenIfExists);
+        }
+
+        public static string GetCachePath(string token)
+        {
+            return Path.Combine(ApplicationData.Current.LocalFolder.Path, AlbumCacheFolderName, token);
+        }
+
+        public static async Task DeleteCacheAsync(string token)
+        {
+            var file = await StorageFile.GetFileFromPathAsync(GetCachePath(token));
+            await file.DeleteAsync();
         }
 
         public static async Task<string> CacheAsync(IBuffer data)
         {
-            var fileName = $"{Guid.NewGuid():N}.jpg";
+            var token = $"{Guid.NewGuid():N}.jpg";
 
             var ras = data.AsStream().AsRandomAccessStream();
             var decoder = await BitmapDecoder.CreateAsync(ras);
 
             var max = Math.Max(decoder.PixelHeight, decoder.PixelHeight);
 
-            var file = await _albumCacheFolder.CreateFileAsync(fileName);
+            var file = await albumCacheFolder.CreateFileAsync(token);
 
             if (max <= MaxPixel)
             {
@@ -53,13 +64,7 @@ namespace FluentMusic.Core.Services
                 }
             }
 
-            return Path.Combine(AlbumCacheFolderName, fileName);
-        }
-
-        public async Task RemoveCacheAsync(string path)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            await file.DeleteAsync();
+            return token;
         }
     }
 }

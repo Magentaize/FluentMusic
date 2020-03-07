@@ -122,7 +122,7 @@
           <GridView.ItemTemplate>
             <DataTemplate x:DataType="common:AlbumViewModel">
               <StackPanel>
-                <Image Source="{x:Bind AlbumCoverFsPath, Mode=OneWay}" Width="120" />
+                <Image Source="{x:Bind CoverPath, Mode=OneWay}" Width="120" />
                 <StackPanel 
                 Orientation="Vertical" 
                 Background="{ThemeResource SystemControlHighlightListLowBrush}"

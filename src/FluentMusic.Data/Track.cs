@@ -1,24 +1,39 @@
-﻿using System;
+﻿using FluentMusic.Data.Extensions;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using FluentMusic.Data.Extensions;
 
 namespace FluentMusic.Data
 {
-    public class Track
+    public class Track : LazyEntity
     {
+        private Track(Action<object, string> lazyLoader) : base(lazyLoader) { }
+
+        public Track()
+        {
+        }
+
         [Key]
         public long Id { get; set; }
 
-        public Folder Folder { get; set; }
+        private Folder _folder;
+        public Folder Folder
+        {
+            get => LazyLoader.Load(this, ref _folder);
+            set => _folder = value;
+        }
+
+        private Album _album;
+        public Album Album
+        {
+            get => LazyLoader.Load(this, ref _album);
+            set => _album = value;
+        }
 
         public string Genres { get; set; }
 
-        public Album Album { get; set; }
+        public DateTimeOffset DateModified { get; set; }
 
         public string Path { get; set; }
-
-        public string SafePath { get; set; }
 
         public string FileName { get; set; }
 

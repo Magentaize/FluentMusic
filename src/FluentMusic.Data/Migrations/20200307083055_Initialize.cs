@@ -42,9 +42,8 @@ namespace FluentMusic.Data.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ArtworkPath = table.Column<string>(nullable: true),
+                    CoverCacheToken = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
-                    Cover = table.Column<string>(nullable: true),
                     ArtistId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
@@ -67,6 +66,7 @@ namespace FluentMusic.Data.Migrations
                     FolderId = table.Column<long>(nullable: true),
                     Genres = table.Column<string>(nullable: true),
                     AlbumId = table.Column<long>(nullable: true),
+                    DateModified = table.Column<DateTimeOffset>(nullable: false),
                     Path = table.Column<string>(nullable: true),
                     SafePath = table.Column<string>(nullable: true),
                     FileName = table.Column<string>(nullable: true),

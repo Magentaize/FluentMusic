@@ -24,7 +24,7 @@ namespace FluentMusic.ViewModels
         {
             IndexService.MusicFolders.Connect().Bind(MusicFolders).Subscribe();
 
-            AddMusicFolderCommand = ReactiveCommand.CreateFromTask(Service.IndexService.RequestAddFolderAsync);
+            AddMusicFolderCommand = ReactiveCommand.CreateFromTask(IndexService.RequestAddFolderAsync);
             AddMusicFolderCommand.ThrownExceptions.Subscribe(o => Debug.WriteLine(o));
         }
     }

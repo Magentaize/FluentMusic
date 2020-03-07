@@ -26,7 +26,7 @@ namespace FluentMusic.ViewModels.Common
             pbs.NewTrackPlayed
                 .Select(x => x.Track.Album)
                 .DistinctUntilChanged()
-                .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.AlbumCoverFsPath })
+                .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.CoverPath })
                 .ObservableOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Thumbnail);
         }

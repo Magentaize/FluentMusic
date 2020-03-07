@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
 using System;
+using System.Linq;
 
 namespace FluentMusic.Core.Services
 {
@@ -65,24 +66,59 @@ namespace FluentMusic.Core.Services
             }
         }
 
+        public static T Get<T>(string key)
+        {
+            if (_container.Values.TryGetValue(key, out var value))
+            {
+                return (T)value;
+            }
+            else
+            {
+                throw new ArgumentException("Request key is invalid.");
+            }
+        }
+
+        public static bool Contains(string key)
+        {
+            return _container.Values.ContainsKey(key);
+        }
+
         public static void InitializeSettingBinary<T>(ISubject<T> subject, string key, T defaultValue)
         {
-            subject.OnNext(GetOrDefaultBinary<T>(key, defaultValue));
+            subject.OnNext(GetOrDefaultBinary(key, defaultValue));
             subject.Subscribe((T x) => AddOrUpdateBinary(key, x));
         }
 
         public static void InitializeSetting<T>(ISubject<T> subject, string key, T defaultValue)
         {
-            subject.OnNext(GetOrDefault<T>(key, defaultValue));
+            subject.OnNext(GetOrDefault(key, defaultValue));
             subject.Subscribe((T x) => AddOrUpdate(key, x));
         }
 
-        internal Setting() { }
+        private Setting() { }
 
         public static async Task InitializeAsync()
         {
             _container = ApplicationData.Current.LocalSettings;
+
+            if (!Contains(FirstRun))
+            {
+                Seed();
+            }
+
             await Task.CompletedTask;
+        }
+
+        private static void Seed()
+        {
+            var settings = new (string k, object v)[]
+            {
+                (FirstRun, false),
+                (Collection.AutoRefresh, true),
+                (Behavior.AutoScroll, true),
+            };
+
+            settings.ForEach(t => AddOrUpdate(t.k, t.v));
         }
 
         public static string FirstRun = nameof(FirstRun);

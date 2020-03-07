@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FluentMusic.Data.Migrations
 {
     [DbContext(typeof(Db))]
-    [Migration("20200306071551_Initialize")]
+    [Migration("20200307083055_Initialize")]
     partial class Initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,10 +27,7 @@ namespace FluentMusic.Data.Migrations
                     b.Property<long?>("ArtistId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ArtworkPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Cover")
+                    b.Property<string>("CoverCacheToken")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
@@ -106,6 +103,9 @@ namespace FluentMusic.Data.Migrations
 
                     b.Property<long>("DateLastSynced")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("DateModified")
+                        .HasColumnType("TEXT");
 
                     b.Property<long?>("DiscCount")
                         .HasColumnType("INTEGER");

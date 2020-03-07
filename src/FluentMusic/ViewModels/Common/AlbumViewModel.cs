@@ -1,11 +1,9 @@
 ﻿using DynamicData;
+using FluentMusic.Core.Services;
 using FluentMusic.Data;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using System;
-using System.IO;
 using System.Linq;
-using Windows.Storage;
 
 namespace FluentMusic.ViewModels.Common
 {
@@ -17,58 +15,34 @@ namespace FluentMusic.ViewModels.Common
 
         public ArtistViewModel Artist { get; set; }
 
-        public string ArtworkPath { get; set; }
-
         [Reactive]
         public string Title { get; set; }
 
         [Reactive]
-        public string AlbumCover { get; set; }
+        public string CoverPath { get; set; }
 
-        public IObservableCache<TrackViewModel, long> Tracks => _tracks.AsObservableCache();
+        public ISourceCache<TrackViewModel, long> Tracks { get; } = new SourceCache<TrackViewModel, long>(x => x.Id);
 
-        [Reactive]
-        public string AlbumCoverFsPath { get; set; }
-
-        private ISourceCache<TrackViewModel, long> _tracks = new SourceCache<TrackViewModel, long>(x => x.Id);
-
-        private AlbumViewModel(Album album)
+        private AlbumViewModel(ArtistViewModel artistVm, Album album)
         {
+            Artist = artistVm;
             Id = album.Id;
-            ArtworkPath = album.ArtworkPath;
             Title = album.Title;
-            AlbumCover = album.Cover;
-
-            if (string.IsNullOrEmpty(AlbumCover))
-            {
-                AlbumCoverFsPath = DefaultCoverImage;
-            }
-            else
-            {
-                AlbumCoverFsPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, AlbumCover);
-            }
+            CoverPath = string.IsNullOrEmpty(album.CoverCacheToken) ? DefaultCoverImage : CacheService.GetCachePath(album.CoverCacheToken);
         }
 
-        public AlbumViewModel AddTrack(TrackViewModel track)
+        public static AlbumViewModel Create(ArtistViewModel artistVm, Album album)
         {
-            track.Album = this;
-            _tracks.AddOrUpdate(track);
-
-            return this;
-        }
-
-        public static AlbumViewModel Create(Album album)
-        {
-            var vm = new AlbumViewModel(album);
+            var vm = new AlbumViewModel(artistVm, album);
             var tracks = album.Tracks
                 .Select(x =>
                 {
-                    var v = TrackViewModel.Create(x);
+                    var v = TrackViewModel.Create(vm, x);
                     v.Album = vm;
 
                     return v;
                 });
-            vm._tracks.Edit(x => x.AddOrUpdate(tracks));
+            vm.Tracks.AddOrUpdate(tracks);
 
             return vm;
         }

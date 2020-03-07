@@ -17,14 +17,13 @@ namespace FluentMusic.Core
             await Db.InitializeAsync(dbpath);
 
             await Setting.InitializeAsync();
-            IndexService = await new IndexService().InitializeAsync();
+            await IndexService.InitializeAsync();
             await CacheService.InitializeAsync();
             PlaybackService = new PlaybackService();
             await PlaybackService.InitializeAsync();
 
         }
 
-        public static IndexService IndexService;
         public static PlaybackService PlaybackService;
     }
 }
