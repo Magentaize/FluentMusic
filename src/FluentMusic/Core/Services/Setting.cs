@@ -4,11 +4,18 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using System;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace FluentMusic.Core.Services
 {
     public class Setting
     {
+
+        private static IDictionary<string, ReplaySubject<object>> _settingChanged;
+        public static IReadOnlyDictionary<string, IObservable<object>> SettingChanged { get; private set; }
+
         private static ApplicationDataContainer _container;
 
         public static bool AddOrUpdateBinary(string key, object value)
@@ -33,6 +40,8 @@ namespace FluentMusic.Core.Services
                 _container.Values.Add(key, value);
                 valueChanged = true;
             }
+
+            if (valueChanged) _settingChanged[key].OnNext(value);
 
             return valueChanged;
         }
@@ -101,27 +110,33 @@ namespace FluentMusic.Core.Services
         {
             _container = ApplicationData.Current.LocalSettings;
 
-            if (!Contains(FirstRun))
+            if (!Contains(Core.FirstRun))
             {
                 Seed();
             }
 
+            _settingChanged = initSettings.ToDictionary(x => x.k, _ => new ReplaySubject<object>(1));
+            SettingChanged = new ReadOnlyDictionary<string, IObservable<object>>(_settingChanged.ToDictionary(x => x.Key, x => x.Value.AsObservable()));
+
             await Task.CompletedTask;
         }
 
+        private static (string k, object v)[] initSettings = new (string k, object v)[]
+        {
+            (Core.FirstRun, false),
+            (Collection.AutoRefresh, true),
+            (Behavior.AutoScroll, true),
+        };
+
         private static void Seed()
         {
-            var settings = new (string k, object v)[]
-            {
-                (FirstRun, false),
-                (Collection.AutoRefresh, true),
-                (Behavior.AutoScroll, true),
-            };
-
-            settings.ForEach(t => AddOrUpdate(t.k, t.v));
+            initSettings.ForEach(t => AddOrUpdate(t.k, t.v));
         }
 
-        public static string FirstRun = nameof(FirstRun);
+        public static class Core
+        {
+            public static string FirstRun = nameof(FirstRun);
+        }
 
         public static class Collection
         {

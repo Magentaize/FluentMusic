@@ -1,7 +1,9 @@
 ﻿using FluentMusic.Data;
+using FluentMusic.ViewModels.Common;
 using System;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.AccessCache;
 
 namespace FluentMusic.Core.Extensions
 {
@@ -9,7 +11,12 @@ namespace FluentMusic.Core.Extensions
     {
         public static async Task<StorageFolder> GetStorageFolderAsync(this Folder folder)
         {
-            return await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folder.Token);
+            return await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folder.Token);
+        }
+
+        public static async Task<StorageFolder> GetStorageFolderAsync(this FolderViewModel folder)
+        {
+            return await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folder.Token);
         }
     }
 }

@@ -10,11 +10,13 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TagLib;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.AccessCache;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Search;
@@ -43,20 +45,13 @@ namespace FluentMusic.Core.Services
         public int QueueIndexedCount { get; private set; }
 
         private IndexService()
-        {
-        }
+        { }
+
+        private static ISubject<Unit> run = new Subject<Unit>();
 
         public static async Task RunAsync()
         {
-            await IndexAutomatically();
-        }
-
-        public static async Task IndexAutomatically()
-        {
-            if (!Setting.Get<bool>(Setting.Collection.AutoRefresh))
-                return;
-
-            await BeginIndexAsync();
+            run.OnNext(Unit.Default);
         }
 
         private static async Task<(IEnumerable<Folder> removedFolders, IEnumerable<StorageFolderMixin> changedFolders)> GetChangedLibraryFolders()
@@ -95,7 +90,12 @@ namespace FluentMusic.Core.Services
             return files;
         }
 
-        private static async Task IndexChangedFolders(IEnumerable<StorageFolderMixin> folders)
+        private static async Task<IEnumerable<StorageFolderMixin>> GetFolderFilesAsync()
+        {
+
+        }
+
+        private static async Task IndexFolders(IEnumerable<StorageFolderMixin> folders)
         {
             folders = await Task.WhenAll(folders.Select(async x => { x.Files = await GetFilesAsync(x.StorageFolder); return x; }));
             var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Folder.Id, x => x.FolderId, (mix, dbFiles) => (mix, dbFiles.ToList()));
@@ -281,64 +281,68 @@ namespace FluentMusic.Core.Services
                 await RemoveTrackVmAsync();
         }
 
-        private static async Task IndexRemovedFolders(IEnumerable<Folder> folders)
+        private static async Task RemovedFolders(IEnumerable<Folder> folders)
         {
             var group = await folders.GroupJoinAsync(TrackSource.Items, x => x.Id, x => x.FolderId, (x, y) => (folder: x, tracks: y));
 
             await group.ForEachAsync(async g =>
             {
                 await g.tracks.ForEachAsync(async x => await RemoveTrackAsync(x.Id));
-                Db.Instance.Folders.Remove(g.folder);
-
-                await Db.Instance.SaveChangesAsync();
+                using(var db = Db.Instance)
+                {
+                    db.Folders.Remove(g.folder);
+                    await db.SaveChangesAsync();
+                }
             });
         }
 
         public static async Task BeginIndexAsync()
         {
             var (r, c) = await GetChangedLibraryFolders();
-            await IndexChangedFolders(c);
-            await IndexRemovedFolders(r);
+            await IndexFolders(c);
+            await RemovedFolders(r);
         }
 
         internal static async Task InitializeAsync()
         {
-            //Observable.Using(() => Db.Instance, db => db.Set<Folder>().ToObservable())
-            //    .SubscribeOnThreadPool()
-            //    .Select(FolderViewModel.Create)
-            //    .Subscribe(_musicFolders.AddOrUpdate);
-
-            //Observable.Using(() => Db.Instance, db => db.Set<Artist>().ToObservable())
-            //    .SubscribeOnThreadPool()
-            //    .Select(ArtistViewModel.Create)
-            //    .Subscribe(_artistSource.AddOrUpdate);
-
             Observable.Using(
                 () => Db.Instance,
                 db => Observable.Merge(new IObservable<object>[]
                 {
                     db.Set<Folder>().ToList()
                         .ToObservable()
-                        .SubscribeOnThreadPool()
+                        .ObservableOnThreadPool()
                         .Select(x => FolderViewModel.Create(x))
                         .Do(_musicFolders.AddOrUpdate),
                     db.Set<Artist>().ToList()
                         .ToObservable()
-                        .SubscribeOnThreadPool()
+                        .ObservableOnThreadPool()
                         .Select(x => ArtistViewModel.Create(x))
                         .Do(_artistSource.AddOrUpdate)
-                }))
+                }).IgnoreElements())
                 .Subscribe();
 
             AlbumSource = ArtistSource.Connect()
-            .SubscribeOnThreadPool()
-            .MergeMany(x => x.Albums.Connect())
-            .AsObservableCache();
+                .ObservableOnThreadPool()
+                .MergeMany(x => x.Albums.Connect())
+                .AsObservableCache();
 
             TrackSource = AlbumSource.Connect()
-                .SubscribeOnThreadPool()
+                .ObservableOnThreadPool()
                 .MergeMany(x => x.Tracks.Connect())
                 .AsObservableCache();
+
+            Observable.Merge(new[]
+            {
+                FolderWatcherManager.ContentChanged,
+                Setting.SettingChanged[Setting.Collection.AutoRefresh].Where(x => (bool)x == true).Select(_ => Unit.Default),
+                //run.Where(_ => Setting.Get<bool>(Setting.Collection.AutoRefresh)),
+            })
+            .ObservableOnThreadPool()
+            .Throttle(TimeSpan.FromSeconds(5))
+            .Subscribe(async _ => await BeginIndexAsync());
+
+            await FolderWatcherManager.InitializeAsync();
         }
 
         private static async Task<IBuffer> FindAlbumCoverAsync(Tag tag, string path)
@@ -431,7 +435,7 @@ namespace FluentMusic.Core.Services
                     DateModified = props.DateModified,
                     Path = folder.Path,
                     NeedIndex = true,
-                    Token = Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(folder)
+                    Token = StorageApplicationPermissions.FutureAccessList.Add(folder)
                 };
 
                 using (var db = Db.Instance)
