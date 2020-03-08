@@ -1,4 +1,5 @@
-﻿using DynamicData;
+﻿using akarnokd.reactive_extensions;
+using DynamicData;
 using FluentMusic.Core.Extensions;
 using FluentMusic.Data;
 using FluentMusic.ViewModels.Common;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -16,6 +16,7 @@ using TagLib;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Pickers;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Z.Linq;
@@ -302,15 +303,32 @@ namespace FluentMusic.Core.Services
 
         internal static async Task InitializeAsync()
         {
-            Observable.Using(() => Db.Instance, db => db.Set<Folder>().ToObservable())
-                .SubscribeOnThreadPool()
-                .Select(FolderViewModel.Create)
-                .Subscribe(_musicFolders.AddOrUpdate);
+            //Observable.Using(() => Db.Instance, db => db.Set<Folder>().ToObservable())
+            //    .SubscribeOnThreadPool()
+            //    .Select(FolderViewModel.Create)
+            //    .Subscribe(_musicFolders.AddOrUpdate);
 
-            Observable.Using(() => Db.Instance, db => db.Set<Artist>().ToObservable())
-                .SubscribeOnThreadPool()
-                .Select(ArtistViewModel.Create)
-                .Subscribe(_artistSource.AddOrUpdate);
+            //Observable.Using(() => Db.Instance, db => db.Set<Artist>().ToObservable())
+            //    .SubscribeOnThreadPool()
+            //    .Select(ArtistViewModel.Create)
+            //    .Subscribe(_artistSource.AddOrUpdate);
+
+            Observable.Using(
+                () => Db.Instance,
+                db => Observable.Merge(new IObservable<object>[]
+                {
+                    db.Set<Folder>().ToList()
+                        .ToObservable()
+                        .SubscribeOnThreadPool()
+                        .Select(x => FolderViewModel.Create(x))
+                        .Do(_musicFolders.AddOrUpdate),
+                    db.Set<Artist>().ToList()
+                        .ToObservable()
+                        .SubscribeOnThreadPool()
+                        .Select(x => ArtistViewModel.Create(x))
+                        .Do(_artistSource.AddOrUpdate)
+                }))
+                .Subscribe();
 
             AlbumSource = ArtistSource.Connect()
             .SubscribeOnThreadPool()
@@ -380,9 +398,9 @@ namespace FluentMusic.Core.Services
 
         public static async Task RequestAddFolderAsync()
         {
-            var folderPicker = new Windows.Storage.Pickers.FolderPicker
+            var folderPicker = new FolderPicker
             {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
             };
             folderPicker.FileTypeFilter.Add("*");
 
