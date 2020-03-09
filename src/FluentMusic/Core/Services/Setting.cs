@@ -18,55 +18,38 @@ namespace FluentMusic.Core.Services
 
         private static ApplicationDataContainer _container;
 
-        public static bool AddOrUpdateBinary(string key, object value)
-        {
-            return AddOrUpdate(key, JsonSerializer.Serialize(value));
-        }
-
-        public static bool AddOrUpdate(string key, object value)
+        public static bool AddOrUpdate<T>(string key, T value)
         {
             bool valueChanged = false;
-
+            var newValue = JsonSerializer.Serialize(value);
+            
             if (_container.Values.ContainsKey(key))
             {
-                if (_container.Values[key] != value)
+                var oldValue = (string)_container.Values[key];
+                if (newValue != oldValue)
                 {
-                    _container.Values[key] = value;
                     valueChanged = true;
                 }
             }
             else
             {
-                _container.Values.Add(key, value);
                 valueChanged = true;
             }
 
-            if (valueChanged) _settingChanged[key].OnNext(value);
+            if (valueChanged)
+            {
+                _container.Values[key] = newValue;
+                _settingChanged[key].OnNext(value);
+            }
 
             return valueChanged;
-        }
-
-        public static T GetOrDefaultBinary<T>(string key, T defaultValue)
-        {
-            string val;
-            if (_container.Values.TryGetValue(key, out var value))
-            {
-                val = (string)value;
-                return JsonSerializer.Deserialize<T>(val);
-            }
-            else
-            {
-                val = JsonSerializer.Serialize(defaultValue);
-                AddOrUpdateBinary(key, val);
-                return defaultValue;
-            }
         }
 
         public static T GetOrDefault<T>(string key, T defaultValue)
         {
             if (_container.Values.TryGetValue(key, out var value))
             {
-                return (T)value;
+                return JsonSerializer.Deserialize<T>((string)value);
             }
             else
             {
@@ -79,23 +62,17 @@ namespace FluentMusic.Core.Services
         {
             if (_container.Values.TryGetValue(key, out var value))
             {
-                return (T)value;
+                return JsonSerializer.Deserialize<T>((string)value);
             }
             else
             {
-                throw new ArgumentException("Request key is invalid.");
+                throw new ArgumentException($"Request key [{key}] is invalid.");
             }
         }
 
         public static bool Contains(string key)
         {
             return _container.Values.ContainsKey(key);
-        }
-
-        public static void InitializeSettingBinary<T>(ISubject<T> subject, string key, T defaultValue)
-        {
-            subject.OnNext(GetOrDefaultBinary(key, defaultValue));
-            subject.Subscribe((T x) => AddOrUpdateBinary(key, x));
         }
 
         public static void InitializeSetting<T>(ISubject<T> subject, string key, T defaultValue)
@@ -109,28 +86,27 @@ namespace FluentMusic.Core.Services
         public static async Task InitializeAsync()
         {
             _container = ApplicationData.Current.LocalSettings;
-
-            if (!Contains(Core.FirstRun))
-            {
-                Seed();
-            }
+            if (!Contains(Core.FirstRun))   Seed();
 
             _settingChanged = initSettings.ToDictionary(x => x.k, _ => new ReplaySubject<object>(1));
             SettingChanged = new ReadOnlyDictionary<string, IObservable<object>>(_settingChanged.ToDictionary(x => x.Key, x => x.Value.AsObservable()));
+            initSettings.ForEach(x => _settingChanged[x.k].OnNext(JsonSerializer.Deserialize((string)_container.Values[x.k], x.t)));
 
             await Task.CompletedTask;
         }
 
-        private static (string k, object v)[] initSettings = new (string k, object v)[]
+        private static (string k, Type t, object v)[] initSettings = new (string k, Type t, object v)[]
         {
-            (Core.FirstRun, false),
-            (Collection.AutoRefresh, true),
-            (Behavior.AutoScroll, true),
+            (Core.FirstRun, typeof(bool), false),
+            (Collection.AutoRefresh, typeof(bool), true),
+            (Behavior.AutoScroll, typeof(bool), true),
+            (Behavior.RepeatMode, typeof(MediaRepeatMode), MediaRepeatMode.None),
+            (Behavior.EnableShuffle, typeof(bool), false),
         };
 
         private static void Seed()
         {
-            initSettings.ForEach(t => AddOrUpdate(t.k, t.v));
+            initSettings.ForEach(t => _container.Values[t.k] = JsonSerializer.Serialize(t.v));
         }
 
         public static class Core
@@ -147,6 +123,8 @@ namespace FluentMusic.Core.Services
         public static class Behavior
         {
             public static string AutoScroll = nameof(AutoScroll);
+            public static string RepeatMode = nameof(RepeatMode);
+            public static string EnableShuffle = nameof(EnableShuffle);
         }
     }
 }

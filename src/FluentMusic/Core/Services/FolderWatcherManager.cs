@@ -17,7 +17,7 @@ namespace FluentMusic.Core.Services
     public sealed class FolderWatcherManager
     {
         private static ISubject<Unit> _contentChanged = new Subject<Unit>();
-        public static IObservable<Unit> ContentChanged { get; } = _contentChanged.Throttle(TimeSpan.FromSeconds(5));
+        public static IObservable<Unit> ContentChanged { get; } = _contentChanged.AsObservable();
 
         public static IObservableCache<FolderWatcher, long> Watchers { get; private set; }
         public static async Task InitializeAsync()
@@ -53,12 +53,15 @@ namespace FluentMusic.Core.Services
                 options.FileTypeFilter.AddRange(Statics.AudioFileTypes);
 
                 Query = sf.CreateFileQueryWithOptions(options);
+                // Event "ContentsChanged" only fires after GetFilesAsync has been called at least once.
+                await Query.GetFilesAsync();
+
                 _subscription = Observable.FromEventPattern<TypedEventHandler<IStorageQueryResultBase, object>, object>(
                     h => Query.ContentsChanged += h, h => Query.ContentsChanged -= h)
-                .Select(_ => Unit.Default)
                 .SkipUntil(autoRefresh.Where(x => x == true))
                 .TakeUntil(autoRefresh.Where(x => x == false))
                 .Repeat()
+                .Select(_ => Unit.Default)
                 .Subscribe(_contentChanged);
             }
 

@@ -49,8 +49,8 @@ namespace FluentMusic.Core.Services
         public async Task<PlaybackService> InitializeAsync()
         {
             // Initialize Setting
-            Setting.InitializeSettingBinary(RepeatMode, nameof(RepeatMode), MediaRepeatMode.None);
-            Setting.InitializeSetting(EnableShuffle, nameof(EnableShuffle), false);
+            //Setting.InitializeSettingBinary(RepeatMode, nameof(RepeatMode), MediaRepeatMode.None);
+            //Setting.InitializeSetting(EnableShuffle, nameof(EnableShuffle), false);
             
             Player = new MediaPlayer();
             _nextTrackGenerator = new NextTrackGenerator();

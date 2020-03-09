@@ -84,6 +84,7 @@
     <Compile Include="Core\Extensions\ModelExtension.cs" />
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Services\FolderWatcherManager.cs" />
+    <Compile Include="Core\Services\IndexService_Classes.cs" />
     <Compile Include="Core\Services\NextTrackGenerator.cs" />
     <Compile Include="Core\Services\Setting.cs" />
     <Compile Include="ViewModels\Common\FolderViewModel.cs" />
