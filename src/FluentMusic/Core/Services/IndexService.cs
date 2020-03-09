@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using TagLib;
@@ -41,6 +42,8 @@ namespace FluentMusic.Core.Services
         public int QueueIndexingCount { get; private set; }
         public int QueueIndexedCount { get; private set; }
 
+        private static ISubject<Unit> newMusicFolderObservable = new Subject<Unit>();
+        private static IObservable<bool> collectionAutoRefresh = Setting.SettingChanged[Setting.Collection.AutoRefresh].Select(x => (bool)x);
         private Db db;
 
         private IndexService()
@@ -50,10 +53,10 @@ namespace FluentMusic.Core.Services
 
         public async Task BeginIndexAsync()
         {
-            var (r, c) = await GetChangedLibraryFolders();
-            var mix = await GetFolderFilesAsync(c);
+            var result = await GetDiffFoldersAsync();
+            var mix = await GetFolderFilesAsync(result.ChangeedFolders);
             await IndexFolders(mix);
-            await RemovedFolders(r);
+            await RemovedFolders(result.RemovedFolders);
             await db.SaveChangesAsync();
         }
 
@@ -65,17 +68,17 @@ namespace FluentMusic.Core.Services
 
         private async Task RunAsyncInner()
         {
-            var (r, c) = await GetChangedLibraryFolders();
-            var mix = await GetFolderFilesAsync(c);
+            var result = await GetDiffFoldersAsync();
+            var mix = await GetFolderFilesAsync(result.ChangeedFolders);
             if (Setting.Get<bool>(Setting.Collection.AutoRefresh))
             {
                 await IndexFolders(mix);
-                await RemovedFolders(r);
+                await RemovedFolders(result.RemovedFolders);
                 await db.SaveChangesAsync();
             }
         }
 
-        private async Task<(IEnumerable<FolderViewModel> removedFolders, IEnumerable<FolderViewModel> changedFolders)> GetChangedLibraryFolders()
+        private async Task<GetDiffFoldersResult> GetDiffFoldersAsync()
         {
             var r = new List<FolderViewModel>();
             var c = new List<FolderViewModel>();
@@ -94,7 +97,7 @@ namespace FluentMusic.Core.Services
                 }
             }
 
-            return (r, c);
+            return new GetDiffFoldersResult() { ChangeedFolders = c, RemovedFolders = r };
         }
 
         private static async Task<IEnumerable<GetFolderFilesResult>> GetFolderFilesAsync(IEnumerable<FolderViewModel> folders)
@@ -247,14 +250,15 @@ namespace FluentMusic.Core.Services
 
                 await dbFiles.ForEachAsync(async f =>
                 {
-                    await RemoveTrackAsync(f.Id);
+                    var track = await db.Tracks.SingleAsync(x => x.Id == f.Id);
+                    await RemoveTrackAsync(track);
                 });
             });
         }
 
-        private async Task RemoveTrackAsync(long id)
+        private async Task RemoveTrackAsync(Track track)
         {
-            Track track = default;
+            //Track track = default;
             Album album = default;
             Artist artist = default;
             var albumDeleted = false;
@@ -263,7 +267,7 @@ namespace FluentMusic.Core.Services
 
             async Task RemoveTrackDbAsync()
             {
-                track = await db.Tracks.SingleAsync(x => x.Id == id);
+                //track = await db.Tracks.SingleAsync(x => x.Id == id);
 
                 try
                 {
@@ -325,7 +329,11 @@ namespace FluentMusic.Core.Services
 
             await group.ForEachAsync(async g =>
             {
-                await g.tracks.ForEachAsync(async x => await RemoveTrackAsync(x.Id));
+                await g.tracks.ForEachAsync(async x => 
+                {
+                    var track = await db.Tracks.SingleByIdAsync(x.Id);
+                    await RemoveTrackAsync(track);
+                });
 
                 db.Folders.Remove(g.folder);
             });
@@ -362,11 +370,15 @@ namespace FluentMusic.Core.Services
 
             Observable.Merge(new[]
             {
+                newMusicFolderObservable.Select(_ => "Added new folder"),
                 FolderWatcherManager.ContentChanged.Select(_ => "FolderWatcherManager.ContentChanged"),
-                //Setting.SettingChanged[Setting.Collection.AutoRefresh].Where(x => (bool)x == true).Select(_ => Unit.Default).Select(_ => "Setting.SettingChanged[Setting.Collection.AutoRefresh]"),
+                Setting.SettingChanged[Setting.Collection.AutoRefresh].Where(x => (bool)x == true).Select(_ => Unit.Default).Select(_ => "Setting.SettingChanged[Setting.Collection.AutoRefresh]"),
             })
             .ObservableOnThreadPool()
-            //.Throttle(TimeSpan.FromSeconds(5))
+            .Throttle(TimeSpan.FromSeconds(5))
+            .SkipUntil(collectionAutoRefresh.Where(x => x == true))
+            .TakeUntil(collectionAutoRefresh.Where(x => x == false))
+            .Repeat()
             .Subscribe(async _ =>
             {
                 Debug.WriteLine(_);
@@ -430,7 +442,45 @@ namespace FluentMusic.Core.Services
             return track;
         }
 
-        public static async Task RequestRemoveFolderAsync(FolderViewModel vm) { }
+        public static async Task RequestRemoveFolderAsync(FolderViewModel vm)
+        {
+            var msg = $"Are you sure to remove the following folder from collection:\n{vm.Path}";
+            if (await DialogService.ConfirmOrNotAsync(msg) == false) return;
+
+            var o = new IndexService();
+            await o.RequestRemoveFolderAsyncInner(vm);
+        }
+
+        private async Task RequestRemoveFolderAsyncInner(FolderViewModel vm)
+        {
+            var result = false;
+
+            using(var tr =  await db.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var folder = await db.Folders.SingleAsync(x => x.Id == vm.Id);
+                    var tracks = await db.Tracks.Where(x => x.Folder.Id == folder.Id).ToListAsync();
+
+                    await tracks.ForEachAsync(async x => await RemoveTrackAsync(x));
+                    db.Folders.Remove(folder);
+
+                    await db.SaveChangesAsync();
+                    await tr.CommitAsync();
+                    result = true;
+                }
+                catch
+                {
+                    await tr.RollbackAsync();
+                    result = false;
+                }
+            }
+
+            if(result == true)
+            {
+                _musicFolders.Remove(vm);
+            }
+        }
 
         public static async Task RequestAddFolderAsync()
         {
@@ -447,6 +497,8 @@ namespace FluentMusic.Core.Services
             {
                 var o = new IndexService();
                 await o.RequestAddFolderAsyncInner(folder);
+
+                newMusicFolderObservable.OnNext(Unit.Default);
             }
         }
 
@@ -456,7 +508,7 @@ namespace FluentMusic.Core.Services
             var isSubFolder = await _musicFolders.Items.AnyAsync(x => folder.Path.StartsWith(x.Path));
             if (isSubFolder)
             {
-                //TODO:Message
+                await DialogService.OkAsync("Cannot add subfolder.");
                 return;
             }
 
@@ -464,7 +516,7 @@ namespace FluentMusic.Core.Services
             var isParentFolder = await _musicFolders.Items.AnyAsync(x => x.Path.StartsWith(folder.Path));
             if (isParentFolder)
             {
-                //TODO:Message
+                await DialogService.OkAsync("Cannot add parent folder.");
                 return;
             }
 

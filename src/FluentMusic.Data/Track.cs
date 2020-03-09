@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FluentMusic.Data
 {
-    public class Track : LazyEntity
+    public class Track : LazyEntity, IIdEntity
     {
         private Track(Action<object, string> lazyLoader) : base(lazyLoader) { }
 

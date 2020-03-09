@@ -10,6 +10,12 @@ namespace FluentMusic.Core.Services
 {
     public sealed partial class IndexService
     {
+        struct GetDiffFoldersResult
+        {
+            public IEnumerable<FolderViewModel> RemovedFolders { get; set; }
+            public IEnumerable<FolderViewModel> ChangeedFolders { get; set; }
+        }
+
         struct IndexTrackTransactionResult
         {
             public bool Successful { get; set; }

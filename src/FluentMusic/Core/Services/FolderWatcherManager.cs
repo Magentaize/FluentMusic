@@ -58,9 +58,9 @@ namespace FluentMusic.Core.Services
 
                 _subscription = Observable.FromEventPattern<TypedEventHandler<IStorageQueryResultBase, object>, object>(
                     h => Query.ContentsChanged += h, h => Query.ContentsChanged -= h)
-                .SkipUntil(autoRefresh.Where(x => x == true))
-                .TakeUntil(autoRefresh.Where(x => x == false))
-                .Repeat()
+                //.SkipUntil(autoRefresh.Where(x => x == true))
+                //.TakeUntil(autoRefresh.Where(x => x == false))
+                //.Repeat()
                 .Select(_ => Unit.Default)
                 .Subscribe(_contentChanged);
             }

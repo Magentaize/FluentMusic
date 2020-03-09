@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:storage="using:Windows.Storage"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-  xmlns:common="using:FluentMusic.ViewModels.Common"
-  mc:Ignorable="d"
+    xmlns:common="using:FluentMusic.ViewModels.Common"
+    mc:Ignorable="d"
     x:Name="PART_SettingsPage">
 
   <Grid>
