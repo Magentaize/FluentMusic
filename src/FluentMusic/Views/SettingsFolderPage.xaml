@@ -37,7 +37,13 @@
                             CommandParameter="{x:Bind}">
                   <SymbolIcon Symbol="Cancel" />
                 </Button>
-                <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center"/>
+                <FontIcon HorizontalAlignment="Center" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,4,0"
+                          Foreground="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"
+                          FontFamily="Segoe MDL2 Assets" 
+                          Glyph="&#xE838;" />
+                <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center" TextAlignment="Left"/>
               </controls:DockPanel>
             </DataTemplate>
           </ListView.ItemTemplate>

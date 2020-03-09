@@ -10,6 +10,18 @@
     xmlns:common="using:FluentMusic.ViewModels.Common"
     mc:Ignorable="d"
     x:Name="PART_SettingsPage">
+  <Page.Resources>
+    <ResourceDictionary>
+      <!--
+          Due to unknown bug, same RevealBoarderBrush instance cannot be used in cascaded page,
+          so import theme xaml again to use different instances.
+      -->
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary Source="ms-appx:///Themes/Light.xaml" x:Key="Light"/>
+        <ResourceDictionary Source="ms-appx:///Themes/Dark.xaml" x:Key="Dark"/>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Page.Resources>
 
   <Grid>
     <Border>
@@ -22,6 +34,7 @@
                       SelectedItem="{x:Bind ViewModel.NavigationViewSelectedItem, Mode=TwoWay}">
         <NavigationView.Resources>
           <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+          <x:Double x:Key="NavigationViewTopPaneHeight">36</x:Double>
         </NavigationView.Resources>
 
         <NavigationView.MenuItemTemplate>

@@ -29,7 +29,6 @@ namespace FluentMusic.ViewModels
                 new NavigationViewItemViewModel { Name = "Genre", PageType = typeof(WelcomePage) },
                 new NavigationViewItemViewModel { Name = "Setting", PageType = typeof(SettingsPage) },
             };
-            NavigationViewSelectedItem = Navigations[0];
 
             var pbs = Service.PlaybackService;
             pbs.IsPlaying

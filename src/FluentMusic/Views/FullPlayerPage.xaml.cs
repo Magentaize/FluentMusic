@@ -26,21 +26,23 @@ namespace FluentMusic.Views
             ViewModel = new FullPlayerPageViewModel();
             InitializeComponent();
 
-            NavigationView.Events().ItemInvoked
+            NavigationView.Events().SelectionChanged
+                .Where(x => x.args.IsSettingsSelected == false)
                 .Select(x => x.args)
-                .Where(x => x.InvokedItemContainer.DataContext is NavigationViewItemViewModel)
-                .Select(x => (tr: x.RecommendedNavigationTransitionInfo, ((NavigationViewItemViewModel)x.InvokedItemContainer.DataContext).PageType))
-                .StartWith((new EntranceNavigationTransitionInfo(), typeof(FullPlayerArtistPage)))
+                .Where(x => x.SelectedItem is NavigationViewItemViewModel)
+                .Select(x => (tr: x.RecommendedNavigationTransitionInfo, ((NavigationViewItemViewModel)x.SelectedItem).PageType))
+                //.StartWith((new EntranceNavigationTransitionInfo(), typeof(FullPlayerArtistPage)))
                 .ObserveOnDispatcher()
                 .Subscribe(x =>
                 {
-                    var opt = new FrameNavigationOptions() { TransitionInfoOverride = x.tr };
+                    var opt = new FrameNavigationOptions() { TransitionInfoOverride = new DrillInNavigationTransitionInfo() };
                     NavigationContentFrame.NavigateToType(x.PageType, null, opt);
                 });
 
 
             this.WhenActivated(disposables =>
             {
+                NavigationView.SelectedItem = ViewModel.Navigations[0];
             });
         }
     }
