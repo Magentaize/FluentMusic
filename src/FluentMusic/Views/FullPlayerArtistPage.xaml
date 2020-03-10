@@ -33,8 +33,7 @@
         <Border.Resources>
           <CollectionViewSource x:Name="ArtistCvs" 
                                 IsSourceGrouped="True"
-                                Source="{x:Bind Mode=OneWay, Path=ViewModel.ArtistCvsSource}"
-                                ItemsPath="Items"/>
+                                Source="{x:Bind ArtistCvsSource}"/>
         </Border.Resources>
 
         <SemanticZoom>
@@ -150,9 +149,8 @@
       <Border>
         <Border.Resources>
           <CollectionViewSource x:Name="TrackCvs" 
-                                IsSourceGrouped="True" 
-                                Source="{x:Bind ViewModel.TrackCvsSource, Mode=OneWay}"
-                                ItemsPath="Items"/>
+                                Source="{x:Bind TrackCvsSource}"
+                                IsSourceGrouped="True" />
         </Border.Resources>
 
         <SemanticZoom>

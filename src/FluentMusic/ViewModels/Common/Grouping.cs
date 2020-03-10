@@ -1,23 +1,28 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using System;
-using System.Diagnostics;
-using System.Reactive;
+using System.Linq;
 using System.Reactive.Linq;
 
 namespace FluentMusic.ViewModels.Common
 {
-    public abstract class Grouping<TElement>
+    public abstract class Grouping<TElement> : ObservableCollectionExtended<TElement>, IGrouping<string, TElement>, IDisposable
     {
-        public IObservableCollection<TElement> Items { get; } = new ObservableCollectionExtended<TElement>();
-
-        protected Grouping() { }
+        public string Key { get; }
+        private IDisposable _disposable;
 
         public Grouping(IGroup<TElement, string> group)
         {
+            Key = group.GroupKey;
+            _disposable = group.List.Connect()
+                .Bind(this)
+                .Subscribe();
         }
 
-        public string Key { get; set; }
+        public void Dispose()
+        {
+            _disposable.Dispose();
+        }
 
         public override string ToString()
         {
@@ -27,31 +32,13 @@ namespace FluentMusic.ViewModels.Common
 
     public class GroupArtistViewModel : Grouping<ArtistViewModel>
     {
-        public GroupArtistViewModel(IGroup<ArtistViewModel, string> group)
-        {
-            Key = group.GroupKey;
-            group.List.Connect()
-                .SubscribeOnThreadPool()
-                .Sort(SortExpressionComparer<ArtistViewModel>.Ascending(x => x.Name))
-                .ObservableOnCoreDispatcher()
-                .Bind(Items)
-                .DisposeMany()
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
-        }
+        public GroupArtistViewModel(IGroup<ArtistViewModel, string> group) : base(group)
+        { }
     }
 
     public class GroupTrackViewModel : Grouping<TrackViewModel>
     {
-        public GroupTrackViewModel(IGroup<TrackViewModel, string> group)
-        {
-            Key = group.GroupKey;
-            group.List.Connect()
-                .SubscribeOnThreadPool()
-                .Sort(SortExpressionComparer<TrackViewModel>.Ascending(x => x.Title))
-                .ObservableOnCoreDispatcher()
-                .Bind(Items)
-                .DisposeMany()
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
-        }
+        public GroupTrackViewModel(IGroup<TrackViewModel, string> group) : base(group)
+        { }
     }
 }

@@ -3,6 +3,7 @@ using FluentMusic.ViewModels.Common;
 using Kasay.DependencyProperty;
 using ReactiveUI;
 using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -12,6 +13,30 @@ namespace FluentMusic.Views
 {
     public sealed partial class FullPlayerPage : Page, IViewFor<FullPlayerPageViewModel>
     {
+        public FullPlayerPage()
+        {
+            InitializeComponent();
+            ViewModel = new FullPlayerPageViewModel();
+
+            NavigationView.Events().SelectionChanged
+                .Where(x => x.args.IsSettingsSelected == false)
+                .Select(x => x.args)
+                .Where(x => x.SelectedItem is NavigationViewItemViewModel)
+                .ObserveOnDispatcher()
+                .Subscribe(x =>
+                {
+                    var opt = new FrameNavigationOptions() { TransitionInfoOverride = x.RecommendedNavigationTransitionInfo };
+                    NavigationContentFrame.NavigateToType(((NavigationViewItemViewModel)x.SelectedItem).PageType, null, opt);
+                });
+
+            this.WhenActivated(d =>
+            {
+                this.OneWayBind(ViewModel, vm => vm.Navigations, v => v.NavigationView.MenuItemsSource)
+                    .DisposeWith(d);
+                NavigationView.SelectedItem = ViewModel.Navigations[0];
+            });
+        }
+
         [Bind]
         public FullPlayerPageViewModel ViewModel { get; set; }
 
@@ -19,31 +44,6 @@ namespace FluentMusic.Views
         {
             get => ViewModel;
             set => ViewModel = (FullPlayerPageViewModel)value;
-        }
-
-        public FullPlayerPage()
-        {
-            ViewModel = new FullPlayerPageViewModel();
-            InitializeComponent();
-
-            NavigationView.Events().SelectionChanged
-                .Where(x => x.args.IsSettingsSelected == false)
-                .Select(x => x.args)
-                .Where(x => x.SelectedItem is NavigationViewItemViewModel)
-                .Select(x => (tr: x.RecommendedNavigationTransitionInfo, ((NavigationViewItemViewModel)x.SelectedItem).PageType))
-                //.StartWith((new EntranceNavigationTransitionInfo(), typeof(FullPlayerArtistPage)))
-                .ObserveOnDispatcher()
-                .Subscribe(x =>
-                {
-                    var opt = new FrameNavigationOptions() { TransitionInfoOverride = new DrillInNavigationTransitionInfo() };
-                    NavigationContentFrame.NavigateToType(x.PageType, null, opt);
-                });
-
-
-            this.WhenActivated(disposables =>
-            {
-                NavigationView.SelectedItem = ViewModel.Navigations[0];
-            });
         }
     }
 }

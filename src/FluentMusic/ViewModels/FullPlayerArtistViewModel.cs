@@ -14,6 +14,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Input;
 using Z.Linq;
@@ -25,8 +26,9 @@ namespace FluentMusic.ViewModels
         public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
 
         public ObservableCollectionExtended<AlbumViewModel> AlbumCvsSource { get; } = new ObservableCollectionExtended<AlbumViewModel>();
-
-        public ObservableCollectionExtended<GroupTrackViewModel> TrackCvsSource { get; } = new ObservableCollectionExtended<GroupTrackViewModel>();
+        public IObservableCache<ArtistViewModel, long> ArtistSource { get; }
+        public IObservableCache<AlbumViewModel, long> AlbumSource { get; }
+        public IObservableCache<TrackViewModel, long> TrackSource { get; }
 
         [Reactive]
         public TrackViewModel TrackListSelected { get; set; }
@@ -41,7 +43,7 @@ namespace FluentMusic.ViewModels
         //public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
         //public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
         //public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
-        //public ISubject<object> PlayTrackCommand { get; } = new Subject<object>();
+        public ICommand PlayTrackCommand { get; }
         //public ICommand ArtistListSelectionChanged { get; }
 
         //public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
@@ -170,8 +172,6 @@ namespace FluentMusic.ViewModels
             var albumFilter = new Subject<Func<AlbumViewModel, bool>>();
             var trackFilter = new Subject<Func<TrackViewModel, bool>>();
 
-
-
             //var filteredArtists = new ObservableCollectionExtended<ArtistViewModel>();
 
             //IndexService.ArtistSource
@@ -268,15 +268,8 @@ namespace FluentMusic.ViewModels
         public FullPlayerArtistViewModel()
         {
             // ---------------- Artist ----------------
-            IndexService.ArtistSource.Connect()
-                .SubscribeOnThreadPool()
-                .RemoveKey()
-                .GroupOn(x => x.Name.Substring(0, 1))
-                .Transform(x => new GroupArtistViewModel(x))
-                .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
-                .ObserveOnDispatcher()
-                .Bind(ArtistCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
+            ArtistSource = IndexService.ArtistSource.Connect()
+                .AsObservableCache();
 
             // ---------------- Album ----------------
             IndexService.AlbumSource.Connect()
@@ -285,22 +278,22 @@ namespace FluentMusic.ViewModels
                 .Subscribe(x => { }, ex => { Debugger.Break(); });
 
             // ---------------- Track ----------------
-            IndexService.TrackSource.Connect()
-                .SubscribeOnThreadPool()
-                .RemoveKey()
-                .GroupOn(x => x.Title.Substring(0, 1))
-                .Transform(x => new GroupTrackViewModel(x))
-                .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
-                .ObservableOnCoreDispatcher()
-                .Bind(TrackCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
+            TrackSource = IndexService.TrackSource.Connect()
+                .AsObservableCache();
 
-            //Activator = new ViewModelActivator();
+            PlayTrackCommand = ReactiveCommand.CreateFromTask(PlayTrackAsync);
+
             //this.WhenActivated((CompositeDisposable d) =>
             //{
             //    InitializeReactive();
             //});
         }
-        public ViewModelActivator Activator { get; }
+
+        private async Task PlayTrackAsync()
+        {
+            var playlist = TrackSource;
+        }
+
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

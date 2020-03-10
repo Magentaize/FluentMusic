@@ -29,9 +29,7 @@
                       PaneDisplayMode="Top"
                       IsBackEnabled="False"
                       IsBackButtonVisible="Collapsed"
-                      IsSettingsVisible="False"
-                      MenuItemsSource="{x:Bind ViewModel.Navigations, Mode=OneWay}"
-                      SelectedItem="{x:Bind ViewModel.NavigationViewSelectedItem, Mode=TwoWay}">
+                      IsSettingsVisible="False">
         <NavigationView.Resources>
           <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
           <x:Double x:Key="NavigationViewTopPaneHeight">36</x:Double>

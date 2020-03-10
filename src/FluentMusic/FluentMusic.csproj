@@ -78,7 +78,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\DialogService.cs" />
+    <Compile Include="Controls\AutoHideThumbSlider.cs" />
+    <Compile Include="Core\Services\DialogService.cs" />
     <Compile Include="Core\Extensions\ChangeSetExtension.cs" />
     <Compile Include="Core\Extensions\Internal\UnifiedChange.cs" />
     <Compile Include="Core\Extensions\Internal\UnifiedChangeEnumerator.cs" />
@@ -108,7 +109,6 @@
     <Compile Include="Core\Services\PlaybackService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Statics.cs" />
-    <Compile Include="ViewModelAccessor.cs" />
     <Compile Include="ViewModels\Common\AlbumSorterViewModel.cs" />
     <Compile Include="ViewModels\Common\NavigationViewItemViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoCoverThumbnailViewModel.cs" />
@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\PlaybackControllerViewModel.cs" />
     <Compile Include="ViewModels\Common\TrackViewModel.cs" />
     <Compile Include="ViewModels\SettingsFolderPageViewModel.cs" />
+    <Compile Include="ViewModels\SettingsInterfacePageViewModel.cs" />
     <Compile Include="ViewModels\SettingsPageViewModel.cs" />
     <Compile Include="Views\Common\PlaybackInfoCover.xaml.cs">
       <DependentUpon>PlaybackInfoCover.xaml</DependentUpon>
@@ -148,6 +149,9 @@
     </Compile>
     <Compile Include="Views\SettingsFolderPage.xaml.cs">
       <DependentUpon>SettingsFolderPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsInterfacePage.xaml.cs">
+      <DependentUpon>SettingsInterfacePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -193,6 +197,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\Themes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Light.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -234,6 +242,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsFolderPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsInterfacePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

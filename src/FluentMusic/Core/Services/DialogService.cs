@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 
-namespace FluentMusic.Core
+namespace FluentMusic.Core.Services
 {
     public sealed class DialogService
     {

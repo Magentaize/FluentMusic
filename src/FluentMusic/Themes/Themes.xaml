@@ -1,0 +1,14 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FluentMusic.Themes">
+  
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary Source="ms-appx:///Themes/Light.xaml" x:Key="Light"/>
+    <ResourceDictionary Source="ms-appx:///Themes/Dark.xaml" x:Key="Dark"/>
+  </ResourceDictionary.ThemeDictionaries>
+  
+  <AcrylicBrush x:Key="SystemControlAcrylicWindowBrush" BackgroundSource="HostBackdrop" TintColor="{StaticResource SystemChromeAltHighColor}" TintOpacity="0.3" FallbackColor="{StaticResource SystemChromeMediumColor}" />
+  <AcrylicBrush x:Key="ApplicationPageBackgroundThemeBrush" BackgroundSource="HostBackdrop" TintColor="{StaticResource SystemChromeAltHighColor}" TintOpacity="0.3" FallbackColor="{StaticResource SystemChromeMediumColor}" />
+
+</ResourceDictionary>

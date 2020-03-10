@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using System;
+using Splat;
+using ReactiveUI;
 
 namespace FluentMusic.Core
 {
@@ -12,6 +14,7 @@ namespace FluentMusic.Core
     {
         public static async Task StartupAsync()
         {
+            //Locator.CurrentMutable.RegisterConstant(new EnumToStringConverter(), typeof(IBindingTypeConverter));
             //await ApplicationData.Current.LocalFolder.CreateFileAsync("FluentMusic.db", CreationCollisionOption.OpenIfExists);
             var dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "FluentMusic.db");
             await Db.InitializeAsync(dbpath);

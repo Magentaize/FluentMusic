@@ -9,16 +9,47 @@ using System.Linq;
 using System.Reactive.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using System.Reactive.Disposables;
+using DynamicData.Binding;
+using System.Reactive;
+using System.Collections.ObjectModel;
+using Windows.UI.Xaml.Data;
 
 namespace FluentMusic.Views
 {
     public sealed partial class FullPlayerArtistPage : Page, IViewFor<FullPlayerArtistViewModel>
     {
+        public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
+        public ObservableCollectionExtended<GroupTrackViewModel> TrackCvsSource { get; } = new ObservableCollectionExtended<GroupTrackViewModel>();
+
         public FullPlayerArtistPage()
         {
+            InitializeComponent();
             ViewModel = new FullPlayerArtistViewModel();
 
-            InitializeComponent();
+            TrackList.Events().DoubleTapped
+                .InvokeCommand(ViewModel.PlayTrackCommand);
+
+            ViewModel.ArtistSource.Connect()
+                .ObservableOnThreadPool()
+                .RemoveKey()
+                .GroupOn(x => x.Name.Substring(0, 1))
+                .Transform(x => new GroupArtistViewModel(x))
+                .Sort(SortExpressionComparer<GroupArtistViewModel>.Ascending(x => x.Key))
+                .ObservableOnCoreDispatcher()
+                .Bind(ArtistCvsSource)
+                .Subscribe();
+
+            ViewModel.TrackSource.Connect()
+                .ObservableOnThreadPool()
+                .RemoveKey()
+                .GroupOn(x => x.Title.Substring(0, 1))
+                .Transform(x => new GroupTrackViewModel(x))
+                .Sort(SortExpressionComparer<GroupTrackViewModel>.Ascending(x => x.Key))
+                .DisposeMany()
+                .ObservableOnCoreDispatcher()
+                .Bind(TrackCvsSource)
+                .Subscribe();
 
             //ArtistList.Events().SelectionChanged
             //    .Subscribe(x =>
@@ -61,7 +92,10 @@ namespace FluentMusic.Views
             //TrackList.Events().DoubleTapped
             //    .Subscribe(ViewModel.PlayTrackCommand);
 
-            //this.WhenActivated(d => { });
+            this.WhenActivated(d =>
+            {
+                return;
+            });
         }
 
         [Bind]

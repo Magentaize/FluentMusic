@@ -5,6 +5,8 @@ using Microsoft.UI.Xaml.Controls;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Windows.Input;
@@ -13,16 +15,14 @@ namespace FluentMusic.ViewModels
 {
     public class FullPlayerPageViewModel : ReactiveObject
     {
-        public ObservableCollection<NavigationViewItemViewModel> Navigations { get; }
-        [Reactive]
-        public object NavigationViewSelectedItem { get; set; }
+        public IList<NavigationViewItemViewModel> Navigations { get; }
 
         [ObservableAsProperty]
         public bool IsPlaying { get; }
 
         public FullPlayerPageViewModel()
         {
-            Navigations = new ObservableCollection<NavigationViewItemViewModel>()
+            Navigations = new List<NavigationViewItemViewModel>()
             {
                 new NavigationViewItemViewModel { Name = "Artist", PageType = typeof(FullPlayerArtistPage) },
                 new NavigationViewItemViewModel { Name = "Album", PageType = typeof(WelcomePage) },

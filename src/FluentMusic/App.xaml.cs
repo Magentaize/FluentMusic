@@ -41,7 +41,6 @@ namespace FluentMusic
             base.OnLaunched(e);
 
             await Service.StartupAsync();
-            await ViewModelAccessor.StartupAsync();
 
             if (e.Kind == ActivationKind.Launch)
             {
