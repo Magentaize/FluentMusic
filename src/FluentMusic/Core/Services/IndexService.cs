@@ -307,7 +307,7 @@ namespace FluentMusic.Core.Services
                 if (albumDeleted)
                 {
                     artistVm.Albums.RemoveKey(album.Id);
-                    await CacheService.DeleteCacheAsync(album.CoverCacheToken);
+                    if (!string.IsNullOrEmpty(album.CoverCacheToken)) await CacheService.DeleteCacheAsync(album.CoverCacheToken);
 
                     if (artistDeleted)
                     {
@@ -445,7 +445,7 @@ namespace FluentMusic.Core.Services
         public static async Task RequestRemoveFolderAsync(FolderViewModel vm)
         {
             var msg = $"Are you sure to remove the following folder from collection:\n{vm.Path}";
-            if (await DialogService.ConfirmOrNotAsync(msg) == false) return;
+            if (await DialogService.RequireConfirmationAsync(msg) == false) return;
 
             var o = new IndexService();
             await o.RequestRemoveFolderAsyncInner(vm);
@@ -453,8 +453,7 @@ namespace FluentMusic.Core.Services
 
         private async Task RequestRemoveFolderAsyncInner(FolderViewModel vm)
         {
-            var result = false;
-
+            Track track = default;
             using(var tr =  await db.Database.BeginTransactionAsync())
             {
                 try
@@ -462,23 +461,23 @@ namespace FluentMusic.Core.Services
                     var folder = await db.Folders.SingleAsync(x => x.Id == vm.Id);
                     var tracks = await db.Tracks.Where(x => x.Folder.Id == folder.Id).ToListAsync();
 
-                    await tracks.ForEachAsync(async x => await RemoveTrackAsync(x));
+                    await tracks.ForEachAsync(async x =>
+                    {
+                        track = x;
+                        await RemoveTrackAsync(x);
+                    });
                     db.Folders.Remove(folder);
 
                     await db.SaveChangesAsync();
                     await tr.CommitAsync();
-                    result = true;
+
+                    _musicFolders.Remove(vm);
                 }
                 catch
                 {
                     await tr.RollbackAsync();
-                    result = false;
+                    await DialogService.NotificateAsync(track.Path);
                 }
-            }
-
-            if(result == true)
-            {
-                _musicFolders.Remove(vm);
             }
         }
 
@@ -508,7 +507,7 @@ namespace FluentMusic.Core.Services
             var isSubFolder = await _musicFolders.Items.AnyAsync(x => folder.Path.StartsWith(x.Path));
             if (isSubFolder)
             {
-                await DialogService.OkAsync("Cannot add subfolder.");
+                await DialogService.NotificateAsync("Cannot add subfolder.");
                 return;
             }
 
@@ -516,7 +515,7 @@ namespace FluentMusic.Core.Services
             var isParentFolder = await _musicFolders.Items.AnyAsync(x => x.Path.StartsWith(folder.Path));
             if (isParentFolder)
             {
-                await DialogService.OkAsync("Cannot add parent folder.");
+                await DialogService.NotificateAsync("Cannot add parent folder.");
                 return;
             }
 

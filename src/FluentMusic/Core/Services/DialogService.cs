@@ -9,13 +9,13 @@ namespace FluentMusic.Core.Services
 {
     public sealed class DialogService
     {
-        public static async Task OkAsync(string msg)
+        public static async Task NotificateAsync(string msg)
         {
             var dlg = new MessageDialog(msg);
             await dlg.ShowAsync();
         }
 
-        public static async Task<bool> ConfirmOrNotAsync(string msg)
+        public static async Task<bool> RequireConfirmationAsync(string msg)
         {
             var dlg = new MessageDialog(msg);
             var confirm = new UICommand("Confirm");
