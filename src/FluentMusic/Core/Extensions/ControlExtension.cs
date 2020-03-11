@@ -9,7 +9,7 @@ namespace Windows.UI.Xaml.Controls
 {
     public static class ControlExtension
     {
-        public static IObservableList<TElement> SelectedItemsAsObservableList<TControl, TElement>(this TControl control) where TControl : ListViewBase
+        public static IObservableList<TElement> SelectedItemsAsObservableList<TElement>(this ListViewBase control)
         {
             return control.Events()
                    .SelectionChanged
@@ -19,6 +19,17 @@ namespace Windows.UI.Xaml.Controls
                        new Change<TElement>(ListChangeReason.AddRange, x.AddedItems.Cast<TElement>().ToList()),
                    })
                    .AsObservableList();
+        }
+
+        public static IObservableList<TElement> AsObservableList<TElement>(this IObservable<SelectionChangedEventArgs> source)
+        {
+            return source
+                .Select(x => new ChangeSet<TElement>()
+                {
+                    new Change<TElement>(ListChangeReason.RemoveRange, x.RemovedItems.Cast<TElement>().ToList()),
+                    new Change<TElement>(ListChangeReason.AddRange, x.AddedItems.Cast<TElement>().ToList()),
+                })
+                .AsObservableList();
         }
 
         public static IObservable<IChangeSet<TElement>> SelectedItemsAsObservable<TControl, TElement>(this TControl control) where TControl: ListViewBase

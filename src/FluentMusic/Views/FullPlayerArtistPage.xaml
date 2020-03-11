@@ -33,7 +33,7 @@
         <Border.Resources>
           <CollectionViewSource x:Name="ArtistCvs" 
                                 IsSourceGrouped="True"
-                                Source="{x:Bind ArtistCvsSource}"/>
+                                Source="{x:Bind ViewModel.ArtistCvsSource}"/>
         </Border.Resources>
 
         <SemanticZoom>
@@ -106,7 +106,7 @@
         <Border.Resources>
           <CollectionViewSource x:Name="AlbumCvs" 
                                 IsSourceGrouped="False"
-                                Source="{x:Bind AlbumCvsSource}"/>
+                                Source="{x:Bind ViewModel.AlbumCvsSource}"/>
         </Border.Resources>
 
         <GridView x:Name="AlbumGridView"
@@ -114,7 +114,7 @@
                   ItemContainerStyle="{StaticResource AlbumGridViewItemExpanded}"
                   IsSynchronizedWithCurrentItem="False"
                   SelectionMode="Extended"
-                  SelectedItem="{x:Bind ViewModel.AlbumGridViewSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  SelectedItem="{x:Bind ViewModel.AlbumGridSelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <GridView.ItemTemplate>
@@ -140,15 +140,14 @@
     <controls:DockPanel Grid.Column="2">
 
       <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
-        <Button x:Name="RestoreTrackButton" 
-                Style="{StaticResource BaseTextButtonStyle}" 
-                Content="Tracks" />
+        <TextBlock Text="{x:Bind ViewModel.CurrentTrackCount, Mode=OneWay}"/>
+        <TextBlock Text="Tracks" />
       </StackPanel>
 
       <Border>
         <Border.Resources>
           <CollectionViewSource x:Name="TrackCvs" 
-                                Source="{x:Bind TrackCvsSource}"
+                                Source="{x:Bind ViewModel.TrackCvsSource}"
                                 IsSourceGrouped="True" />
         </Border.Resources>
 
