@@ -23,9 +23,6 @@ namespace FluentMusic.ViewModels
 {
     public sealed class FullPlayerArtistViewModel : ReactiveObject, IActivatableViewModel
     {
-        public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
-
-        public ObservableCollectionExtended<AlbumViewModel> AlbumCvsSource { get; } = new ObservableCollectionExtended<AlbumViewModel>();
         public IObservableCache<ArtistViewModel, long> ArtistSource { get; }
         public IObservableCache<AlbumViewModel, long> AlbumSource { get; }
         public IObservableCache<TrackViewModel, long> TrackSource { get; }
@@ -40,7 +37,7 @@ namespace FluentMusic.ViewModels
         //public ISubject<object> RestoreArtistsTapped { get; } = new Subject<object>();
         //public ISubject<object> RestoreAlbumTapped { get; } = new Subject<object>();
         //public ISubject<object> ArtistListTapped { get; } = new Subject<object>();
-        //public ISubject<object> AlbumGridViewTapped { get; } = new Subject<object>();
+        public ICommand AlbumGridViewTappedCommand { get; } 
         //public ISubject<object> PlayArtistCommand { get; } = new Subject<object>();
         //public ISubject<object> PlayAlbumCommand { get; } = new Subject<object>();
         public ICommand PlayTrackCommand { get; }
@@ -48,7 +45,7 @@ namespace FluentMusic.ViewModels
 
         //public ISourceList<ArtistViewModel> ArtistListSelectedItems { get; } = new SourceList<ArtistViewModel>();
 
-        //public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
+        public ISourceList<AlbumViewModel> AlbumGridViewSelectedItems { get; } = new SourceList<AlbumViewModel>();
 
         //private IObservable<bool> CreateUseSelectedItemObservable<TViewModel>(
         //    IObservable<object> restoreSubject, 
@@ -272,10 +269,8 @@ namespace FluentMusic.ViewModels
                 .AsObservableCache();
 
             // ---------------- Album ----------------
-            IndexService.AlbumSource.Connect()
-                .ObserveOnDispatcher()
-                .Bind(AlbumCvsSource)
-                .Subscribe(x => { }, ex => { Debugger.Break(); });
+            AlbumSource = IndexService.AlbumSource.Connect()
+                .AsObservableCache();
 
             // ---------------- Track ----------------
             TrackSource = IndexService.TrackSource.Connect()

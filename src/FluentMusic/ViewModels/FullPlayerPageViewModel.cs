@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Windows.Input;
 
 namespace FluentMusic.ViewModels
@@ -32,7 +33,7 @@ namespace FluentMusic.ViewModels
 
             var pbs = Service.PlaybackService;
             pbs.IsPlaying
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsPlaying);
         }
     }

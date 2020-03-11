@@ -106,8 +106,7 @@
         <Border.Resources>
           <CollectionViewSource x:Name="AlbumCvs" 
                                 IsSourceGrouped="False"
-                                Source="{x:Bind Mode=OneWay, Path=ViewModel.AlbumCvsSource}"
-                                ItemsPath="Items"/>
+                                Source="{x:Bind AlbumCvsSource}"/>
         </Border.Resources>
 
         <GridView x:Name="AlbumGridView"

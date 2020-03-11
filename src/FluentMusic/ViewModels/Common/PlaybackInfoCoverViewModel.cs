@@ -21,13 +21,13 @@ namespace FluentMusic.ViewModels.Common
             var pbs = Service.PlaybackService;
             pbs.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
             pbs.NewTrackPlayed
                 .Select(x => x.Track.Album)
                 .DistinctUntilChanged()
                 .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.CoverPath })
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Thumbnail);
         }
     }

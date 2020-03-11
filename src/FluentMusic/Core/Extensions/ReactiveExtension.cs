@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Windows.ApplicationModel.Core;
 
-namespace System.Reactive
+namespace System.Reactive.Linq
 {
     public static class ReactiveExtension
     {
@@ -20,7 +20,7 @@ namespace System.Reactive
 
         public static IScheduler CoreDispatcherScheduler = new CoreDispatcherScheduler(CoreApplication.GetCurrentView().Dispatcher);
 
-        public static IObservable<T> ObservableOnCoreDispatcher<T>(this IObservable<T> source)
+        public static IObservable<T> ObserveOnCoreDispatcher<T>(this IObservable<T> source)
         {
             return source.ObserveOn(CoreDispatcherScheduler);
         }

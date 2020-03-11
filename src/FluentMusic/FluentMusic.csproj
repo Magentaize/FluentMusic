@@ -79,6 +79,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\AutoHideThumbSlider.cs" />
+    <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Services\DialogService.cs" />
     <Compile Include="Core\Extensions\ChangeSetExtension.cs" />
     <Compile Include="Core\Extensions\Internal\UnifiedChange.cs" />

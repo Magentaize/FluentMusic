@@ -15,6 +15,7 @@ namespace FluentMusic.ViewModels.Common
         {
             Key = group.GroupKey;
             _disposable = group.List.Connect()
+                .ObserveOnCoreDispatcher()
                 .Bind(this)
                 .Subscribe();
         }

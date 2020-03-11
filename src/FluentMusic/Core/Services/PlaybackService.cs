@@ -105,7 +105,7 @@ namespace FluentMusic.Core.Services
 
             NewTrackPlayed
                 .Do(x => WriteSmtcThumbnail(x.PlaybackItem, x.Track))
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
                     if (_previousTrack != null) _previousTrack.IsPlaying = false;

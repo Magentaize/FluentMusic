@@ -47,7 +47,7 @@ namespace FluentMusic.ViewModels
 
             pb.RepeatMode
                 .DistinctUntilChanged()
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
                     _repeatMode = x;
@@ -73,12 +73,12 @@ namespace FluentMusic.ViewModels
 
             pb.EnableShuffle
                 .DistinctUntilChanged()
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.EnableShuffle, false);
 
             pb.IsPlaying
                 .DistinctUntilChanged()
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.PauseIconVisible, false);
 
             this.WhenAnyValue(x => x.PauseIconVisible)

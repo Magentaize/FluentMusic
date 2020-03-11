@@ -21,7 +21,7 @@ namespace FluentMusic.ViewModels.Common
             var pbs = Service.PlaybackService;
             pbs.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
             pbs.NewTrackPlayed
                 .DistinctUntilChanged(x => x.Track)
@@ -32,11 +32,11 @@ namespace FluentMusic.ViewModels.Common
                     CurrentPosition = @"00:00",
                     NaturalPosition = $"{x.PlaybackItem.Source.Duration:mm\\:ss}",
                 })
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Property);
             pbs.PlaybackPosition
                 .Select(x => $"{x.Position:mm\\:ss}")
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .Subscribe(x => Property.CurrentPosition = x);
         }
     }

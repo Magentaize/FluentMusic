@@ -24,13 +24,13 @@ namespace FluentMusic.ViewModels
 
             var pbs = Service.PlaybackService;
             pbs.NewTrackPlayed
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
                     SliderNaturalPosition = x.PlaybackItem.Source.Duration.Value.TotalSeconds;
                 });
             pbs.PlaybackPosition
-                .ObservableOnCoreDispatcher()
+                .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
                     if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
