@@ -7,6 +7,14 @@ namespace DynamicData
 {
     public static class ObservableListExtension
     {
+        /// <summary>
+        /// Compared to MergeMany, MergeManyEx will forward all items belonged to the outer Observable which removed.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TDestination"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="observableSelector"></param>
+        /// <returns></returns>
         public static IObservable<IChangeSet<TDestination>> MergeManyEx<T, TDestination>(
                    this IObservable<IChangeSet<T>> source,
                    Func<T, IObservable<IChangeSet<TDestination>>> observableSelector)
@@ -59,7 +67,11 @@ namespace DynamicData.List.Internal
                     {
                         var locker = new object();
                         return _source
+                            // SubscribeMany will forwards inital cascaded inner items when it observers new item,
+                            // but if one item was removed, any item belonged to it won't be forwarded to observer.
                             .SubscribeMany(t => _observableSelector(t).Synchronize(locker).Subscribe(observer.OnNext))
+                            // So I add a observer here to subscribe all items belonged to the removed item, buildup a 
+                            // ChangeSet and and forward it to the original observer.
                             .Subscribe(t =>
                             {
                                 foreach (var x in t)

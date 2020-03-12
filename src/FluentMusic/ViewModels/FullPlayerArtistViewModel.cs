@@ -142,7 +142,7 @@ namespace FluentMusic.ViewModels
                     _status &= ~ViewStatus.AlbumTapped;
                     AlbumGridSelectedItem = null;
 
-                    var trackSource = _selectedArtists.Connect().MergeManyEx(x => x.Albums.Connect().RemoveKey()).MergeManyEx(x => x.Tracks.Connect().RemoveKey());
+                    var trackSource = AlbumCvsSource.ToObservableChangeSet().MergeManyEx(x => x.Tracks.Connect().RemoveKey());
                     trackSourceObservable.OnNext(trackSource);
                 });
 
