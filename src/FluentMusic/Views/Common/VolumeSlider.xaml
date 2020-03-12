@@ -10,7 +10,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
   <UserControl.Resources>
-    <Style x:Key="SliderStyle" TargetType="Slider">
+    <Style TargetType="Slider">
       <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowRevealBorderBrush}"/>
       <Setter Property="BorderThickness" Value="{ThemeResource SliderBorderThemeThickness}"/>
       <Setter Property="Foreground" Value="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"/>
@@ -51,12 +51,22 @@
                       <Setter Target="HorizontalThumb.(RevealBrush.State)" Value="Normal" />
                       <Setter Target="VerticalThumb.(RevealBrush.State)" Value="Normal" />
                     </VisualState.Setters>
+                    <VisualState.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation To="0" Duration="0:0:0.3" Storyboard.TargetName="HorizontalThumb" Storyboard.TargetProperty="Opacity"/>
+                        <DoubleAnimation To="0" Duration="0:0:0.3" Storyboard.TargetName="VerticalThumb" Storyboard.TargetProperty="Opacity"/>
+                      </Storyboard>
+                    </VisualState.Storyboard>
                   </VisualState>
                   <VisualState x:Name="Pressed">
-                    <VisualState.Setters>
-                      <Setter Target="HorizontalThumb.(RevealBrush.State)" Value="Pressed" />
-                      <Setter Target="VerticalThumb.(RevealBrush.State)" Value="Pressed" />
-                    </VisualState.Setters>
+                  </VisualState>
+                  <VisualState x:Name="PointerOver">
+                    <VisualState.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation To="1" Duration="0:0:0.2" Storyboard.TargetName="HorizontalThumb" Storyboard.TargetProperty="Opacity"/>
+                        <DoubleAnimation To="1" Duration="0:0:0.2" Storyboard.TargetName="VerticalThumb" Storyboard.TargetProperty="Opacity"/>
+                      </Storyboard>
+                    </VisualState.Storyboard>
                   </VisualState>
                   <VisualState x:Name="Disabled">
                     <Storyboard>
@@ -98,12 +108,6 @@
                       </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                   </VisualState>
-                  <VisualState x:Name="PointerOver">
-                    <VisualState.Setters>
-                      <Setter Target="HorizontalThumb.(RevealBrush.State)" Value="PointerOver" />
-                      <Setter Target="VerticalThumb.(RevealBrush.State)" Value="PointerOver" />
-                    </VisualState.Setters>
-                  </VisualState>
                 </VisualStateGroup>
                 <VisualStateGroup x:Name="FocusEngagementStates">
                   <VisualState x:Name="FocusDisengaged"/>
@@ -131,16 +135,16 @@
               </VisualStateManager.VisualStateGroups>
               <ContentPresenter x:Name="HeaderContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" FontWeight="{ThemeResource SliderHeaderThemeFontWeight}" Foreground="{ThemeResource SliderHeaderForeground}" Margin="{ThemeResource SliderHeaderThemeMargin}" TextWrapping="Wrap" Visibility="Collapsed" x:DeferLoadStrategy="Lazy"/>
               <Grid x:Name="SliderContainer" Background="Transparent" Control.IsTemplateFocusTarget="True" Grid.Row="1">
-                <Grid x:Name="HorizontalTemplate" MinHeight="44">
+                <Grid x:Name="HorizontalTemplate" MinHeight="{ThemeResource SliderHorizontalHeight}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="18"/>
+                    <RowDefinition Height="{ThemeResource SliderPreContentMargin}"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="18"/>
+                    <RowDefinition Height="{ThemeResource SliderPostContentMargin}"/>
                   </Grid.RowDefinitions>
                   <Rectangle x:Name="HorizontalTrackRect" Margin="12,0" Grid.ColumnSpan="3" Fill="{TemplateBinding Background}" Height="{ThemeResource SliderTrackThemeHeight}" Grid.Row="1"/>
                   <Rectangle x:Name="HorizontalDecreaseRect" Margin="12,0" Fill="{TemplateBinding Foreground}" Grid.Row="1"/>
@@ -155,11 +159,11 @@
                                        Grid.Row="0" Style="{StaticResource SliderThumbStyle}" Width="24">
                   </Thumb>
                 </Grid>
-                <Grid x:Name="VerticalTemplate" MinWidth="44" Visibility="Collapsed">
+                <Grid x:Name="VerticalTemplate" MinWidth="{ThemeResource SliderVerticalWidth}" Visibility="Collapsed">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="{ThemeResource SliderPreContentMargin}"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="{ThemeResource SliderPostContentMargin}"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -189,11 +193,11 @@
   </UserControl.Resources>
 
   <Grid>
-    <Slider
-      x:Name="ProgressSlider"
-      Style="{StaticResource SliderStyle}"
-      Minimum="{x:Bind MinimumVolume, Mode=OneWay}"
-      Maximum="{x:Bind MaximumVolume, Mode=OneTime}"
-      Value="{x:Bind CurrentVolume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+    <Slider 
+      x:Name="Slider"
+      ManipulationMode="TranslateRailsX,TranslateRailsY" 
+      Minimum="0"
+      Maximum="100"
+      Value="{x:Bind ViewModel.CurrentVolume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
   </Grid>
 </UserControl>

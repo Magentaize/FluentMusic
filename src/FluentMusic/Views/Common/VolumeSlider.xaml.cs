@@ -1,42 +1,26 @@
-﻿using FluentMusic.Core;
-using ReactiveUI.Fody.Helpers;
+﻿using FluentMusic.ViewModels.Common;
+using Kasay.DependencyProperty;
 using Windows.UI.Xaml.Controls;
-using System;
-using ReactiveUI;
-using System.Reactive.Linq;
-using Windows.UI.Xaml.Controls.Primitives;
 
 namespace FluentMusic.Views.Common
 {
     public sealed partial class VolumeSlider : UserControl
     {
-        [Reactive]
-        public int MaximumVolume { get; } = 100;
-
-        [Reactive]
-        public int MinimumVolume { get; } = 0;
-
-        [Reactive]
-        public int CurrentVolume { get; private set; }
-
         public VolumeSlider()
         {
             InitializeComponent();
+            ViewModel = new VolumeSliderViewModel();
 
-            Service.PlaybackService.VolumeChanged.Subscribe(x =>
-            {
-                CurrentVolume = x;
-            });
+            Slider.Events()
+                .ManipulationStarted
+                .Subscribe(ViewModel.SliderManipulationStarted);
 
-            this.WhenAnyValue(x => x.CurrentVolume)
-                .Subscribe(x =>
-                {
-                    Service.PlaybackService.ChangeVolume(x);
-                });
-
-            Observable.FromEventPattern<RangeBaseValueChangedEventHandler, RangeBaseValueChangedEventArgs>(
-                h => ProgressSlider.ValueChanged += h, h => ProgressSlider.ValueChanged -= h)
-                .Subscribe(x => { Console.WriteLine(CurrentVolume); });
+            Slider.Events()
+                .ManipulationCompleted
+                .Subscribe(ViewModel.SliderManipulationCompleted);
         }
+
+        [Bind]
+        public VolumeSliderViewModel ViewModel { get; set; }
     }
 }

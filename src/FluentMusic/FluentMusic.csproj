@@ -116,6 +116,7 @@
     <Compile Include="ViewModels\Common\PlaybackInfoCoverViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoTextPropertyViewModel.cs" />
     <Compile Include="ViewModels\Common\PlaybackInfoTextViewModel.cs" />
+    <Compile Include="ViewModels\Common\VolumeSliderViewModel.cs" />
     <Compile Include="ViewModels\Converter\PositionSliderToolTipConverter.cs" />
     <Compile Include="ViewModels\Common\AlbumViewModel.cs" />
     <Compile Include="ViewModels\Common\ArtistViewModel.cs" />

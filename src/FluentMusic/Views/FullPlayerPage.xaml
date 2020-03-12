@@ -185,7 +185,7 @@
 
         <local:PlaybackControllerView Grid.Column="1" />
 
-        <common:VolumeSlider Grid.Column="2" />
+        <common:VolumeSlider Grid.Column="2" VerticalAlignment="Center" />
       </Grid>
     </StackPanel>
   </Grid>

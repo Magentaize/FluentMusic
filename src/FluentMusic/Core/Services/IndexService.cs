@@ -43,7 +43,7 @@ namespace FluentMusic.Core.Services
         public int QueueIndexedCount { get; private set; }
 
         private static ISubject<Unit> newMusicFolderObservable = new Subject<Unit>();
-        private static IObservable<bool> collectionAutoRefresh = Setting.SettingChanged[Setting.Collection.AutoRefresh].Select(x => (bool)x);
+        private static IObservable<bool> collectionAutoRefresh = Setting.Collection.AutoRefresh;
         private Db db;
 
         private IndexService()
@@ -66,17 +66,17 @@ namespace FluentMusic.Core.Services
             //await o.RunAsyncInner();
         }
 
-        private async Task RunAsyncInner()
-        {
-            var result = await GetDiffFoldersAsync();
-            var mix = await GetFolderFilesAsync(result.ChangeedFolders);
-            if (Setting.Get<bool>(Setting.Collection.AutoRefresh))
-            {
-                await IndexFolders(mix);
-                await RemovedFolders(result.RemovedFolders);
-                await db.SaveChangesAsync();
-            }
-        }
+        //private async Task RunAsyncInner()
+        //{
+        //    var result = await GetDiffFoldersAsync();
+        //    var mix = await GetFolderFilesAsync(result.ChangeedFolders);
+        //    if (Setting.Get<bool>(Setting.Collection.AutoRefresh))
+        //    {
+        //        await IndexFolders(mix);
+        //        await RemovedFolders(result.RemovedFolders);
+        //        await db.SaveChangesAsync();
+        //    }
+        //}
 
         private async Task<GetDiffFoldersResult> GetDiffFoldersAsync()
         {
@@ -372,7 +372,7 @@ namespace FluentMusic.Core.Services
             {
                 newMusicFolderObservable.Select(_ => "Added new folder"),
                 FolderWatcherManager.ContentChanged.Select(_ => "FolderWatcherManager.ContentChanged"),
-                Setting.SettingChanged[Setting.Collection.AutoRefresh].Where(x => (bool)x == true).Select(_ => Unit.Default).Select(_ => "Setting.SettingChanged[Setting.Collection.AutoRefresh]"),
+                Setting.Collection.AutoRefresh.Where(x => x == true).Select(_ => Unit.Default).Select(_ => "Setting.SettingChanged[Setting.Collection.AutoRefresh]"),
             })
             .ObservableOnThreadPool()
             .Throttle(TimeSpan.FromSeconds(5))

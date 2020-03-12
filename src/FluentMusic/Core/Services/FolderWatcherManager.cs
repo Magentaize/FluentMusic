@@ -30,7 +30,7 @@ namespace FluentMusic.Core.Services
 
         public sealed class FolderWatcher : IDisposable
         {
-            private static IObservable<bool> autoRefresh = Setting.SettingChanged[Setting.Collection.AutoRefresh].Select(x => (bool)x);
+            private static IObservable<bool> autoRefresh = Setting.Collection.AutoRefresh;
             public StorageFileQueryResult Query { get; private set; }
 
             private IDisposable _subscription;

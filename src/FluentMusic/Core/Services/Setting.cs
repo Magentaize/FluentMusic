@@ -1,51 +1,24 @@
-﻿using System.Reactive.Subjects;
+﻿using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Storage;
-using System;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace FluentMusic.Core.Services
 {
     public class Setting
     {
-
-        private static IDictionary<string, ReplaySubject<object>> _settingChanged;
-        public static IReadOnlyDictionary<string, IObservable<object>> SettingChanged { get; private set; }
-
         private static ApplicationDataContainer _container;
 
-        public static bool AddOrUpdate<T>(string key, T value)
+        private static void AddOrUpdate<T>(string key, T value)
         {
-            bool valueChanged = false;
             var newValue = JsonSerializer.Serialize(value);
-            
-            if (_container.Values.ContainsKey(key))
-            {
-                var oldValue = (string)_container.Values[key];
-                if (newValue != oldValue)
-                {
-                    valueChanged = true;
-                }
-            }
-            else
-            {
-                valueChanged = true;
-            }
-
-            if (valueChanged)
-            {
-                _container.Values[key] = newValue;
-                _settingChanged[key].OnNext(value);
-            }
-
-            return valueChanged;
+            _container.Values[key] = newValue;
         }
 
-        public static T GetOrDefault<T>(string key, T defaultValue)
+        private static T GetOrDefault<T>(string key, T defaultValue)
         {
             if (_container.Values.TryGetValue(key, out var value))
             {
@@ -58,7 +31,7 @@ namespace FluentMusic.Core.Services
             }
         }
 
-        public static T Get<T>(string key)
+        private static T Get<T>(string key)
         {
             if (_container.Values.TryGetValue(key, out var value))
             {
@@ -70,7 +43,7 @@ namespace FluentMusic.Core.Services
             }
         }
 
-        public static bool Contains(string key)
+        private static bool Contains(string key)
         {
             return _container.Values.ContainsKey(key);
         }
@@ -88,20 +61,43 @@ namespace FluentMusic.Core.Services
             _container = ApplicationData.Current.LocalSettings;
             if (!Contains(Core.FirstRun))   Seed();
 
-            _settingChanged = initSettings.ToDictionary(x => x.k, _ => new ReplaySubject<object>(1));
-            SettingChanged = new ReadOnlyDictionary<string, IObservable<object>>(_settingChanged.ToDictionary(x => x.Key, x => x.Value.AsObservable()));
-            initSettings.ForEach(x => _settingChanged[x.k].OnNext(JsonSerializer.Deserialize((string)_container.Values[x.k], x.t)));
-
+            LoadAll();
             await Task.CompletedTask;
         }
 
-        private static (string k, Type t, object v)[] initSettings = new (string k, Type t, object v)[]
+        private static void LoadAll()
         {
-            (Core.FirstRun, typeof(bool), false),
-            (Collection.AutoRefresh, typeof(bool), true),
-            (Behavior.AutoScroll, typeof(bool), true),
-            (Behavior.RepeatMode, typeof(MediaRepeatMode), MediaRepeatMode.None),
-            (Behavior.EnableShuffle, typeof(bool), false),
+            Collection.AutoRefresh.OnNext(Get<bool>(nameof(Collection.AutoRefresh)));
+            Collection.AutoRefresh
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Collection.AutoRefresh), x));
+
+            Behavior.AutoScroll.OnNext(Get<bool>(nameof(Behavior.AutoScroll)));
+            Behavior.AutoScroll
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Behavior.AutoScroll), x));
+            Behavior.RepeatMode.OnNext(Get<MediaRepeatMode>(nameof(Behavior.RepeatMode)));
+            Behavior.RepeatMode
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Behavior.RepeatMode), x));
+            Behavior.EnableShuffle.OnNext(Get<bool>(nameof(Behavior.EnableShuffle)));
+            _ = Behavior.EnableShuffle
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Behavior.EnableShuffle), x));
+            Behavior.Volume.OnNext(Get<int>(nameof(Behavior.Volume)));
+            Behavior.Volume
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Behavior.Volume), x));
+        }
+
+        private static (string k, object v)[] initSettings = new (string k, object v)[]
+        {
+            (Core.FirstRun, false),
+            (nameof(Collection.AutoRefresh), true),
+            (nameof(Behavior.AutoScroll), true),
+            (nameof(Behavior.RepeatMode), MediaRepeatMode.None),
+            (nameof(Behavior.EnableShuffle), false),
+            (nameof(Behavior.Volume), 100),
         };
 
         private static void Seed()
@@ -116,15 +112,16 @@ namespace FluentMusic.Core.Services
 
         public static class Collection
         {
-            public static string AutoRefresh = nameof(AutoRefresh);
+            public static ISubject<bool> AutoRefresh { get; } = new ReplaySubject<bool>(1);
             public static string Indexing = nameof(Indexing);
         }
 
         public static class Behavior
         {
-            public static string AutoScroll = nameof(AutoScroll);
-            public static string RepeatMode = nameof(RepeatMode);
-            public static string EnableShuffle = nameof(EnableShuffle);
+            public static ISubject<bool> AutoScroll { get; } = new ReplaySubject<bool>(1);
+            public static ISubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>(1);
+            public static ISubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>(1);
+            public static ISubject<int> Volume { get; } = new ReplaySubject<int>(1);
         }
     }
 }
