@@ -1,3 +1,0 @@
-[submodule "src/taglib-sharp"]
-	path = src/taglib-sharp
-	url = https://github.com/Magentaize/FluentMusic.taglib-sharp

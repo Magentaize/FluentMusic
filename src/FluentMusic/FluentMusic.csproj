@@ -312,6 +312,9 @@
     <PackageReference Include="System.Text.Json">
       <Version>4.7.1</Version>
     </PackageReference>
+    <PackageReference Include="TagLibSharp">
+      <Version>2.2.0</Version>
+    </PackageReference>
     <PackageReference Include="Z.Linq.Async">
       <Version>1.0.3</Version>
     </PackageReference>
@@ -323,10 +326,6 @@
     <ProjectReference Include="..\FluentMusic.Data\FluentMusic.Data.csproj">
       <Project>{487a9413-55e7-44e0-a5df-97fb1bd77859}</Project>
       <Name>FluentPlayer.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\taglib-sharp\src\TaglibSharp\TaglibSharp.NetStandard.csproj">
-      <Project>{59f49e09-2092-46c3-9f9b-1234feccbb06}</Project>
-      <Name>TaglibSharp.NetStandard</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
