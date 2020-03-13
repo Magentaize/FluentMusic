@@ -26,6 +26,7 @@
   <Grid>
     <Border>
       <NavigationView x:Name="NavigationView"
+                      MenuItemsSource="{x:Bind ViewModel.Navigations}"
                       PaneDisplayMode="Top"
                       IsBackEnabled="False"
                       IsBackButtonVisible="Collapsed"

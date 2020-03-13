@@ -1,31 +1,37 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
-using FluentMusic.Core;
 using FluentMusic.Core.Services;
 using FluentMusic.ViewModels.Common;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reactive;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace FluentMusic.ViewModels
 {
     public sealed class SettingsFolderPageViewModel : ReactiveObject
     {
         public ObservableCollectionExtended<FolderViewModel> MusicFolders { get; } = new ObservableCollectionExtended<FolderViewModel>();
+        [ObservableAsProperty]
+        public bool IsIndexing { get; }
 
         public ReactiveCommand<Unit, Unit> AddMusicFolderCommand { get; set; }
 
         public SettingsFolderPageViewModel()
         {
-            IndexService.MusicFolders.Connect().Bind(MusicFolders).Subscribe();
+            IndexService.MusicFolders
+                .Connect()
+                .Bind(MusicFolders)
+                .Subscribe();
+
+            IndexService.IsIndexing
+                .ObserveOnCoreDispatcher()
+                .ToPropertyEx(this, x => x.IsIndexing);
+
 
             AddMusicFolderCommand = ReactiveCommand.CreateFromTask(IndexService.RequestAddFolderAsync);
-            AddMusicFolderCommand.ThrownExceptions.Subscribe(o => Debug.WriteLine(o));
+
         }
     }
 }

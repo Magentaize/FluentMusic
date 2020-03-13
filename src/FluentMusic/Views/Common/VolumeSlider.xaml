@@ -47,10 +47,6 @@
               <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
                   <VisualState x:Name="Normal">
-                    <VisualState.Setters>
-                      <Setter Target="HorizontalThumb.(RevealBrush.State)" Value="Normal" />
-                      <Setter Target="VerticalThumb.(RevealBrush.State)" Value="Normal" />
-                    </VisualState.Setters>
                     <VisualState.Storyboard>
                       <Storyboard>
                         <DoubleAnimation To="0" Duration="0:0:0.3" Storyboard.TargetName="HorizontalThumb" Storyboard.TargetProperty="Opacity"/>

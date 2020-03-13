@@ -1,22 +1,20 @@
 ﻿using FluentMusic.Core;
+using FluentMusic.Core.Services;
 using FluentMusic.ViewModels.Common;
 using FluentMusic.Views;
-using Microsoft.UI.Xaml.Controls;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Windows.Input;
 
 namespace FluentMusic.ViewModels
 {
     public class FullPlayerPageViewModel : ReactiveObject
     {
         public IList<NavigationViewItemViewModel> Navigations { get; }
+        [ObservableAsProperty]
+        public bool IsIndexing { get; }
 
         [ObservableAsProperty]
         public bool IsPlaying { get; }
@@ -31,10 +29,21 @@ namespace FluentMusic.ViewModels
                 new NavigationViewItemViewModel { Name = "Setting", PageType = typeof(SettingsPage) },
             };
 
+            IndexService.IsIndexing
+                .Merge(Observable.Interval(TimeSpan.FromSeconds(3)).Select(x=>x%2==0))
+                .ObserveOnCoreDispatcher()
+                .ToPropertyEx(this, x => x.IsIndexing);
+
             var pbs = Service.PlaybackService;
             pbs.IsPlaying
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsPlaying);
+        }
+
+
+        public void IncrementCount()
+        {
+
         }
     }
 }

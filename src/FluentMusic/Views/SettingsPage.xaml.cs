@@ -16,6 +16,7 @@ namespace FluentMusic.Views
         public SettingsPage()
         {
             InitializeComponent();
+            NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Required;
             ViewModel = new SettingsPageViewModel();
 
             NavigationView.Events().SelectionChanged
@@ -29,12 +30,7 @@ namespace FluentMusic.Views
                     NavigationContentFrame.NavigateToType(((NavigationViewItemViewModel)x.SelectedItem).PageType, null, opt);
                 });
 
-            this.WhenActivated(d =>
-            {
-                this.OneWayBind(ViewModel, vm => vm.Navigations, v => v.NavigationView.MenuItemsSource)
-                    .DisposeWith(d);
-                NavigationView.SelectedItem = ViewModel.Navigations[0];
-            });
+            NavigationView.SelectedItem = ViewModel.Navigations[0];
         }
 
         [Bind]

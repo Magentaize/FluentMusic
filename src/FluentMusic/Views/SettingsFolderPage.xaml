@@ -7,47 +7,103 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:common="using:FluentMusic.ViewModels.Common"
   xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+  xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+  xmlns:muxc="using:Windows.UI.Xaml.Controls"
   mc:Ignorable="d">
+  <Page.Resources>
+    <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+  </Page.Resources>
 
   <Border>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
       <StackPanel>
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="Music Collection"/>
-          <Button Command="{x:Bind ViewModel.AddMusicFolderCommand}"
+        <UserControl>
+          <Grid MinHeight="120">
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="EnableFolderPanelStates">
+                <VisualState x:Name="IsNotIndexing">
+                  <VisualState.Storyboard>
+                    <Storyboard>
+                      <DoubleAnimation To="0" Duration="0:0:0.3" Storyboard.TargetName="AnimationBackground" Storyboard.TargetProperty="Opacity" />
+                      <DoubleAnimation To="1" Duration="0:0:0.3" Storyboard.TargetName="FolderPanel" Storyboard.TargetProperty="Opacity" />
+                    </Storyboard>
+                  </VisualState.Storyboard>
+                </VisualState>
+
+                <VisualState x:Name="IsIndexing">
+                  <VisualState.Storyboard>
+                    <Storyboard>
+                      <DoubleAnimation To="1" Duration="0:0:0.3" Storyboard.TargetName="AnimationBackground" Storyboard.TargetProperty="Opacity" />
+                      <DoubleAnimation To="0.5" Duration="0:0:0.3" Storyboard.TargetName="FolderPanel" Storyboard.TargetProperty="Opacity" />
+                    </Storyboard>
+                  </VisualState.Storyboard>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <interactivity:Interaction.Behaviors>
+              <Core:DataTriggerBehavior Binding="{x:Bind ViewModel.IsIndexing, Mode=OneWay}" Value="True">
+                <Core:GoToStateAction StateName="IsIndexing"/>
+              </Core:DataTriggerBehavior>
+              <Core:DataTriggerBehavior Binding="{x:Bind ViewModel.IsIndexing, Mode=OneWay}" Value="False">
+                <Core:GoToStateAction StateName="IsNotIndexing"/>
+              </Core:DataTriggerBehavior>
+            </interactivity:Interaction.Behaviors>
+
+            <StackPanel x:Name="FolderPanel"
+                        IsHitTestVisible="{x:Bind ViewModel.IsIndexing, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}">
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Music Collection"/>
+                <Button Command="{x:Bind ViewModel.AddMusicFolderCommand}"
                       Style="{StaticResource ButtonAccentColorReveal}"
                       VerticalAlignment="Bottom"
                       Margin="8,0,0,0">
-            <StackPanel Orientation="Horizontal">
-              <FontIcon Glyph="&#xE109;" FontSize="12"/>
-              <TextBlock Text="Add Folder" FontSize="12"/>
-            </StackPanel>
-          </Button>
-        </StackPanel>
-
-        <ListView x:Name="MusicFolderListView"
+                  <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE109;" FontSize="12"/>
+                    <TextBlock Text="Add Folder" FontSize="12"/>
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <ListView x:Name="MusicFolderListView"
                       ItemsSource="{x:Bind ViewModel.MusicFolders}"
                       ItemContainerStyle="{StaticResource TapHighlightDisabledListViewItem}">
-          <ListView.ItemTemplate>
-            <DataTemplate x:DataType="common:FolderViewModel">
-              <controls:DockPanel LastChildFill="True">
-                <Button controls:DockPanel.Dock="Right" 
+                <ListView.ItemTemplate>
+                  <DataTemplate x:DataType="common:FolderViewModel">
+                    <controls:DockPanel LastChildFill="True">
+                      <Button controls:DockPanel.Dock="Right" 
                             Style="{StaticResource ButtonAccentColorReveal}"
                             Command="{x:Bind RemoveMusicFolderCommand}"
                             CommandParameter="{x:Bind}">
-                  <SymbolIcon Symbol="Cancel" />
-                </Button>
-                <FontIcon HorizontalAlignment="Center" 
+                        <SymbolIcon Symbol="Cancel" />
+                      </Button>
+                      <FontIcon HorizontalAlignment="Center" 
                           VerticalAlignment="Center" 
                           Margin="0,0,4,0"
                           Foreground="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"
-                          FontFamily="Segoe MDL2 Assets" 
+                          FontFamily="{StaticResource SymbolThemeFontFamily}" 
                           Glyph="&#xE838;" />
-                <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center" TextAlignment="Left"/>
-              </controls:DockPanel>
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
+                      <TextBlock Text="{x:Bind Path}" VerticalAlignment="Center" TextAlignment="Left"/>
+                    </controls:DockPanel>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+              </ListView>
+            </StackPanel>
+
+            <Grid x:Name="IndexingAnimationPanel" IsHitTestVisible="False">
+              <StackPanel x:Name="AnimationBackground" Opacity="0" Background="{x:Null}">
+                <ProgressRing IsActive="{x:Bind ViewModel.IsIndexing, Mode=OneWay}"
+                              Foreground="{ThemeResource SystemControlBackgroundAccentRevealBorderBrush}"
+                              Height="80" Width="80"/>
+                <TextBlock Text="Indexing, please wait"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,16,0,0"
+                           FontSize="18"/>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </UserControl>
       </StackPanel>
     </ScrollViewer>
   </Border>

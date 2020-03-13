@@ -29,13 +29,11 @@ namespace FluentMusic.Core.Services
         public static IObservableCache<TrackViewModel, long> TrackSource { get; private set; }
         public static IObservableCache<AlbumViewModel, long> AlbumSource { get; private set; }
         public static IObservableCache<FolderViewModel, long> MusicFolders => _musicFolders.AsObservableCache();
+        public static IObservable<bool> IsIndexing => _isIndexing.AsObservable();
 
         private readonly static ISourceCache<ArtistViewModel, long> _artistSource = new SourceCache<ArtistViewModel, long>(x => x.Id);
         private readonly static ISourceCache<FolderViewModel, long> _musicFolders = new SourceCache<FolderViewModel, long>(x => x.Id);
-
-        public event EventHandler IndexBegin;
-        public event EventHandler IndexProgressChanged;
-        public event EventHandler IndexFinished;
+        private readonly static ISubject<bool> _isIndexing = new ReplaySubject<bool>(1);
 
         private static readonly IList<string> AlbumCoverFileNames = new List<string> { ".jpg", ".jpeg", ".png", ".bmp" }.Select(x => $"cover{x}").ToList();
 
@@ -53,11 +51,15 @@ namespace FluentMusic.Core.Services
 
         public async Task BeginIndexAsync()
         {
+            _isIndexing.OnNext(true);
+
             var result = await GetDiffFoldersAsync();
             var mix = await GetFolderFilesAsync(result.ChangeedFolders);
             await IndexFolders(mix);
             await RemovedFolders(result.RemovedFolders);
             await db.SaveChangesAsync();
+
+            _isIndexing.OnNext(false);
         }
 
         public static async Task RunAsync()
@@ -341,6 +343,8 @@ namespace FluentMusic.Core.Services
 
         internal static async Task InitializeAsync()
         {
+            _isIndexing.OnNext(false);
+
             Observable.Using(
                 () => Db.Instance,
                 db => Observable.Merge(new IObservable<object>[]
@@ -381,7 +385,6 @@ namespace FluentMusic.Core.Services
             .Repeat()
             .Subscribe(async _ =>
             {
-                Debug.WriteLine(_);
                 var o = new IndexService();
                 await o.BeginIndexAsync();
             });

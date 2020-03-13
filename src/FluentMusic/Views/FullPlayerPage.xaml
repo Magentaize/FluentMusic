@@ -8,10 +8,12 @@
     xmlns:local="using:FluentMusic.Views"
     xmlns:cc="using:FluentMusic.Controls"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-  xmlns:common="using:FluentMusic.Views.Common"
-  xmlns:viewmodels="using:FluentMusic.ViewModels"
-  xmlns:common1="using:FluentMusic.ViewModels.Common"
-  mc:Ignorable="d">
+    xmlns:common="using:FluentMusic.Views.Common"
+    xmlns:viewmodels="using:FluentMusic.ViewModels"
+    xmlns:common1="using:FluentMusic.ViewModels.Common"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+    mc:Ignorable="d">
 
   <Page.Resources>
     <converter:PositionSliderToolTipConverter x:Key="PositionSliderToolTipConverter" />
@@ -147,7 +149,7 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <Border Grid.Row="0">
+    <UserControl Grid.Row="0">
       <NavigationView x:Name="NavigationView"
                       PaneDisplayMode="Top"
                       SelectionFollowsFocus="Enabled"
@@ -159,15 +161,70 @@
           <x:Double x:Key="NavigationViewTopPaneHeight">48</x:Double>
         </NavigationView.Resources>
 
+        <VisualStateManager.VisualStateGroups>
+          <VisualStateGroup x:Name="IndexingStatus">
+            <VisualState x:Name="IsIndexing">
+              <VisualState.Storyboard>
+                <Storyboard>
+                  <DoubleAnimation To="28" Storyboard.TargetName="IndexingNotificationPanel" Storyboard.TargetProperty="Height" Duration="0:0:0.3" EnableDependentAnimation="True">
+                    <DoubleAnimation.EasingFunction>
+                      <ExponentialEase Exponent="2" EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                  </DoubleAnimation>
+                </Storyboard>
+              </VisualState.Storyboard>
+            </VisualState>
+            <VisualState x:Name="IsNotIndexing">
+              <VisualState.Storyboard>
+                <Storyboard>
+                  <DoubleAnimation To="0" Storyboard.TargetName="IndexingNotificationPanel" Storyboard.TargetProperty="Height" Duration="0:0:0.3" EnableDependentAnimation="True">
+                    <DoubleAnimation.EasingFunction>
+                      <ExponentialEase Exponent="2" EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                  </DoubleAnimation>
+                </Storyboard>
+              </VisualState.Storyboard>
+            </VisualState>
+          </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <interactivity:Interaction.Behaviors>
+          <Core:DataTriggerBehavior Binding="{x:Bind ViewModel.IsIndexing, Mode=OneWay}" Value="True">
+            <Core:GoToStateAction StateName="IsIndexing"/>
+          </Core:DataTriggerBehavior>
+          <Core:DataTriggerBehavior Binding="{x:Bind ViewModel.IsIndexing, Mode=OneWay}" Value="False">
+            <Core:GoToStateAction StateName="IsNotIndexing"/>
+          </Core:DataTriggerBehavior>
+        </interactivity:Interaction.Behaviors>
+
         <NavigationView.MenuItemTemplate>
           <DataTemplate x:DataType="common1:NavigationViewItemViewModel">
             <NavigationViewItem Content="{x:Bind Name}" FontSize="22"/>
           </DataTemplate>
         </NavigationView.MenuItemTemplate>
-        
-        <Frame x:Name="NavigationContentFrame"/>
+
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <StackPanel x:Name="IndexingNotificationPanel" 
+                      Grid.Row="0"
+                      Height="0"
+                      Background="{ThemeResource SystemAccentColor}"
+                      Orientation="Horizontal">
+            <FontIcon HorizontalAlignment="Center" 
+                      VerticalAlignment="Center" 
+                      Margin="4,0,4,0"
+                      FontFamily="{StaticResource SymbolThemeFontFamily}" 
+                      Glyph="&#xE895;" />
+            <TextBlock Text="Indexing" VerticalAlignment="Center" Margin="0,4,0,4"/>
+          </StackPanel>
+          
+          <Frame x:Name="NavigationContentFrame" Grid.Row="1"/>
+        </Grid>
       </NavigationView>
-    </Border>
+    </UserControl>
 
     <StackPanel Orientation="Vertical" Grid.Row="1">
       <local:PlaybackSlider/>
