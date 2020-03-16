@@ -23,19 +23,24 @@ namespace FluentMusic.ViewModels
         public ObservableCollectionExtended<AlbumViewModel> AlbumCvsSource { get; } = new ObservableCollectionExtended<AlbumViewModel>();
         public ObservableCollectionExtended<GroupTrackViewModel> TrackCvsSource { get; } = new ObservableCollectionExtended<GroupTrackViewModel>();
 
+        public ISubject<RoutedEventArgs> WidthsChanged { get; } = new Subject<RoutedEventArgs>();
         public ISubject<SelectionChangedEventArgs> ArtistListSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
         public ISubject<RoutedEventArgs> ArtistListTapped { get; } = new Subject<RoutedEventArgs>();
         public ISubject<RoutedEventArgs> RestoreArtistButtonTapped { get; } = new Subject<RoutedEventArgs>();
         public ISubject<SelectionChangedEventArgs> AlbumGridSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
         public ISubject<RoutedEventArgs> AlbumGridTapped { get; } = new Subject<RoutedEventArgs>();
         public ISubject<RoutedEventArgs> RestoreAlbumButtonTapped { get; } = new Subject<RoutedEventArgs>();
+
+        [Reactive]
+        public double LeftPaneWidthPercent { get; set; }
+        [Reactive]
+        public double RightPaneWidthPercent { get; set; }
         [Reactive]
         public TrackViewModel TrackListSelected { get; set; }
         [Reactive]
         public ArtistViewModel ArtistListSelectedItem { get; set; }
         [Reactive]
         public AlbumViewModel AlbumGridSelectedItem { get; set; }
-
         [ObservableAsProperty]
         public int CurrentTrackCount { get; }
 
@@ -45,6 +50,20 @@ namespace FluentMusic.ViewModels
 
         public FullPlayerArtistViewModel()
         {
+            WidthsChanged
+                .ObservableOnThreadPool()
+                .Throttle(TimeSpan.FromSeconds(2))
+                .Subscribe(_ => Setting.Interface.ArtistPageWidths.OnNext(new double[] { LeftPaneWidthPercent, RightPaneWidthPercent }));
+
+            Setting.Interface.ArtistPageWidths
+                .Take(1)
+                .SubscribeOnDispatcher()
+                .Subscribe(x =>
+                {
+                    LeftPaneWidthPercent = x[0];
+                    RightPaneWidthPercent = x[1];
+                });
+
             var _selectedArtists = ArtistListSelectionChanged.AsObservableList<ArtistViewModel>();
             var _selectedAlbums = AlbumGridSelectionChanged.AsObservableList<AlbumViewModel>();
 

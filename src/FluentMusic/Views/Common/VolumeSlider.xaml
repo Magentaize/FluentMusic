@@ -147,8 +147,7 @@
                   <TickBar x:Name="TopTickBar" Grid.ColumnSpan="3" Fill="{ThemeResource SliderTickBarFill}" Height="{ThemeResource SliderOutsideTickBarThemeHeight}" Margin="0,0,0,4" VerticalAlignment="Bottom" Visibility="Collapsed"/>
                   <TickBar x:Name="HorizontalInlineTickBar" Grid.ColumnSpan="3" Fill="{ThemeResource SliderInlineTickBarFill}" Height="{ThemeResource SliderTrackThemeHeight}" Grid.Row="1" Visibility="Collapsed"/>
                   <TickBar x:Name="BottomTickBar" Grid.ColumnSpan="3" Fill="{ThemeResource SliderTickBarFill}" Height="{ThemeResource SliderOutsideTickBarThemeHeight}" Margin="0,4,0,0" Grid.Row="2" VerticalAlignment="Top" Visibility="Collapsed"/>
-                  <Thumb x:Name="HorizontalThumb" RenderTransformOrigin="0.5,0.5"
-                                       Margin="-24,0,0,0" AutomationProperties.AccessibilityView="Raw" Grid.Column="1"
+                  <Thumb x:Name="HorizontalThumb" Margin="-24,0,0,0" AutomationProperties.AccessibilityView="Raw" Grid.Column="1"
                                        Background="{TemplateBinding BorderBrush}"
                                        Foreground="{TemplateBinding Foreground}"
                                        DataContext="{TemplateBinding Value}" FocusVisualMargin="0" Height="24" Grid.RowSpan="3"
@@ -174,7 +173,7 @@
                   <Thumb x:Name="VerticalThumb"
                                        Background="{TemplateBinding BorderBrush}"
                                        Foreground="{TemplateBinding Foreground}"
-                                       Margin="0,0,0,-24" AutomationProperties.AccessibilityView="Raw" RenderTransformOrigin="0.5,0.5"
+                                       Margin="0,0,0,-24" AutomationProperties.AccessibilityView="Raw" 
                                        Grid.ColumnSpan="3" Grid.Column="0" DataContext="{TemplateBinding Value}"
                                        FocusVisualMargin="0" Height="24" Grid.Row="1"
                                        Style="{StaticResource SliderThumbStyle}" Width="24">

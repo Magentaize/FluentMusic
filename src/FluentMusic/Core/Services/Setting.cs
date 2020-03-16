@@ -67,6 +67,11 @@ namespace FluentMusic.Core.Services
 
         private static void LoadAll()
         {
+            Interface.ArtistPageWidths.OnNext(Get<double[]>(nameof(Interface.ArtistPageWidths)));
+            Interface.ArtistPageWidths
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Interface.ArtistPageWidths), x));
+
             Collection.AutoRefresh.OnNext(Get<bool>(nameof(Collection.AutoRefresh)));
             Collection.AutoRefresh
                 .ObservableOnThreadPool()
@@ -93,6 +98,7 @@ namespace FluentMusic.Core.Services
         private static (string k, object v)[] initSettings = new (string k, object v)[]
         {
             (Core.FirstRun, false),
+            (nameof(Interface.ArtistPageWidths), new double[]{ 22, 35 }),
             (nameof(Collection.AutoRefresh), true),
             (nameof(Behavior.AutoScroll), true),
             (nameof(Behavior.RepeatMode), MediaRepeatMode.None),
@@ -108,6 +114,11 @@ namespace FluentMusic.Core.Services
         public static class Core
         {
             public static string FirstRun = nameof(FirstRun);
+        }
+
+        public static class Interface
+        {
+            public static ISubject<double[]> ArtistPageWidths { get; } = new ReplaySubject<double[]>(1);
         }
 
         public static class Collection

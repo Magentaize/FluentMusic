@@ -213,11 +213,14 @@
                       Height="0"
                       Background="{ThemeResource SystemAccentColor}"
                       Orientation="Horizontal">
-            <FontIcon HorizontalAlignment="Center" 
+            <Viewbox Margin="4,0,4,0"
+                     Height="16" 
+                     Width="16">
+              <FontIcon HorizontalAlignment="Center" 
                       VerticalAlignment="Center" 
-                      Margin="4,0,4,0"
                       FontFamily="{StaticResource SymbolThemeFontFamily}" 
                       Glyph="&#xE895;" />
+            </Viewbox>
             <TextBlock Text="Indexing" VerticalAlignment="Center" Margin="0,4,0,4"/>
           </StackPanel>
           

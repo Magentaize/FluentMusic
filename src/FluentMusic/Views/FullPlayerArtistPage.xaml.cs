@@ -1,6 +1,7 @@
 ﻿using FluentMusic.ViewModels;
 using Kasay.DependencyProperty;
 using ReactiveUI;
+using System.Reactive.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -14,6 +15,12 @@ namespace FluentMusic.Views
             InitializeComponent();
             NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Required;
             ViewModel = new FullPlayerArtistViewModel();
+
+            Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
+                h => MultiPanePanel.WidthPercentChanged += h,
+                h => MultiPanePanel.WidthPercentChanged -= h)
+                .Select(x => x.EventArgs)
+                .Subscribe(ViewModel.WidthsChanged);
 
             ArtistList.Events()
                 .SelectionChanged

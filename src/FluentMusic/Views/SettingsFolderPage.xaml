@@ -22,7 +22,7 @@
         <UserControl>
           <Grid MinHeight="120">
             <VisualStateManager.VisualStateGroups>
-              <VisualStateGroup x:Name="EnableFolderPanelStates">
+              <VisualStateGroup x:Name="IndexingStatus">
                 <VisualState x:Name="IsNotIndexing">
                   <VisualState.Storyboard>
                     <Storyboard>

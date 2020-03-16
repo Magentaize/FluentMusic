@@ -7,6 +7,7 @@
     <ResourceDictionary Source="ms-appx:///Themes/Themes.xaml"/>
     <ResourceDictionary Source="ms-appx:///Themes/Styles.xaml" />
     <ResourceDictionary Source="ms-appx:///Themes/Converters.xaml" />
+    <ResourceDictionary Source="ms-appx:///Themes/MultiPanePanel.xaml" />
   </ResourceDictionary.MergedDictionaries>
 
   <FontFamily x:Key="SegMvr2FontFamily">ms-appx:///Assets/Fonts/SegMVR2.ttf#Segoe MVR MDL2 Assets</FontFamily>

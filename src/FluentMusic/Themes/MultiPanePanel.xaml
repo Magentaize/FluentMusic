@@ -1,0 +1,64 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FluentMusic.Themes"
+    xmlns:controls="using:FluentMusic.Controls"
+    xmlns:extensions="using:Microsoft.Toolkit.Uwp.UI.Extensions">
+
+  <Style TargetType="controls:MultiPanePanel">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:MultiPanePanel">
+          <StackPanel Orientation="Horizontal">
+            <Border x:Name="PART_LeftPane"
+                    HorizontalAlignment="Stretch"
+                    Background="Transparent">
+              <ContentPresenter x:Name="PART_LeftPaneContent"
+                                Content="{TemplateBinding LeftPaneContent}"
+                                HorizontalAlignment="Left"/>
+            </Border>
+            <Border x:Name="PART_SeparatorLeft"
+                    extensions:Mouse.Cursor="SizeWestEast"
+                    VerticalAlignment="Stretch"
+                    Width="{TemplateBinding ResizeGripWidth}"
+                    MinWidth="1"
+                    Background="Transparent">
+              <Border Width="1"
+                      VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Center"
+                      Background="{TemplateBinding BorderBrush}">
+              </Border>
+            </Border>
+            <Border x:Name="PART_MiddlePane" 
+                    HorizontalAlignment="Stretch"
+                    Background="Transparent">
+              <ContentPresenter x:Name="PART_MiddlePaneContent"
+                                Content="{TemplateBinding MiddlePaneContent}"
+                                HorizontalAlignment="Left"/>
+            </Border>
+            <Border x:Name="PART_SeparatorRight"
+                    extensions:Mouse.Cursor="SizeWestEast"
+                    VerticalAlignment="Stretch"
+                    Width="{TemplateBinding ResizeGripWidth}"
+                    Background="#00000000"
+                    Visibility="{TemplateBinding IsRightPaneVisible}">
+              <Border Width="1"
+                      VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Center"
+                      Background="{TemplateBinding BorderBrush}">
+              </Border>
+            </Border>
+            <Border x:Name="PART_RightPane"
+                    HorizontalAlignment="Stretch"
+                    Background="Transparent"
+                    Visibility="{TemplateBinding IsRightPaneVisible}">
+              <ContentPresenter x:Name="PART_RightPaneContent"
+                                Content="{TemplateBinding RightPaneContent}"
+                                HorizontalAlignment="Left"/>
+            </Border>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

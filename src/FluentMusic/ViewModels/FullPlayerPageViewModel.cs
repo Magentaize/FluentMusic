@@ -30,7 +30,6 @@ namespace FluentMusic.ViewModels
             };
 
             IndexService.IsIndexing
-                .Merge(Observable.Interval(TimeSpan.FromSeconds(3)).Select(x=>x%2==0))
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsIndexing);
 
@@ -38,12 +37,6 @@ namespace FluentMusic.ViewModels
             pbs.IsPlaying
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsPlaying);
-        }
-
-
-        public void IncrementCount()
-        {
-
         }
     }
 }
