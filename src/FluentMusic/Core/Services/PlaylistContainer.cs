@@ -9,7 +9,7 @@ using Windows.Media;
 
 namespace FluentMusic.Core.Services
 {
-    public class NextTrackGenerator
+    public class PlaylistContainer
     {
         public MediaRepeatMode RepeatMode { get; private set; }
         public bool EnableShuffle { get; private set; }
@@ -18,24 +18,23 @@ namespace FluentMusic.Core.Services
         private IList<TrackViewModel> _shuffledPlaylist;
         private ThresholdInt _playlistIndex = new ThresholdInt();
 
-        public NextTrackGenerator()
+        public PlaylistContainer()
         {
-            var playback = Service.PlaybackService;
-            playback.RepeatMode
+            Setting.Playback.RepeatMode
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
                     RepeatMode = x;
                 });
 
-            playback.EnableShuffle
+            Setting.Playback.EnableShuffle
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
                     EnableShuffle = x;
                 });
 
-            playback.NewTrackPlayed
+            PlaybackService.NewTrackPlayed
                 .Subscribe(x => CurrentTrack = x.Track);
 
             //Service.IndexService.TrackSource

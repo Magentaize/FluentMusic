@@ -89,11 +89,10 @@
     <Compile Include="Core\Extensions\ReactiveExtension.cs" />
     <Compile Include="Core\Services\FolderWatcherManager.cs" />
     <Compile Include="Core\Services\IndexService_Classes.cs" />
-    <Compile Include="Core\Services\NextTrackGenerator.cs" />
+    <Compile Include="Core\Services\PlaylistContainer.cs" />
     <Compile Include="Core\Services\Setting.cs" />
     <Compile Include="ViewModels\Common\FolderViewModel.cs" />
     <Compile Include="ViewModels\Common\Grouping.cs" />
-    <Compile Include="Controls\DragNotifySlider.cs" />
     <Compile Include="Controls\SlideTile.cs" />
     <Compile Include="Core\Defaults.cs" />
     <Compile Include="Core\Extensions\ExtendedListExtension.cs" />
@@ -201,6 +200,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\MultiPanePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Slider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

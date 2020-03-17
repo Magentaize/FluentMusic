@@ -245,7 +245,24 @@
 
         <local:PlaybackControllerView Grid.Column="1" />
 
-        <common:VolumeSlider Grid.Column="2" VerticalAlignment="Center" />
+        <Button Grid.Column="2" >
+          <Button.Content>
+            <FontIcon HorizontalAlignment="Center" 
+                      VerticalAlignment="Center" 
+                      FontFamily="{StaticResource SymbolThemeFontFamily}" 
+                      Glyph="&#xE767;" />
+          </Button.Content>
+
+          <Button.Flyout>
+            <Flyout>
+              <common:VolumeSlider Orientation="Vertical"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Height="140"
+                                   Width="40"/>
+            </Flyout>
+          </Button.Flyout>
+        </Button>
       </Grid>
     </StackPanel>
   </Grid>

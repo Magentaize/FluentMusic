@@ -1,4 +1,5 @@
 ﻿using FluentMusic.Core;
+using FluentMusic.Core.Services;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -18,12 +19,11 @@ namespace FluentMusic.ViewModels.Common
 
         public PlaybackInfoTextViewModel()
         {
-            var pbs = Service.PlaybackService;
-            pbs.NewTrackPlayed
+            PlaybackService.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
-            pbs.NewTrackPlayed
+            PlaybackService.NewTrackPlayed
                 .DistinctUntilChanged(x => x.Track)
                 .Select(x => new PlaybackInfoTextPropertyViewModel
                 {
@@ -34,7 +34,7 @@ namespace FluentMusic.ViewModels.Common
                 })
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Property);
-            pbs.PlaybackPosition
+            PlaybackService.PlaybackPosition
                 .Select(x => $"{x.Position:mm\\:ss}")
                 .ObserveOnCoreDispatcher()
                 .Subscribe(x => Property.CurrentPosition = x);

@@ -28,7 +28,7 @@ namespace FluentMusic.ViewModels.Common
                 .Synchronize(locker)
                 .Subscribe(_ => _gate = true);
 
-            Setting.Behavior.Volume
+            Setting.Playback.Volume
                 .Where(_=> _gate)
                 .ObserveOnCoreDispatcher()
                 .Subscribe(x => CurrentVolume = x);
@@ -37,7 +37,7 @@ namespace FluentMusic.ViewModels.Common
                 // Skip 2 items: 1) the initial value of CurrentVolume
                 //               2) the initial value of Setting.Behavior.Volume
                 .Skip(2)
-                .Subscribe(Setting.Behavior.Volume);
+                .Subscribe(Setting.Playback.Volume);
         }
     }
 }

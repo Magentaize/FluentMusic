@@ -1,10 +1,10 @@
-﻿using FluentMusic.Core;
+﻿using FluentMusic.Core.Services;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Windows.Input;
+using System.Reactive.Subjects;
+using Windows.UI.Xaml;
 
 namespace FluentMusic.ViewModels
 {
@@ -15,34 +15,39 @@ namespace FluentMusic.ViewModels
         [Reactive]
         public double SliderNaturalPosition { get; set; }
 
-        public ICommand ProgressSliderOnManipulationStarting { get; }
-        public ICommand ProgressSliderOnManipulationCompleted { get; }
+        public ISubject<RoutedEventArgs> ProgressSliderManipulationStarted { get; } = new Subject<RoutedEventArgs>();
+        public ISubject<RoutedEventArgs> ProgressSliderManipulationCompleted { get; } = new Subject<RoutedEventArgs>();
 
         public PlaybackSliderViewModel()
         {
             var _progressSliderIsDragging = false;
 
-            var pbs = Service.PlaybackService;
-            pbs.NewTrackPlayed
+            ProgressSliderManipulationStarted
+                .ObservableOnThreadPool()
+                .Subscribe(_ => _progressSliderIsDragging = true);
+
+            ProgressSliderManipulationCompleted
+                .ObservableOnThreadPool()
+                .Subscribe(_ =>
+                {
+                    _progressSliderIsDragging = false;
+                    PlaybackService.Seek(TimeSpan.FromSeconds(SliderCurrentPosition));
+                });
+
+            PlaybackService.NewTrackPlayed
                 .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
                     SliderNaturalPosition = x.PlaybackItem.Source.Duration.Value.TotalSeconds;
                 });
-            pbs.PlaybackPosition
+
+            PlaybackService.PlaybackPosition
+                .Where(_ => !_progressSliderIsDragging)
                 .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
                 {
-                    if (!_progressSliderIsDragging) SliderCurrentPosition = x.Position.TotalSeconds;
+                    SliderCurrentPosition = x.Position.TotalSeconds;
                 });
-
-            ProgressSliderOnManipulationStarting = ReactiveCommand.Create<object>(_ => _progressSliderIsDragging = true);
-            ProgressSliderOnManipulationCompleted = ReactiveCommand.Create<object>(_ =>
-            {
-                _progressSliderIsDragging = false;
-
-                pbs.Seek(TimeSpan.FromSeconds(SliderCurrentPosition));
-            });
         }
     }
 }

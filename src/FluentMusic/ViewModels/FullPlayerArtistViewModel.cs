@@ -17,7 +17,7 @@ using Z.Linq;
 
 namespace FluentMusic.ViewModels
 {
-    public sealed class FullPlayerArtistViewModel : ReactiveObject, IActivatableViewModel
+    public sealed class FullPlayerArtistViewModel : ReactiveObject
     {
         public ObservableCollectionExtended<GroupArtistViewModel> ArtistCvsSource { get; } = new ObservableCollectionExtended<GroupArtistViewModel>();
         public ObservableCollectionExtended<AlbumViewModel> AlbumCvsSource { get; } = new ObservableCollectionExtended<AlbumViewModel>();
@@ -25,11 +25,13 @@ namespace FluentMusic.ViewModels
 
         public ISubject<RoutedEventArgs> WidthsChanged { get; } = new Subject<RoutedEventArgs>();
         public ISubject<SelectionChangedEventArgs> ArtistListSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
+        public ISubject<SelectionChangedEventArgs> AlbumGridSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
+        public ISubject<SelectionChangedEventArgs> TrackListSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
         public ISubject<RoutedEventArgs> ArtistListTapped { get; } = new Subject<RoutedEventArgs>();
         public ISubject<RoutedEventArgs> RestoreArtistButtonTapped { get; } = new Subject<RoutedEventArgs>();
-        public ISubject<SelectionChangedEventArgs> AlbumGridSelectionChanged { get; } = new Subject<SelectionChangedEventArgs>();
         public ISubject<RoutedEventArgs> AlbumGridTapped { get; } = new Subject<RoutedEventArgs>();
         public ISubject<RoutedEventArgs> RestoreAlbumButtonTapped { get; } = new Subject<RoutedEventArgs>();
+        public ISubject<RoutedEventArgs> TrackListDoubleTapped { get; } = new Subject<RoutedEventArgs>();
 
         [Reactive]
         public double LeftPaneWidthPercent { get; set; }
@@ -43,8 +45,6 @@ namespace FluentMusic.ViewModels
         public AlbumViewModel AlbumGridSelectedItem { get; set; }
         [ObservableAsProperty]
         public int CurrentTrackCount { get; }
-
-        public ICommand PlayTrackCommand { get; }
 
         private ViewStatus _status = ViewStatus.Normal;
 
@@ -66,6 +66,7 @@ namespace FluentMusic.ViewModels
 
             var _selectedArtists = ArtistListSelectionChanged.AsObservableList<ArtistViewModel>();
             var _selectedAlbums = AlbumGridSelectionChanged.AsObservableList<AlbumViewModel>();
+            var _selectedTracks = TrackListSelectionChanged.AsObservableList<TrackViewModel>();
 
             var artistOrigin = IndexService.ArtistSource.Connect().RemoveKey();
             artistOrigin
@@ -168,17 +169,22 @@ namespace FluentMusic.ViewModels
             albumSourceObservable.OnNext(albumOrigin);
             trackSourceObservable.OnNext(trackOrigin);
 
-            PlayTrackCommand = ReactiveCommand.CreateFromTask(PlayTrackAsync);
+            async Task PlayTrackAsync()
+            {
+                var tracks = await TrackCvsSource.SelectMany(x => x).ToListAsync();
+                if (_selectedTracks.Count == 1)
+                {
+                    await PlaybackService.PlayAsync(tracks, _selectedTracks.Items.First()); 
+                }
+                else
+                {
+                    await PlaybackService.PlayAsync(tracks);
+                }
+            }
 
-            //this.WhenActivated((CompositeDisposable d) =>
-            //{
-            //    InitializeReactive();
-            //});
-        }
-
-        private async Task PlayTrackAsync()
-        {
-            //var playlist = TrackSource;
+            TrackListDoubleTapped
+                .SubscribeOnThreadPool()
+                .Subscribe(async _ => await PlayTrackAsync());
         }
 
         [Flags]
@@ -188,7 +194,5 @@ namespace FluentMusic.ViewModels
             AlbumTapped = 1,
             AristTapped = 2,
         }
-
-        public ViewModelActivator Activator { get; } = new ViewModelActivator();
     }
 }

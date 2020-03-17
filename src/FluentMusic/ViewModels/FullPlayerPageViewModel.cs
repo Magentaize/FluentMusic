@@ -33,8 +33,7 @@ namespace FluentMusic.ViewModels
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsIndexing);
 
-            var pbs = Service.PlaybackService;
-            pbs.IsPlaying
+            PlaybackService.IsPlaying
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.IsPlaying);
         }

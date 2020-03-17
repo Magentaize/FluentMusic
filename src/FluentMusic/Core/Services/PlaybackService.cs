@@ -25,21 +25,17 @@ namespace FluentMusic.Core.Services
             public MediaPlaybackItem PlaybackItem { get; internal set; }
         }
 
-        public ISubject<bool> IsPlaying { get; } = new Subject<bool>();
-        public ISubject<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
-        public ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>();
+        public static ISubject<bool> IsPlaying { get; } = new Subject<bool>();
+        public static ISubject<MediaPlaybackSession> PlaybackPosition { get; } = new Subject<MediaPlaybackSession>();
+        public static ISubject<TrackMixed> NewTrackPlayed { get; } = new Subject<TrackMixed>();
 
         public ISubject<int> VolumeChanged => new ReplaySubject<int>();
 
-        public MediaPlayer Player { get; private set; }
-        public ReplaySubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>();
-        public ReplaySubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>();
+        public static MediaPlayer Player { get; private set; }
 
-        public IList<TrackViewModel> _trackPlaybackList { get; private set; }
+        public static IList<TrackViewModel> _trackPlaybackList { get; private set; }
         private MediaPlaybackItem _currentPlaybackItem;
-        private NextTrackGenerator _nextTrackGenerator;
-        private ISubject<Unit> _requestPlayNext = new Subject<Unit>();
-        private ISubject<Unit> _requestPlayPrevious = new Subject<Unit>();
+        private static PlaylistContainer _playlistContainer;
         private TrackViewModel _previousTrack;
 
         internal PlaybackService()
@@ -53,14 +49,10 @@ namespace FluentMusic.Core.Services
             //Setting.InitializeSetting(EnableShuffle, nameof(EnableShuffle), false);
             
             Player = new MediaPlayer();
-            _nextTrackGenerator = new NextTrackGenerator();
+            _playlistContainer = new PlaylistContainer();
 
-            Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
-                h => Player.VolumeChanged += h, h => Player.VolumeChanged -= h)
-                .Subscribe(x =>
-                {
-                    VolumeChanged.OnNext(Convert.ToInt32(Player.Volume));
-                });
+            Setting.Playback.Volume
+                .Subscribe(x => Player.Volume = x / 100d);
 
             Observable.FromEventPattern<TypedEventHandler<MediaPlayer, object>, object>(
             h => Player.MediaEnded += h, h => Player.MediaEnded -= h)
@@ -68,31 +60,17 @@ namespace FluentMusic.Core.Services
                             {
                                 IsPlaying.OnNext(false);
 
-                                if(_nextTrackGenerator.RepeatMode == MediaRepeatMode.Track)
+                                if(_playlistContainer.RepeatMode == MediaRepeatMode.Track)
                                 {
-                                    await PlayAsync(_nextTrackGenerator.CurrentTrack);
+                                    await PlayAsyncInner(_playlistContainer.CurrentTrack);
                                     return;
                                 }
 
-                                if (_nextTrackGenerator.HasNext())
+                                if (_playlistContainer.HasNext())
                                 {
-                                    await PlayAsync(_nextTrackGenerator.Next());
+                                    await PlayAsyncInner(_playlistContainer.Next());
                                 }
                             });
-
-            _requestPlayNext
-                .Subscribe(async _ =>
-                {
-                    Pause();
-                    await PlayAsync(_nextTrackGenerator.Next());
-                });
-
-            _requestPlayPrevious
-                .Subscribe(async _ =>
-                {
-                    Pause();
-                    await PlayAsync(_nextTrackGenerator.Previous());
-                });
 
             Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(500))
                 .SkipUntil(IsPlaying.DistinctUntilChanged().Where(x => x))
@@ -116,49 +94,50 @@ namespace FluentMusic.Core.Services
             return await Task.FromResult(this);
         }
 
+        public static async Task PlayAsync(IList<TrackViewModel> tracks, TrackViewModel selected = default)
+        {
+            _trackPlaybackList = tracks;
+
+            if (selected != default)
+            {
+                _playlistContainer.Reset(tracks);
+                await PlayAsyncInner(selected);
+                //_requestPlayNext.OnNext(Unit.Default);
+            }
+        }
+
         public void ChangeVolume(int volume)
         {
             Player.Volume = volume;
         }
 
-        public void Pause()
+        public static void Pause()
         {
             Player.Pause();
 
             IsPlaying.OnNext(false);
         }
 
-        public void Resume()
+        public static void Resume()
         {
             Player.Play();
 
             IsPlaying.OnNext(true);
         }
 
-        public void Previous()
+        public static async Task PreviousAsync()
         {
-            _requestPlayPrevious.OnNext(Unit.Default);
+            Pause();
+            await PlayAsyncInner(_playlistContainer.Previous());
         }
 
-        public void Next()
+        public static async Task NextAsync()
         {
-            _requestPlayNext.OnNext(Unit.Default);
+            Pause();
+            await PlayAsyncInner(_playlistContainer.Next());
         }
 
-        public async Task PlayAsync(IList<TrackViewModel> tracks, TrackViewModel selected = null)
-        {
-            _trackPlaybackList = tracks;
-
-            if (selected == null)
-            {
-                _nextTrackGenerator.Reset(tracks);
-                _requestPlayNext.OnNext(Unit.Default);
-            } 
-
-            //await PlayAsync(selected);
-        }
-
-        private async Task PlayAsync(TrackViewModel track)
+        private static async Task PlayAsyncInner(TrackViewModel track)
         {
             var mpi = await CreateMediaPlaybackItemAsync(track);
 
@@ -173,7 +152,7 @@ namespace FluentMusic.Core.Services
             IsPlaying.OnNext(true);
         }
 
-        public void Seek(TimeSpan position)
+        public static void Seek(TimeSpan position)
         {
             if (Player.PlaybackSession.CanSeek)
             {
@@ -181,7 +160,7 @@ namespace FluentMusic.Core.Services
             }
         }
 
-        private async Task<MediaPlaybackItem> CreateMediaPlaybackItemAsync(TrackViewModel track)
+        private static async Task<MediaPlaybackItem> CreateMediaPlaybackItemAsync(TrackViewModel track)
         {
             var file = await StorageFile.GetFileFromPathAsync(track.Path);
             var source = MediaSource.CreateFromStorageFile(file);

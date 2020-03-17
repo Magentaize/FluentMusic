@@ -1,4 +1,5 @@
 ﻿using FluentMusic.Core;
+using FluentMusic.Core.Services;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Linq;
@@ -18,12 +19,11 @@ namespace FluentMusic.ViewModels.Common
 
         public PlaybackInfoCoverViewModel()
         {
-            var pbs = Service.PlaybackService;
-            pbs.NewTrackPlayed
+            PlaybackService.NewTrackPlayed
                 .Select(x => x.IsPlayingPreviousTrack ? SlideDirection.Down : SlideDirection.Up)
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Direction, SlideDirection.Up);
-            pbs.NewTrackPlayed
+            PlaybackService.NewTrackPlayed
                 .Select(x => x.Track.Album)
                 .DistinctUntilChanged()
                 .Select(x => new PlaybackInfoCoverThumbnailViewModel { Uri = x.CoverPath })

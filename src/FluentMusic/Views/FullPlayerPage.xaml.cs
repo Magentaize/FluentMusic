@@ -16,6 +16,7 @@ namespace FluentMusic.Views
         public FullPlayerPage()
         {
             InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
             ViewModel = new FullPlayerPageViewModel();
 
             NavigationView.Events().SelectionChanged

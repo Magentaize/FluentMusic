@@ -5,15 +5,16 @@ using System.Reactive.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Navigation;
 
 namespace FluentMusic.Views
 {
-    public sealed partial class FullPlayerArtistPage : Page, IViewFor<FullPlayerArtistViewModel>
+    public sealed partial class FullPlayerArtistPage : Page
     {
         public FullPlayerArtistPage()
         {
             InitializeComponent();
-            NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Required;
+            NavigationCacheMode = NavigationCacheMode.Required;
             ViewModel = new FullPlayerArtistViewModel();
 
             Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
@@ -30,8 +31,9 @@ namespace FluentMusic.Views
                 .SelectionChanged
                 .Subscribe(ViewModel.AlbumGridSelectionChanged);
 
-            TrackList.Events().DoubleTapped
-                .InvokeCommand(ViewModel.PlayTrackCommand);
+            TrackList.Events()
+                .SelectionChanged
+                .Subscribe(ViewModel.TrackListSelectionChanged);
 
             RestoreArtistButton.Events()
                 .Tapped
@@ -54,23 +56,12 @@ namespace FluentMusic.Views
 
             //AlbumGridView.Events().DoubleTapped
             //    .Subscribe(ViewModel.PlayAlbumCommand);
-
-            //TrackList.Events().DoubleTapped
-            //    .Subscribe(ViewModel.PlayTrackCommand);
-
-            this.WhenActivated(d =>
-            {
-                return;
-            });
+            TrackList.Events()
+                .DoubleTapped
+                .Subscribe(ViewModel.TrackListDoubleTapped);
         }
 
         [Bind]
         public FullPlayerArtistViewModel ViewModel { get; set; }
-
-        object IViewFor.ViewModel
-        {
-            get => ViewModel;
-            set => ViewModel = (FullPlayerArtistViewModel)value;
-        }
     }
 }

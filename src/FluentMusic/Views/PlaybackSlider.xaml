@@ -12,11 +12,11 @@
   <UserControl.Resources>
     <converter:PositionSliderToolTipConverter x:Key="PositionSliderToolTipConverter" />
   </UserControl.Resources>
-  
-  <cc:DragNotifySlider
-    x:Name="ProgressSlider"
-    Style="{StaticResource BaseDragNotifySliderStyle}"
-    Maximum="{x:Bind ViewModel.SliderNaturalPosition, Mode=OneWay}"
-    Value="{x:Bind ViewModel.SliderCurrentPosition, Mode=TwoWay}" 
-    ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}"/>
+
+  <Slider x:Name="ProgressSlider"
+          Margin="-12,0"
+          ManipulationMode="TranslateRailsX,TranslateRailsY"
+          Maximum="{x:Bind ViewModel.SliderNaturalPosition, Mode=OneWay}"
+          Value="{x:Bind ViewModel.SliderCurrentPosition, Mode=TwoWay}" 
+          ThumbToolTipValueConverter="{StaticResource PositionSliderToolTipConverter}"/>
 </UserControl>

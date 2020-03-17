@@ -72,6 +72,19 @@ namespace FluentMusic.Core.Services
                 .ObservableOnThreadPool()
                 .Subscribe(x => AddOrUpdate(nameof(Interface.ArtistPageWidths), x));
 
+            Playback.RepeatMode.OnNext(Get<MediaRepeatMode>(nameof(Playback.RepeatMode)));
+            Playback.RepeatMode
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Playback.RepeatMode), x));
+            Playback.EnableShuffle.OnNext(Get<bool>(nameof(Playback.EnableShuffle)));
+            Playback.EnableShuffle
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Playback.EnableShuffle), x));
+            Playback.Volume.OnNext(Get<int>(nameof(Playback.Volume)));
+            Playback.Volume
+                .ObservableOnThreadPool()
+                .Subscribe(x => AddOrUpdate(nameof(Playback.Volume), x));
+
             Collection.AutoRefresh.OnNext(Get<bool>(nameof(Collection.AutoRefresh)));
             Collection.AutoRefresh
                 .ObservableOnThreadPool()
@@ -81,29 +94,17 @@ namespace FluentMusic.Core.Services
             Behavior.AutoScroll
                 .ObservableOnThreadPool()
                 .Subscribe(x => AddOrUpdate(nameof(Behavior.AutoScroll), x));
-            Behavior.RepeatMode.OnNext(Get<MediaRepeatMode>(nameof(Behavior.RepeatMode)));
-            Behavior.RepeatMode
-                .ObservableOnThreadPool()
-                .Subscribe(x => AddOrUpdate(nameof(Behavior.RepeatMode), x));
-            Behavior.EnableShuffle.OnNext(Get<bool>(nameof(Behavior.EnableShuffle)));
-            _ = Behavior.EnableShuffle
-                .ObservableOnThreadPool()
-                .Subscribe(x => AddOrUpdate(nameof(Behavior.EnableShuffle), x));
-            Behavior.Volume.OnNext(Get<int>(nameof(Behavior.Volume)));
-            Behavior.Volume
-                .ObservableOnThreadPool()
-                .Subscribe(x => AddOrUpdate(nameof(Behavior.Volume), x));
         }
 
         private static (string k, object v)[] initSettings = new (string k, object v)[]
         {
             (Core.FirstRun, false),
             (nameof(Interface.ArtistPageWidths), new double[]{ 22, 35 }),
+            (nameof(Playback.RepeatMode), MediaRepeatMode.None),
+            (nameof(Playback.EnableShuffle), false),
+            (nameof(Playback.Volume), 100),
             (nameof(Collection.AutoRefresh), true),
             (nameof(Behavior.AutoScroll), true),
-            (nameof(Behavior.RepeatMode), MediaRepeatMode.None),
-            (nameof(Behavior.EnableShuffle), false),
-            (nameof(Behavior.Volume), 100),
         };
 
         private static void Seed()
@@ -121,18 +122,21 @@ namespace FluentMusic.Core.Services
             public static ISubject<double[]> ArtistPageWidths { get; } = new ReplaySubject<double[]>(1);
         }
 
+        public static class Playback
+        {
+            public static ISubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>(1);
+            public static ISubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>(1);
+            public static ISubject<int> Volume { get; } = new ReplaySubject<int>(1);
+        }
+
         public static class Collection
         {
             public static ISubject<bool> AutoRefresh { get; } = new ReplaySubject<bool>(1);
-            public static string Indexing = nameof(Indexing);
         }
 
         public static class Behavior
         {
             public static ISubject<bool> AutoScroll { get; } = new ReplaySubject<bool>(1);
-            public static ISubject<MediaRepeatMode> RepeatMode { get; } = new ReplaySubject<MediaRepeatMode>(1);
-            public static ISubject<bool> EnableShuffle { get; } = new ReplaySubject<bool>(1);
-            public static ISubject<int> Volume { get; } = new ReplaySubject<int>(1);
         }
     }
 }

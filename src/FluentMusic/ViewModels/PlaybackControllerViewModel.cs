@@ -43,9 +43,7 @@ namespace FluentMusic.ViewModels
 
         public PlaybackControllerViewModel()
         {
-            var pb = Service.PlaybackService;
-
-            pb.RepeatMode
+            Setting.Playback.RepeatMode
                 .DistinctUntilChanged()
                 .ObserveOnCoreDispatcher()
                 .Subscribe(x =>
@@ -71,12 +69,12 @@ namespace FluentMusic.ViewModels
                     }
                 });
 
-            pb.EnableShuffle
+            Setting.Playback.EnableShuffle
                 .DistinctUntilChanged()
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.EnableShuffle, false);
 
-            pb.IsPlaying
+            PlaybackService.IsPlaying
                 .DistinctUntilChanged()
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.PauseIconVisible, false);
@@ -85,23 +83,23 @@ namespace FluentMusic.ViewModels
                  .Select(x => !x)
                  .ToPropertyEx(this, x => x.ResumeIconVisible, true);
 
-            Resume = ReactiveCommand.Create(Service.PlaybackService.Resume);
+            Resume = ReactiveCommand.Create(PlaybackService.Resume);
 
-            Pause = ReactiveCommand.Create(Service.PlaybackService.Pause);
+            Pause = ReactiveCommand.Create(PlaybackService.Pause);
 
             Previous = ReactiveCommand.Create(() =>
             {
-                pb.Previous();
+                PlaybackService.PreviousAsync();
             });
 
             Next = ReactiveCommand.Create(() =>
             {
-                pb.Next();
+                PlaybackService.NextAsync();
             });
 
             SwitchShuffle = ReactiveCommand.Create(() =>
             {
-                pb.EnableShuffle.OnNext(!EnableShuffle);
+                Setting.Playback.EnableShuffle.OnNext(!EnableShuffle);
             });
 
             SwitchRepeatMode = ReactiveCommand.Create(() =>
@@ -109,13 +107,9 @@ namespace FluentMusic.ViewModels
                 switch (_repeatMode)
                 {
                     case MediaRepeatMode.None:
-                        pb.RepeatMode.OnNext(MediaRepeatMode.List);
-                        break;
                     case MediaRepeatMode.List:
-                        pb.RepeatMode.OnNext(MediaRepeatMode.Track);
-                        break;
                     case MediaRepeatMode.Track:
-                        pb.RepeatMode.OnNext(MediaRepeatMode.None);
+                        Setting.Playback.RepeatMode.OnNext(_repeatMode);
                         break;
                     default: throw new InvalidOperationException(nameof(_repeatMode));
                 }
