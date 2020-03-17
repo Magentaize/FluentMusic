@@ -9,12 +9,12 @@
   xmlns:controls="using:FluentMusic.Controls"
   mc:Ignorable="d">
 
-    <Border>
-      <controls:SlideTile Height="120" Width="120"
-                          Duration="0:0:0.5"
-                          Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
-                          Direction="{x:Bind ViewModel.Direction, Mode=OneWay}"
-                          >
+  <Border>
+    <controls:SlideTile Height="{x:Bind Height}"
+                      Width="{x:Bind Width}"
+                      Duration="0:0:0.5"
+                      Content="{x:Bind ViewModel.Thumbnail, Mode=OneWay}"
+                      Direction="{x:Bind ViewModel.Direction, Mode=OneWay}">
       <controls:SlideTile.DefaultContent>
         <Image Source="ms-appx:///Assets/LockScreenLogo.scale-200.png"/>
       </controls:SlideTile.DefaultContent>

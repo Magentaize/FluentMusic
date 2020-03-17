@@ -10,13 +10,15 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-  <Grid>
-    <Slider 
+  <Slider 
       x:Name="Slider"
+      Height="{x:Bind Height, Mode=OneWay}"
+      Width="{x:Bind Width, Mode=OneWay}"
+      HorizontalAlignment="Center"
+      VerticalAlignment="Center"
       Orientation="{Binding Orientation, Mode=OneWay}"
       ManipulationMode="TranslateRailsX,TranslateRailsY" 
       Maximum="100"
       Minimum="0"
       Value="{x:Bind ViewModel.CurrentVolume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-  </Grid>
 </UserControl>

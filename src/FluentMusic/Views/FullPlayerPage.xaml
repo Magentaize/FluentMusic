@@ -229,9 +229,8 @@
       </NavigationView>
     </UserControl>
 
-    <StackPanel Orientation="Vertical" Grid.Row="1">
-      <local:PlaybackSlider/>
-      <Grid>
+    <Grid Grid.Row="1">
+      <Grid Margin="0,19.2,0,0" Height="70">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="*"/>
@@ -239,31 +238,46 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Horizontal">
-          <common:PlaybackInfoCover />
-          <common:PlaybackInfoText />
+          <common:PlaybackInfoCover/>
+          <common:PlaybackInfoText VerticalAlignment="Center" Margin="10,0,0,0"/>
         </StackPanel>
 
-        <local:PlaybackControllerView Grid.Column="1" />
+        <local:PlaybackControllerView Grid.Column="1" HorizontalAlignment="Center"/>
 
-        <Button Grid.Column="2" >
-          <Button.Content>
-            <FontIcon HorizontalAlignment="Center" 
+        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="{x:Bind ViewModel.CurrentPosition, Mode=OneWay}" />
+            <TextBlock Text="/"/>
+            <TextBlock Text="{x:Bind ViewModel.NaturalPosition, Mode=OneWay}"/>
+          </StackPanel>
+
+          <Button Style="{StaticResource PlaybackControllerButton}">
+            <Button.Content>
+              <FontIcon HorizontalAlignment="Center" 
                       VerticalAlignment="Center" 
                       FontFamily="{StaticResource SymbolThemeFontFamily}" 
                       Glyph="&#xE767;" />
-          </Button.Content>
+            </Button.Content>
 
-          <Button.Flyout>
-            <Flyout>
-              <common:VolumeSlider Orientation="Vertical"
+            <Button.Flyout>
+              <Flyout FlyoutPresenterStyle="{StaticResource BaseFlyoutPresenter}">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <common:VolumeSlider x:Name="VolumeSlider"
+                                     Orientation="Vertical"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Height="140"
-                                   Width="40"/>
-            </Flyout>
-          </Button.Flyout>
-        </Button>
+                                   Height="140"/>
+                  <TextBlock Text="{x:Bind VolumeSlider.Value, Mode=OneWay}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                </StackPanel>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
       </Grid>
-    </StackPanel>
+
+      <local:PlaybackSlider VerticalAlignment="Top"/>
+    </Grid>
   </Grid>
 </Page>

@@ -10,5 +10,6 @@
   
   <AcrylicBrush x:Key="SystemControlAcrylicWindowBrush" BackgroundSource="HostBackdrop" TintColor="{StaticResource SystemChromeAltHighColor}" TintOpacity="0.3" FallbackColor="{StaticResource SystemChromeMediumColor}" />
   <AcrylicBrush x:Key="ApplicationPageBackgroundThemeBrush" BackgroundSource="HostBackdrop" TintColor="{StaticResource SystemChromeAltHighColor}" TintOpacity="0.3" FallbackColor="{StaticResource SystemChromeMediumColor}" />
-
+  <AcrylicBrush x:Key="SystemControlAcrylicElementBrush" BackgroundSource="Backdrop" TintColor="{StaticResource SystemChromeAltHighColor}" TintOpacity="0.8" FallbackColor="{StaticResource SystemChromeMediumColor}" />
+  
 </ResourceDictionary>

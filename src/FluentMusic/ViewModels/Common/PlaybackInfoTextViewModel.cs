@@ -29,15 +29,9 @@ namespace FluentMusic.ViewModels.Common
                 {
                     Title = x.Track.Title,
                     Artist = x.Track.Album.Artist.Name,
-                    CurrentPosition = @"00:00",
-                    NaturalPosition = $"{x.PlaybackItem.Source.Duration:mm\\:ss}",
                 })
                 .ObserveOnCoreDispatcher()
                 .ToPropertyEx(this, x => x.Property);
-            PlaybackService.PlaybackPosition
-                .Select(x => $"{x.Position:mm\\:ss}")
-                .ObserveOnCoreDispatcher()
-                .Subscribe(x => Property.CurrentPosition = x);
         }
     }
 }

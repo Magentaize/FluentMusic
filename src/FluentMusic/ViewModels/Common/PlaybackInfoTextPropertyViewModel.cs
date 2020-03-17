@@ -8,8 +8,5 @@ namespace FluentMusic.ViewModels.Common
     {
         public string Title { get; set; }
         public string Artist { get; set; }
-        [Reactive]
-        public string CurrentPosition { get; set; }
-        public string NaturalPosition { get; set; }
     }
 }

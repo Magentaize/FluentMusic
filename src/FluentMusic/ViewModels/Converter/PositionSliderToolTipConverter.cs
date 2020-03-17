@@ -10,7 +10,7 @@ namespace FluentMusic.ViewModels.Converter
             if (value is double d)
             {
                 var ts = TimeSpan.FromSeconds(d);
-                return ts.Hours != 0 ? $"{ts:hh\\.mm\\:ss}" : $"{ts:mm\\:ss}";
+                return ts.Hours != 0 ? $"{ts:hh\\.m\\:ss}" : $"{ts:m\\:ss}";
             }
             return string.Empty;
         }

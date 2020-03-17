@@ -11,6 +11,7 @@
 
   <UserControl.Resources>
     <converter:PositionSliderToolTipConverter x:Key="PositionSliderToolTipConverter" />
+    <x:Double x:Key="SliderTrackThemeHeight">4</x:Double>
   </UserControl.Resources>
 
   <Slider x:Name="ProgressSlider"
